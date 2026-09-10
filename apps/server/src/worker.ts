@@ -4,6 +4,7 @@ import { problem } from "./failure";
 export { World } from "./world";
 export { Person } from "./person";
 export { AstraDecision } from "./astra-decision";
+export { AstraConversation } from "./astra-conversation";
 
 async function tokenHash(token: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));

@@ -6,6 +6,8 @@
     "dev": "wrangler dev --assets ../web/public --port 8787",
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:live": "vitest run --config vitest.live.config.ts",
     "cf-typegen": "wrangler types",
     "deploy": "wrangler deploy"
   },
@@ -17,6 +19,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "vitest": "catalog:",
     "wrangler": "catalog:"
   }
 }

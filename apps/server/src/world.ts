@@ -27,6 +27,9 @@ import {
 import { WorldStore } from "./world-store";
 import { WorldFailure, problem } from "./failure";
 import type { Person } from "./person";
+import { characterProfile } from "@gpta/core/characters";
+import type { ConversationAction, ConversationTurn, TurnId } from "@gpta/core/conversations";
+import { Conversations } from "./conversations";
 
 const attachmentSchema = z.object({
   playerId: EntityIdSchema,
@@ -49,6 +52,7 @@ export class World extends DurableObject<Env> {
   private movementTimer: ReturnType<typeof setInterval> | undefined;
   private peopleInitialized = false;
   private nextWorkflowInspection = 0;
+  private readonly conversations: Conversations;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -58,6 +62,21 @@ export class World extends DurableObject<Env> {
       ...this.world,
       ai: { status: env.OPENAI_API_KEY ? "ready" : "disabled", model: env.OPENAI_MODEL },
     };
+    this.conversations = new Conversations({
+      storage: ctx.storage,
+      worldStore: this.store,
+      worldName: env.WORLD_NAME,
+      enabled: Boolean(env.OPENAI_API_KEY),
+      workflows: env.CONVERSATIONS,
+      read: () => this.world,
+      accept: (world) => {
+        this.world = world;
+      },
+      broadcast: () => this.broadcast(),
+      person: (actorId) => this.person(actorId),
+      listeners: (actorId) => this.conversationListeners(actorId),
+      publish: (turn, listeners) => this.publishConversation(turn, listeners),
+    });
     ctx.blockConcurrencyWhile(async () => {
       this.store.save(this.world);
       if ((await ctx.storage.getAlarm()) === null) await ctx.storage.setAlarm(Date.now() + 1000);
@@ -142,7 +161,28 @@ export class World extends DurableObject<Env> {
         return;
       }
       if (request.method === "world.get") {
-        socket.send(JSON.stringify({ jsonrpc: "2.0", id: request.id, result: this.world }));
+        socket.send(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            id: request.id,
+            result: this.publicSnapshot(attachment.playerId),
+          }),
+        );
+        return;
+      }
+      if (request.method === "conversation.history") {
+        const result = this.conversations.history(request.params.actorId, attachment.playerId);
+        socket.send(JSON.stringify({ jsonrpc: "2.0", id: request.id, result }));
+        return;
+      }
+      if (request.method === "conversation.send") {
+        const result = this.conversations.send(attachment.playerId, request.id, request.params);
+        if (!result.accepted) {
+          this.sendError(socket, request.id, -32000, result.message);
+          return;
+        }
+        socket.send(JSON.stringify({ jsonrpc: "2.0", id: request.id, result: result.turn }));
+        await this.scheduleDecisions();
         return;
       }
       if (request.method === "actor.inspect") {
@@ -151,7 +191,19 @@ export class World extends DurableObject<Env> {
           this.sendError(socket, request.id, -32000, "Choose a simulated person.");
           return;
         }
-        const result = await this.person(actor.id).inspect();
+        const person = this.person(actor.id);
+        const inspection: Awaited<ReturnType<Person["inspect"]>> = await person.inspect();
+        const encounters: ReturnType<Person["encounters"]> = await person.encounters(
+          attachment.playerId,
+        );
+        const result = {
+          ...inspection,
+          memory: encounters.map((encounter) => ({
+            decisionId: encounter.turn_id,
+            summary: `${encounter.message}\n${encounter.reply}`,
+            updatedAt: encounter.time,
+          })),
+        };
         socket.send(JSON.stringify({ jsonrpc: "2.0", id: request.id, result }));
         return;
       }
@@ -268,14 +320,16 @@ export class World extends DurableObject<Env> {
   }
 
   private broadcast(): void {
-    const message = JSON.stringify({
-      jsonrpc: "2.0",
-      method: "world.update",
-      params: { snapshot: this.world },
-    });
     for (const socket of this.ctx.getWebSockets()) {
       try {
-        socket.send(message);
+        const attachment = attachmentSchema.parse(socket.deserializeAttachment());
+        socket.send(
+          JSON.stringify({
+            jsonrpc: "2.0",
+            method: "world.update",
+            params: { snapshot: this.publicSnapshot(attachment.playerId) },
+          }),
+        );
       } catch {
         socket.close(1011, "Connection failed.");
       }
@@ -298,14 +352,24 @@ export class World extends DurableObject<Env> {
   }
 
   private async scheduleDecisions(): Promise<void> {
+    await this.conversations.schedule(
+      this.world.decisions
+        .filter((decision) => decision.status === "running")
+        .map((decision) => decision.actorId),
+    );
     if (!this.env.OPENAI_API_KEY) return;
     if (!this.peopleInitialized) {
-      const people = this.world.entities.filter(
-        (entity) => isActor(entity) && entity.kind !== "player",
-      );
+      const people = this.world.entities
+        .filter(isActor)
+        .filter((entity) => entity.kind !== "player");
       await Promise.all(
         people.map((person, index) =>
-          this.person(person.id).initialize(this.env.WORLD_NAME, person.id, index),
+          this.person(person.id).initialize(
+            this.env.WORLD_NAME,
+            person.id,
+            index,
+            characterProfile(person),
+          ),
         ),
       );
       this.peopleInitialized = true;
@@ -351,8 +415,9 @@ export class World extends DurableObject<Env> {
       }
     }
     const running = this.world.decisions.filter((decision) => decision.status === "running");
+    const conversing = this.conversations.busyActors();
     const pending = this.world.decisions
-      .filter((decision) => decision.status === "pending")
+      .filter((decision) => decision.status === "pending" && !conversing.has(decision.actorId))
       .sort((left, right) => {
         const priority = (decision: Decision) =>
           Date.now() - decision.createdAt > 60000 || !decision.trigger.startsWith("schedule:")
@@ -360,7 +425,13 @@ export class World extends DurableObject<Env> {
             : 1;
         return priority(left) - priority(right) || left.createdAt - right.createdAt;
       });
-    const selected = pending.slice(0, Math.max(0, 2 - running.length));
+    const selected = pending.slice(
+      0,
+      Math.max(
+        0,
+        Math.min(1 - running.length, 2 - running.length - this.conversations.activeCount()),
+      ),
+    );
     for (const decision of selected)
       this.updateDecision(decision.id, "running", "Starting Workflow.");
     const requests = [...running, ...selected]
@@ -384,6 +455,7 @@ export class World extends DurableObject<Env> {
   /** Person alarms enqueue at most one decision per actor; insertion order provides fair service. */
   enqueueDecision(actorId: EntityId, trigger: string): "queued" | "busy" | "disabled" {
     if (!this.env.OPENAI_API_KEY) return "disabled";
+    if (this.conversations.busyActors().has(actorId)) return "busy";
     if (
       this.world.decisions.some(
         (decision) => decision.actorId === actorId && decision.trigger === trigger,
@@ -428,8 +500,16 @@ export class World extends DurableObject<Env> {
     if (!actor || !isActor(actor)) throw new WorldFailure("Decision actor does not exist.");
     const dispatcher = actor.kind === "person" && actor.role === "dispatcher";
     const memory: ReturnType<Person["memory"]> = await this.person(actor.id).memory();
+    await this.person(actor.id).initialize(
+      this.env.WORLD_NAME,
+      actor.id,
+      0,
+      characterProfile(actor),
+    );
+    const profile: ReturnType<Person["profile"]> = await this.person(actor.id).profile();
     const context = {
       actor,
+      profile,
       trigger: decision.trigger,
       tools: permittedTools(actor),
       memory,
@@ -440,14 +520,19 @@ export class World extends DurableObject<Env> {
           (dispatcher && this.world.reports.some((report) => report.incidentId === item.id)),
       ),
       reports: dispatcher ? this.world.reports : [],
-      entities: this.world.entities.filter(
-        (entity) =>
-          isInsideGuesthouse(entity.position) === isInsideGuesthouse(actor.position) &&
-          (entity.kind === "location" ||
-            entity.kind === "business" ||
-            entity.kind === "police" ||
-            distance(entity.position, actor.position) < 22),
-      ),
+      entities: this.world.entities
+        .filter(
+          (entity) =>
+            isInsideGuesthouse(entity.position) === isInsideGuesthouse(actor.position) &&
+            (entity.kind === "location" ||
+              entity.kind === "business" ||
+              entity.kind === "police" ||
+              distance(entity.position, actor.position) < 22),
+        )
+        .map((entity) => {
+          if (entity.kind !== "player") return entity;
+          return { id: entity.id, name: entity.name, kind: entity.kind, position: entity.position };
+        }),
       conversation: this.world.dialogue
         .filter((item) => item.from === actor.id || item.to === actor.id)
         .slice(-10),
@@ -499,6 +584,84 @@ export class World extends DurableObject<Env> {
     ].join("\n");
     await this.person(decision.actorId).remember(decisionId, memory);
     this.updateDecision(decisionId, status, summary);
+  }
+
+  /** Conversation RPC methods acknowledge the completed storage operation they own. */
+  conversationContext(turnId: TurnId) {
+    return this.conversations.context(turnId);
+  }
+
+  executeConversationTool(turnId: TurnId, callId: string, tool: ConversationAction) {
+    return this.conversations.execute(turnId, callId, tool);
+  }
+
+  beginConversationSpeech(turnId: TurnId): boolean {
+    return this.conversations.beginSpeech(turnId);
+  }
+
+  appendConversationSpeech(turnId: TurnId, offset: number, text: string): boolean {
+    return this.conversations.append(turnId, offset, text);
+  }
+
+  async completeConversation(turnId: TurnId): Promise<void> {
+    await this.conversations.complete(turnId);
+  }
+
+  async failConversation(turnId: TurnId, message: string): Promise<void> {
+    this.conversations.fail(turnId, message);
+  }
+
+  private conversationListeners(actorId: EntityId): EntityId[] {
+    const actor = this.world.entities.find((entity) => entity.id === actorId);
+    if (!actor) return [];
+    const listeners: EntityId[] = [];
+    for (const socket of this.ctx.getWebSockets()) {
+      if (socket.readyState !== WebSocket.OPEN) continue;
+      const attachment = attachmentSchema.parse(socket.deserializeAttachment());
+      const player = this.world.entities.find((entity) => entity.id === attachment.playerId);
+      if (
+        player &&
+        isInsideGuesthouse(player.position) === isInsideGuesthouse(actor.position) &&
+        distance(player.position, actor.position) <= 22
+      )
+        listeners.push(attachment.playerId);
+    }
+    return [...new Set(listeners)];
+  }
+
+  private publishConversation(turn: ConversationTurn, listeners: EntityId[]): void {
+    const nearby = new Set(this.conversationListeners(turn.actorId));
+    for (const socket of this.ctx.getWebSockets()) {
+      const attachment = attachmentSchema.parse(socket.deserializeAttachment());
+      if (!listeners.includes(attachment.playerId)) continue;
+      if (attachment.playerId !== turn.playerId && !nearby.has(attachment.playerId)) continue;
+      try {
+        socket.send(
+          JSON.stringify({ jsonrpc: "2.0", method: "conversation.update", params: { turn } }),
+        );
+      } catch {
+        socket.close(1011, "Conversation connection failed.");
+      }
+    }
+  }
+
+  private publicSnapshot(playerId: EntityId): WorldSnapshot {
+    const dialogue = this.world.dialogue.filter(
+      (item) => item.from === playerId || item.to === playerId,
+    );
+    const audible = new Set(dialogue.map((item) => item.id));
+    return {
+      ...this.world,
+      dialogue,
+      observations: this.world.observations.filter((item) => item.actorId === playerId),
+      events: this.world.events.filter(
+        (item) => (item.type !== "say" && item.type !== "talk") || audible.has(item.id),
+      ),
+      decisions: this.world.decisions.map((decision) => ({
+        ...decision,
+        summary: `Astra decision ${decision.status}.`,
+      })),
+    };
   }
 
   private updateDecision(id: string, status: Decision["status"], summary: string): void {

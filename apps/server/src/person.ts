@@ -1,5 +1,17 @@
 import { DurableObject } from "cloudflare:workers";
 import type { EntityId } from "@gpta/core/world";
+import type { CharacterProfile } from "@gpta/core/characters";
+import type { TurnId } from "@gpta/core/conversations";
+import { WorldFailure } from "./failure";
+
+type Encounter = {
+  turnId: TurnId;
+  playerId: EntityId;
+  message: string;
+  reply: string;
+  actions: string[];
+  time: number;
+};
 
 type PersonState = {
   worldName: string;
@@ -12,8 +24,22 @@ type PersonState = {
 
 /** Each person owns its decision clock and memory; World owns physical facts and action effects. */
 export class Person extends DurableObject<Env> {
+  constructor(ctx: DurableObjectState, env: Env) {
+    super(ctx, env);
+    ctx.storage.sql.exec(
+      "CREATE TABLE IF NOT EXISTS encounters (turn_id TEXT PRIMARY KEY, player_id TEXT NOT NULL, message TEXT NOT NULL, reply TEXT NOT NULL, actions TEXT NOT NULL, time INTEGER NOT NULL)",
+    );
+  }
+
   /** Repeated world startup never resets this person's saved clock or memory. */
-  async initialize(worldName: string, actorId: EntityId, index: number): Promise<void> {
+  async initialize(
+    worldName: string,
+    actorId: EntityId,
+    index: number,
+    profile: CharacterProfile,
+  ): Promise<void> {
+    if (!this.ctx.storage.kv.get<CharacterProfile>("profile"))
+      this.ctx.storage.kv.put("profile", profile);
     const existing = this.ctx.storage.kv.get<PersonState>("person");
     if (existing) {
       if ((await this.ctx.storage.getAlarm()) === null)
@@ -67,6 +93,43 @@ export class Person extends DurableObject<Env> {
   /** Context reads this person's own persisted decision memory. */
   memory() {
     return this.ctx.storage.kv.get<PersonState>("person")?.memory ?? [];
+  }
+
+  /** The saved story stays stable across requests and contains no physical world state. */
+  profile(): CharacterProfile {
+    const profile = this.ctx.storage.kv.get<CharacterProfile>("profile");
+    if (!profile) throw new WorldFailure("The character's story is not initialized.");
+    return profile;
+  }
+
+  /** Conversation records retain their original speakers and executed action results. */
+  rememberEncounter(encounter: Encounter): void {
+    this.ctx.storage.sql.exec(
+      "INSERT INTO encounters (turn_id, player_id, message, reply, actions, time) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(turn_id) DO NOTHING",
+      encounter.turnId,
+      encounter.playerId,
+      encounter.message,
+      encounter.reply,
+      JSON.stringify(encounter.actions),
+      encounter.time,
+    );
+  }
+
+  /** Only the current player's encounters enter their next conversation context. */
+  encounters(playerId: EntityId) {
+    return this.ctx.storage.sql
+      .exec<{
+        turn_id: string;
+        message: string;
+        reply: string;
+        actions: string;
+        time: number;
+      }>(
+        "SELECT turn_id, message, reply, actions, time FROM encounters WHERE player_id = ? ORDER BY time DESC, rowid DESC LIMIT 12",
+        playerId,
+      )
+      .toArray()
+      .reverse();
   }
 
   /** The inspector reads actual per-person memory and scheduling state. */

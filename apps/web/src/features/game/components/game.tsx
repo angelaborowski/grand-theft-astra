@@ -1,7 +1,7 @@
 import { MapTrifoldIcon } from "@phosphor-icons/react";
 import type { EntityId } from "@gpta/core/world";
 import { useState } from "react";
-import { ActivityPanel, DialoguePanel, StatusBar } from "../../../ui/game-panels";
+import { ActivityPanel, StatusBar } from "../../../ui/game-panels";
 import { actionErrorMessage } from "../../../lib/world-connection";
 import { useWorld } from "../hooks/use-world";
 import { activityView, gameTime, selectedEntity } from "../models/game-view";
@@ -11,6 +11,7 @@ import { Minimap } from "./minimap";
 import { StuntObjective } from "./stunt-objective";
 import { MissionPanel } from "./mission-panel";
 import { isInsideGuesthouse } from "@gpta/core/scene";
+import { ConversationSpeech } from "./conversation-speech";
 
 /** This composition keeps scene, interaction, and inspector views on the same accepted snapshot. */
 export default function Game() {
@@ -46,14 +47,6 @@ export default function Game() {
   const showOverview = overview && !isInsideGuesthouse(player.position);
   const entity = selectedEntity(snapshot, player, selectedId);
   const view = activityView(snapshot);
-  const messages = snapshot.dialogue
-    .filter((message) => message.to === player.id && snapshot.time - message.time < 14000)
-    .slice(-2)
-    .map((message) => ({
-      id: message.id,
-      speaker: snapshot.entities.find((entry) => entry.id === message.from)?.name ?? message.from,
-      text: message.text,
-    }));
   const result =
     action.status === "error"
       ? { status: "error" as const, message: actionErrorMessage(action.error) }
@@ -115,7 +108,7 @@ export default function Game() {
             </button>
           </div>
           <StuntObjective player={player} time={snapshot.time} select={setSelectedId} />
-          <DialoguePanel messages={messages} />
+          <ConversationSpeech entity={entity} playerId={player.id} />
           {connection.status === "disconnected" && (
             <div className="disconnect-alert" role="alert">
               {connection.message}
@@ -132,6 +125,8 @@ export default function Game() {
               actions={{
                 act: action.mutate,
                 inspect: world.inspect,
+                sendConversation: world.sendConversation,
+                conversationHistory: world.conversationHistory,
                 select: (id) => {
                   setSelectedId(id);
                   action.reset();

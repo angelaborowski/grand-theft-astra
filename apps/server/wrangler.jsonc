@@ -20,7 +20,10 @@
     { "tag": "v1", "new_sqlite_classes": ["World"] },
     { "tag": "v2", "new_sqlite_classes": ["Person"] },
   ],
-  "workflows": [{ "name": "gpta-decision", "binding": "DECISIONS", "class_name": "AstraDecision" }],
+  "workflows": [
+    { "name": "gpta-decision", "binding": "DECISIONS", "class_name": "AstraDecision" },
+    { "name": "gpta-conversation", "binding": "CONVERSATIONS", "class_name": "AstraConversation" },
+  ],
   "vars": { "OPENAI_MODEL": "gpt-6-astra", "WORLD_NAME": "red-square" },
   "observability": { "enabled": true },
 }

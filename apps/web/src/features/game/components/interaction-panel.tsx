@@ -1,6 +1,6 @@
 import type { PlayerAction } from "@gpta/core/actions";
-import type { MethodResult } from "@gpta/core/protocol";
-import { MOVEMENT, isInsideGuesthouse } from "@gpta/core/scene";
+import type { MethodParams, MethodResult } from "@gpta/core/protocol";
+import { MOVEMENT } from "@gpta/core/scene";
 import {
   distance,
   isActor,
@@ -9,10 +9,12 @@ import {
   type EntityId,
   type WorldSnapshot,
 } from "@gpta/core/world";
-import { useState } from "react";
 import { entityDescription } from "../models/game-view";
-import { MissionActions, LeaveGuesthouse } from "./mission-actions";
+import { useConversation } from "../hooks/use-conversation";
 import { ActorMemory } from "./actor-memory";
+import { ConversationPanel } from "./conversation-panel";
+import { InteractionControls } from "./interaction-controls";
+import { InteractionTarget } from "./interaction-target";
 
 /** Actions stay disabled until the connection and authoritative distance permit them. */
 export function InteractionPanel({
@@ -32,17 +34,33 @@ export function InteractionPanel({
     act: (action: PlayerAction) => void;
     select: (id: EntityId) => void;
     inspect: (id: EntityId) => Promise<MethodResult<"actor.inspect">>;
+    sendConversation: (
+      input: MethodParams<"conversation.send">,
+    ) => Promise<MethodResult<"conversation.send">>;
+    conversationHistory: (id: EntityId) => Promise<MethodResult<"conversation.history">>;
   };
 }) {
-  const [text, setText] = useState("");
+  const meters = entity ? distance(player.position, entity.position) : Infinity;
+  const actorId = entity && isActor(entity) && entity.kind !== "player" ? entity.id : null;
+  const conversation = useConversation({
+    actorId,
+    playerId: player.id,
+    entities: snapshot.entities,
+    connected: enabled,
+    available: snapshot.ai.status === "ready",
+    inRange: meters <= MOVEMENT.interactionRange,
+    services: { send: actions.sendConversation, history: actions.conversationHistory },
+  });
   if (!entity)
     return (
       <section className="interaction-panel panel">
         <p className="empty-copy">Walk toward a person, vehicle, or shop.</p>
       </section>
     );
-  const meters = distance(player.position, entity.position);
   const canAct = enabled && meters <= MOVEMENT.interactionRange && result.status !== "pending";
+  let description = entityDescription(entity);
+  if (entity.kind === "vehicle")
+    description = entity.ownerId === player.id ? "Your car" : "Parked vehicle";
   return (
     <section className="interaction-panel panel" aria-label="Entity interaction">
       <div className="interaction-heading">
@@ -52,114 +70,26 @@ export function InteractionPanel({
         </div>
         <span>{meters.toFixed(1)} m</span>
       </div>
-      <p className="interaction-goal">
-        {entity.kind === "vehicle"
-          ? entity.ownerId === player.id
-            ? "Your car"
-            : "Parked vehicle"
-          : entityDescription(entity)}
-      </p>
+      <p className="interaction-goal">{description}</p>
       <details className="target-picker">
         <summary>Choose another target</summary>
-        <label className="target-select">
-          Target
-          <select
-            aria-label="Interaction target"
-            value={entity.id}
-            onChange={(event) => {
-              const target = snapshot.entities.find((entry) => entry.id === event.target.value);
-              if (target) actions.select(target.id);
-            }}
-          >
-            {snapshot.entities
-              .filter(
-                (entry) =>
-                  entry.id !== player.id &&
-                  isInsideGuesthouse(entry.position) === isInsideGuesthouse(player.position),
-              )
-              .map((entry) => (
-                <option key={entry.id} value={entry.id}>
-                  {entry.name} · {distance(player.position, entry.position).toFixed(0)} m
-                </option>
-              ))}
-          </select>
-        </label>
+        <InteractionTarget
+          entity={entity}
+          player={player}
+          entities={snapshot.entities}
+          select={actions.select}
+        />
       </details>
       {(meters <= MOVEMENT.interactionRange || player.behavior.type === "driving") && (
-        <div className="interaction-buttons">
-          <MissionActions player={player} entity={entity} enabled={canAct} act={actions.act} />
-          <LeaveGuesthouse
-            player={player}
-            enabled={enabled && result.status !== "pending"}
-            act={actions.act}
-          />
-          {player.behavior.type === "driving" && (
-            <button
-              className="primary-button"
-              disabled={!enabled || result.status === "pending"}
-              onClick={() => {
-                if (player.behavior.type === "driving")
-                  actions.act({ type: "exit_vehicle", targetId: player.behavior.vehicleId });
-              }}
-            >
-              Exit vehicle
-            </button>
-          )}
-          {entity.kind === "vehicle" && player.behavior.type !== "driving" && (
-            <button
-              className="primary-button"
-              disabled={!canAct}
-              onClick={() => actions.act({ type: "take_vehicle", targetId: entity.id })}
-            >
-              Take vehicle
-            </button>
-          )}
-          {isActor(entity) && (
-            <button
-              disabled={!canAct}
-              onClick={() => actions.act({ type: "hit", targetId: entity.id })}
-            >
-              Hit NPC
-            </button>
-          )}
-          {(entity.kind === "business" || entity.kind === "location") && (
-            <button
-              disabled={!canAct}
-              onClick={() => actions.act({ type: "enter", targetId: entity.id })}
-            >
-              Enter location
-            </button>
-          )}
-          {entity.kind === "business" && (
-            <button
-              disabled={!canAct}
-              onClick={() => actions.act({ type: "rob", targetId: entity.id })}
-            >
-              Rob location
-            </button>
-          )}
-        </div>
+        <InteractionControls
+          entity={entity}
+          player={player}
+          enabled={enabled && result.status !== "pending"}
+          canAct={canAct}
+          act={actions.act}
+        />
       )}
-      {isActor(entity) && meters <= MOVEMENT.interactionRange && (
-        <form
-          className="talk-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            actions.act({ type: "talk", targetId: entity.id, text });
-          }}
-        >
-          <input
-            aria-label="Say something"
-            placeholder="Say something…"
-            maxLength={500}
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-          />
-          <button className="primary-button" disabled={!canAct || text.trim().length === 0}>
-            Talk
-          </button>
-        </form>
-      )}
+      {actorId !== null && <ConversationPanel actorName={entity.name} {...conversation} />}
       {meters > MOVEMENT.interactionRange && (
         <p className="interaction-goal">Move within {MOVEMENT.interactionRange} m to interact.</p>
       )}

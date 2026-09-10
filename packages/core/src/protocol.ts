@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ActionErrorSchema, ActionReceiptSchema, PlayerActionSchema } from "./actions";
+import { ConversationTurnSchema } from "./conversations";
 import { EntityIdSchema, PositionSchema, WorldSnapshotSchema } from "./world";
 
 /** The WebSocket handshake owns protocol version negotiation. */
@@ -21,6 +22,18 @@ export const methodTable = {
   "player.act": {
     params: z.object({ idempotencyKey: z.string().min(1).max(120), action: PlayerActionSchema }),
     result: ActionReceiptSchema,
+  },
+  "conversation.send": {
+    params: z.object({
+      actorId: EntityIdSchema,
+      message: z.string().trim().min(1).max(2000),
+      idempotencyKey: z.string().min(1).max(120),
+    }),
+    result: ConversationTurnSchema,
+  },
+  "conversation.history": {
+    params: z.object({ actorId: EntityIdSchema }),
+    result: z.array(ConversationTurnSchema),
   },
 };
 const requestBase = { jsonrpc: z.literal("2.0"), id: z.union([z.string(), z.number()]) };
@@ -46,17 +59,36 @@ export const RequestSchema = z.discriminatedUnion("method", [
     method: z.literal("player.act"),
     params: methodTable["player.act"].params,
   }),
+  z.object({
+    ...requestBase,
+    method: z.literal("conversation.send"),
+    params: methodTable["conversation.send"].params,
+  }),
+  z.object({
+    ...requestBase,
+    method: z.literal("conversation.history"),
+    params: methodTable["conversation.history"].params,
+  }),
 ]);
 /** A request preserves the relationship between method and parameters. */
 export type Request = z.infer<typeof RequestSchema>;
 /** Snapshot notifications let a reconnect restore a single complete state. */
-export const NotificationSchema = z.object({
+export const WorldUpdateSchema = z.object({
   jsonrpc: z.literal("2.0"),
   method: z.literal("world.update"),
   params: z.object({ snapshot: WorldSnapshotSchema }),
 });
-/** The snapshot payload used by the world's only notification. */
-export const WorldUpdateSchema = NotificationSchema;
+/** Conversation updates carry a complete turn so reconnects need no missing text chunks. */
+export const ConversationUpdateSchema = z.object({
+  jsonrpc: z.literal("2.0"),
+  method: z.literal("conversation.update"),
+  params: z.object({ turn: ConversationTurnSchema }),
+});
+/** Every notification has a named, fully typed payload. */
+export const NotificationSchema = z.discriminatedUnion("method", [
+  WorldUpdateSchema,
+  ConversationUpdateSchema,
+]);
 /** Unknown infrastructure failures collapse into a safe public error. */
 export const PublicErrorSchema = z.discriminatedUnion("_tag", [
   ActionErrorSchema,
@@ -74,6 +106,8 @@ export const ResponseSchema = z.union([
   z.object({ ...requestBase, result: methodTable["actor.inspect"].result }),
   z.object({ ...requestBase, result: methodTable["world.get"].result }),
   z.object({ ...requestBase, result: ActionReceiptSchema }),
+  z.object({ ...requestBase, result: methodTable["conversation.send"].result }),
+  z.object({ ...requestBase, result: methodTable["conversation.history"].result }),
   ErrorResponseSchema,
 ]);
 /** Parse every server message before notifying the UI or resolving a request. */

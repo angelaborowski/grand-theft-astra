@@ -1,6 +1,7 @@
 import { methodTable, PROTOCOL, PublicErrorSchema, ServerMessageSchema } from "@gpta/core/protocol";
 import type { PlayerAction } from "@gpta/core/actions";
-import type { MethodResult } from "@gpta/core/protocol";
+import type { MethodParams, MethodResult } from "@gpta/core/protocol";
+import type { ConversationTurn } from "@gpta/core/conversations";
 import type { EntityId, Position, WorldSnapshot } from "@gpta/core/world";
 import { JSONRPCClient, JSONRPCErrorException } from "json-rpc-2.0";
 import ReconnectingWebSocket from "reconnecting-websocket";
@@ -21,6 +22,7 @@ export type ConnectionState =
   | { status: "disconnected"; message: string };
 type Handlers = {
   snapshot: (snapshot: WorldSnapshot) => void;
+  conversation: (turn: ConversationTurn) => void;
   state: (state: ConnectionState) => void;
 };
 
@@ -71,8 +73,12 @@ export class WorldConnection {
     try {
       const data: unknown = JSON.parse(String(event.data));
       const message = ServerMessageSchema.parse(data);
-      if ("method" in message) this.handlers.snapshot(message.params.snapshot);
-      else this.rpc.receive(message);
+      if (!("method" in message)) {
+        this.rpc.receive(message);
+        return;
+      }
+      if (message.method === "world.update") this.handlers.snapshot(message.params.snapshot);
+      else this.handlers.conversation(message.params.turn);
     } catch {
       this.handlers.state({
         status: "disconnected",
@@ -100,6 +106,20 @@ export class WorldConnection {
   async inspect(actorId: EntityId): Promise<MethodResult<"actor.inspect">> {
     const result: unknown = await this.rpc.timeout(10000).request("actor.inspect", { actorId });
     return methodTable["actor.inspect"].result.parse(result);
+  }
+
+  /** A send acknowledges the saved turn; notifications carry its later public reply. */
+  async sendConversation(params: MethodParams<"conversation.send">): Promise<ConversationTurn> {
+    const result: unknown = await this.rpc.timeout(15000).request("conversation.send", params);
+    return methodTable["conversation.send"].result.parse(result);
+  }
+
+  /** Restore the player's conversations and speech they heard from this person. */
+  async conversationHistory(actorId: EntityId): Promise<ConversationTurn[]> {
+    const result: unknown = await this.rpc
+      .timeout(10000)
+      .request("conversation.history", { actorId });
+    return methodTable["conversation.history"].result.parse(result);
   }
 
   /** Movement completes when the World accepts the sampled position. */
@@ -136,4 +156,11 @@ export function actionErrorMessage(error: unknown): string {
   }
   if (error instanceof ConnectionError) return error.message;
   return "The action could not complete. Check the connection and try again.";
+}
+
+/** Only a declared server rejection proves that a failed send did not save the turn. */
+export function conversationSendRejected(error: unknown): boolean {
+  if (!(error instanceof JSONRPCErrorException)) return false;
+  const payload = PublicErrorSchema.safeParse(error.data);
+  return payload.success && payload.data._tag === "ActionRejected";
 }

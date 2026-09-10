@@ -1,4 +1,6 @@
 import type { PlayerAction } from "@gpta/core/actions";
+import type { ConversationTurn } from "@gpta/core/conversations";
+import type { MethodParams } from "@gpta/core/protocol";
 import type { EntityId, Player, Position, WorldSnapshot } from "@gpta/core/world";
 import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -9,6 +11,8 @@ import {
   type ConnectionState,
 } from "../../../lib/world-connection";
 import { sessionQuery, worldQueryKey } from "../queries/world-queries";
+import { conversationQueryKey } from "../queries/conversation-queries";
+import { mergeConversationTurns } from "../models/conversation-view";
 
 /** The hook exposes one screen state and owns the lifetime of its only WebSocket. */
 export function useWorld() {
@@ -28,14 +32,23 @@ export function useWorld() {
     url.protocol = location.protocol === "https:" ? "wss:" : "ws:";
     const client = new WorldConnection(url.href, {
       snapshot: (snapshot) => queryClient.setQueryData(worldQueryKey, snapshot),
-      state: setConnection,
+      conversation: (turn) =>
+        queryClient.setQueryData<ConversationTurn[]>(
+          conversationQueryKey(session.data.playerId, turn.actorId),
+          (saved) => mergeConversationTurns(saved, [turn]),
+        ),
+      state: (state) => {
+        setConnection(state);
+        if (state.status === "connected")
+          void queryClient.invalidateQueries({ queryKey: ["conversation"] });
+      },
     });
     transport.current = client;
     return () => {
       client.close();
       transport.current = null;
     };
-  }, [session.status, queryClient]);
+  }, [session.status, session.data?.playerId, queryClient]);
   const move = useCallback(async (position: Position) => {
     if (!transport.current) throw new ConnectionError("The world is disconnected.");
     await transport.current.move(position);
@@ -50,6 +63,14 @@ export function useWorld() {
   const inspect = useCallback(async (actorId: EntityId) => {
     if (!transport.current) throw new ConnectionError("The world is disconnected.");
     return transport.current.inspect(actorId);
+  }, []);
+  const sendConversation = useCallback(async (params: MethodParams<"conversation.send">) => {
+    if (!transport.current) throw new ConnectionError("The world is disconnected.");
+    return transport.current.sendConversation(params);
+  }, []);
+  const conversationHistory = useCallback(async (actorId: EntityId) => {
+    if (!transport.current) throw new ConnectionError("The world is disconnected.");
+    return transport.current.conversationHistory(actorId);
   }, []);
   if (session.status === "error")
     return {
@@ -86,5 +107,7 @@ export function useWorld() {
     move,
     action,
     inspect,
+    sendConversation,
+    conversationHistory,
   } as const;
 }

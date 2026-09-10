@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { ConversationAction, TurnId } from "./conversations";
 import {
   GUESTHOUSE,
   isInsideGuesthouse,
@@ -574,4 +575,98 @@ export function applyToolAction(
       );
     }
   }
+}
+
+/** Conversation authority belongs to the named character's current role. */
+export function permittedConversationTools(actor: Actor): ConversationAction["name"][] {
+  if (actor.kind !== "person" || actor.health <= 0) return [];
+  if (actor.id === SCENE_IDS.mila && actor.role === "resident")
+    return ["offer_delivery", "accept_delivery"];
+  if (actor.id === SCENE_IDS.lev && actor.role === "merchant") return ["complete_delivery"];
+  if (actor.id === SCENE_IDS.niko && actor.role === "resident") return ["complete_delivery"];
+  if (actor.id === SCENE_IDS.irina && actor.role === "merchant") return ["offer_bed", "rent_bed"];
+  return [];
+}
+
+/**
+ * Apply a scoped conversation proposal through the existing game rules.
+ * The caller supplies a saved quote and verifies consent comes from a later player turn.
+ */
+export function applyConversationAction(
+  world: WorldSnapshot,
+  actorId: EntityId,
+  playerId: EntityId,
+  tool: ConversationAction,
+  context: ActionContext,
+  bedOffer: { id: TurnId; amount: number } | null,
+): ActionResult {
+  const actor = world.entities.find((entity) => entity.id === actorId);
+  const player = world.entities.find((entity) => entity.id === playerId);
+  if (!actor || !isActor(actor) || !permittedConversationTools(actor).includes(tool.name))
+    return reject("This character cannot perform this conversation action.");
+  if (player?.kind !== "player" || player.health <= 0) return reject("This player cannot act.");
+  if (isInsideGuesthouse(actor.position) !== isInsideGuesthouse(player.position))
+    return reject("The character and player are in different spaces.");
+  if (distance(actor.position, player.position) > MOVEMENT.interactionRange)
+    return reject("Move closer to continue this action.");
+  let result: ActionResult;
+  switch (tool.name) {
+    case "offer_delivery":
+      result = applyToolAction(
+        world,
+        actorId,
+        { name: "offer_mission", arguments: { to: playerId } },
+        context,
+      );
+      break;
+    case "accept_delivery":
+      if (player.mission.stage !== "offered")
+        return reject("Mila must offer the delivery before the player accepts it.");
+      result = applyPlayerAction(
+        world,
+        playerId,
+        { type: "accept_mission", targetId: actorId },
+        context,
+      );
+      break;
+    case "complete_delivery":
+      result = applyPlayerAction(
+        world,
+        playerId,
+        { type: "deliver_parcel", targetId: actorId },
+        context,
+      );
+      break;
+    case "offer_bed":
+      if (!isInsideGuesthouse(actor.position))
+        return reject("Speak to Irina inside the guesthouse.");
+      if (player.shelter === "rented") return reject("This player already has a bed.");
+      return accept(
+        structuredClone(world),
+        actorId,
+        tool.name,
+        `Irina offers ${player.name} a bed for ₽${MISSION_TERMS.bedPrice}.`,
+        "astra",
+        context,
+      );
+    case "rent_bed":
+      if (
+        !bedOffer ||
+        bedOffer.id !== tool.arguments.offer_id ||
+        bedOffer.amount !== MISSION_TERMS.bedPrice
+      )
+        return reject("Irina must provide a current bed offer before the player accepts it.");
+      result = applyPlayerAction(world, playerId, { type: "rent_bed", targetId: actorId }, context);
+      break;
+  }
+  if (!result.accepted) return result;
+  return {
+    ...result,
+    world: {
+      ...result.world,
+      events: result.world.events.map((event) =>
+        event.id === context.id ? { ...event, actorId, type: tool.name, source: "astra" } : event,
+      ),
+    },
+  };
 }
