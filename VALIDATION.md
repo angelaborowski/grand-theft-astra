@@ -32,3 +32,12 @@ Visually inspected the entry screen, rendered Red Square scene, mission HUD and 
 8. Walked to the book stall and purchased it for ₽50; verified ownership and passive-income status.
 
 Mouse-look, keyboard movement handlers and assisted movement share the same bounded movement loop; full mouse-lock behavior depends on browser support and was not claimed as universally validated. The alternate delivery branch was tested at the server/game-rule level, not repeated in the browser. No mobile usability, public internet deployment, production authentication, live AI conversation or frame-rate benchmark is claimed.
+
+## GUM detail pass — 10 September 2026
+
+- Re-ran all seven gameplay tests: passed.
+- Reimported the new GLB in Blender 4.5: six meshes, 155,460 triangles, UVs present and finite vertex coordinates. Two embedded 1024px images present. See source/blender/gum-detail/validation.json.
+- Inspected street, front facade and stone-detail views in the actual browser renderer. No browser error logs were reported during this check.
+- Joined an isolated local QA world, walked to Mila and started the delivery mission with the upgraded renderer.
+- Observed roughly 34–38 FPS in the preview with another game tab open at 1280×720. This is a spot check, not a cross-device performance guarantee. Contact shadows and multisampling add GPU cost.
+- Three offline Cycles previews are separate from browser evidence; their lighting differs. No Unreal rendering or survey-accuracy validation was performed.

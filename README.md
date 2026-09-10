@@ -67,3 +67,7 @@ Map data © OpenStreetMap contributors, ODbL 1.0: https://www.openstreetmap.org/
 - `docs/visual-development/`: verified Higgsfield photographic target.
 
 GitHub Actions runs the test suite on pushes and pull requests. Local save data, dependencies and credentials are excluded from Git.
+
+## GUM facade detail pass
+
+Open [the facade preview](http://localhost:4173/?view=gum) while the server is running. Three camera views inspect the actual game renderer; the same geometry is loaded in gameplay. The pass adds a 60m reference-informed facade, original PBR paving textures, sky reflections and screen-space contact shadows. Source and accuracy notes are in [source/blender/gum-detail](source/blender/gum-detail/README.md). It is an approximation with substantially more geometry, not a finished hyperrealistic or measured reconstruction. A rigged character and Unreal prototype remain future work.

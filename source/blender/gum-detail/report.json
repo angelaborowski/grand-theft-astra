@@ -1,0 +1,12 @@
+{
+  "triangles": 155460,
+  "draw_meshes": 6,
+  "length_metres": 60,
+  "texture_resolution": 1024,
+  "reference": "https://commons.wikimedia.org/wiki/File:Moscow_GUM_fragment_of_fa%D1%81ade.jpg",
+  "limitations": [
+    "Elevation dimensions and bay spacing inferred, not survey validated.",
+    "No scanned surfaces; original procedural PBR maps.",
+    "60m detail overlay, not a complete GUM reconstruction."
+  ]
+}
