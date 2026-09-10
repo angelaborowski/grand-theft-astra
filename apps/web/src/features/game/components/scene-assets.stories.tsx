@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useRef } from "react";
 import { CHARACTER_ASSETS } from "../models/scene-assets";
 import { CharacterModel, type CharacterMotion } from "./character-model";
+import { SceneLighting } from "./scene-lighting";
 import { SceneAssets } from "./scene-assets";
 
 const meta = { title: "Game/Angela assets", component: SceneAssets } satisfies Meta<
@@ -17,12 +18,31 @@ export const RedSquare: Story = {
     <div style={{ height: "80vh" }}>
       <Canvas gl={{ localClippingEnabled: true }} camera={{ position: [35, 80, 210], far: 1600 }}>
         <color attach="background" args={["#bacbd0"]} />
-        <hemisphereLight intensity={2.1} />
-        <directionalLight position={[-65, 110, 30]} intensity={2.8} />
+        <fog attach="fog" args={["#b9c3cd", 260, 1000]} />
+        <SceneLighting />
         <Suspense fallback={null}>
           <SceneAssets />
         </Suspense>
         <OrbitControls target={[10, 0, 65]} />
+      </Canvas>
+    </div>
+  ),
+};
+
+export const WinterSky: Story = {
+  render: () => (
+    <div style={{ height: "90vh" }}>
+      <Canvas
+        gl={{ localClippingEnabled: true, toneMappingExposure: 0.9 }}
+        camera={{ position: [10, 2.5, 170], fov: 58, near: 0.3, far: 1600 }}
+      >
+        <color attach="background" args={["#b9c3cd"]} />
+        <fog attach="fog" args={["#b9c3cd", 260, 1000]} />
+        <SceneLighting />
+        <Suspense fallback={null}>
+          <SceneAssets />
+        </Suspense>
+        <OrbitControls target={[10, 24, 20]} />
       </Canvas>
     </div>
   ),

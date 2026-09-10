@@ -1,6 +1,6 @@
-import { Environment, Sky } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { Suspense, useRef } from "react";
 import { DirectionalLight, Vector3 } from "three";
 
 const sun = new Vector3(-65, 110, 30);
@@ -8,7 +8,7 @@ const right = new Vector3().crossVectors(new Vector3(0, 1, 0), sun).normalize();
 const up = new Vector3().crossVectors(sun, right).normalize();
 const texel = 110 / 2048;
 
-/** One sun and a static sky probe keep stone readable without per-frame reflection captures. */
+/** A local photographic sky supplies matching clouds, diffuse fill, and reflections. */
 export function SceneLighting() {
   const light = useRef<DirectionalLight>(null);
   const anchor = useRef(new Vector3());
@@ -27,20 +27,22 @@ export function SceneLighting() {
   });
   return (
     <>
-      <Sky distance={1500} sunPosition={sun} turbidity={2.5} rayleigh={2} />
-      <Environment resolution={128} frames={1} environmentIntensity={0.35}>
-        <Sky sunPosition={sun} turbidity={2.5} rayleigh={2} />
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
-          <planeGeometry args={[2000, 2000]} />
-          <meshBasicMaterial color="#847d70" />
-        </mesh>
-      </Environment>
-      <hemisphereLight args={["#c9e2f5", "#a29680", 0.35]} />
+      <Suspense fallback={null}>
+        <Environment
+          files="/assets/environment/snow_field_puresky_2k.hdr"
+          background
+          backgroundIntensity={0.8}
+          environmentIntensity={0.65}
+          backgroundRotation={[0, 0.7, 0]}
+          environmentRotation={[0, 0.7, 0]}
+        />
+      </Suspense>
+      <hemisphereLight args={["#dce4ec", "#888b8d", 0.45]} />
       <directionalLight
         ref={light}
         position={sun}
-        color="#fff3df"
-        intensity={2.4}
+        color="#edf1f5"
+        intensity={0.65}
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-55}

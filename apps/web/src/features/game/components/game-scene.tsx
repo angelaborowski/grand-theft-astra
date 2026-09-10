@@ -61,8 +61,8 @@ export function GameScene({
         camera={{ position: [0, 3.8, 6.5], fov: 58, near: 0.3, far: 1600 }}
         gl={{ antialias: true, localClippingEnabled: true, toneMappingExposure: 0.9 }}
       >
-        <color attach="background" args={["#bacbd0"]} />
-        <fog attach="fog" args={["#bacbd0", 400, 900]} />
+        <color attach="background" args={["#b9c3cd"]} />
+        <fog attach="fog" args={["#b9c3cd", 260, 1000]} />
         <SceneLighting />
         <SceneEffects />
         <FrameMeter />
