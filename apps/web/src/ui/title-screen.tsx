@@ -1,12 +1,24 @@
 import { useState, type KeyboardEvent } from "react";
 import { menuArtwork } from "./game-artwork";
 import { GameBrand } from "./game-brand";
-import { ControlHint, GameControls } from "./game-controls";
+import { GameControls } from "./game-controls";
 import { GameDialog } from "./game-dialog";
+import { SettingsMenu } from "../features/game/components/settings-menu";
+import "./astra-pause.css";
 
-/** Entry actions preserve the session; this screen does not create or reset a player. */
-export function TitleScreen({ actions }: { actions: { start: () => void } }) {
-  const [controlsOpen, setControlsOpen] = useState(false);
+/** Entry offers fresh and saved players without hiding session failures. */
+export function TitleScreen({
+  canContinue,
+  pending,
+  notice,
+  actions,
+}: {
+  canContinue: boolean;
+  pending: boolean;
+  notice: string | null;
+  actions: { newGame: () => void; continueGame: () => void };
+}) {
+  const [panel, setPanel] = useState<"settings" | "controls" | null>(null);
   return (
     <main className="astra-screen astra-title-screen">
       <img
@@ -21,24 +33,51 @@ export function TitleScreen({ actions }: { actions: { start: () => void } }) {
       </div>
       <div className="astra-title-footer">
         <nav className="astra-title-actions" aria-label="Main menu" onKeyDown={moveMenuFocus}>
-          <button className="astra-menu-action" onClick={actions.start} autoFocus>
-            Enter Red Square
+          <button
+            className="astra-menu-action"
+            onClick={actions.newGame}
+            disabled={pending}
+            autoFocus
+          >
+            New Game
           </button>
-          <button className="astra-menu-action" onClick={() => setControlsOpen(true)}>
+          <button
+            className="astra-menu-action"
+            onClick={actions.continueGame}
+            disabled={pending || !canContinue}
+          >
+            Continue
+          </button>
+          <button className="astra-menu-action" onClick={() => setPanel("settings")}>
+            Settings
+          </button>
+          <button className="astra-menu-action" onClick={() => setPanel("controls")}>
             Controls
           </button>
         </nav>
-        <ControlHint keys="Enter">Select</ControlHint>
+        {notice && (
+          <p className="astra-title-notice" role="alert">
+            {notice}
+          </p>
+        )}
+        {pending && (
+          <p className="astra-title-notice" role="status">
+            Starting game…
+          </p>
+        )}
       </div>
-      {controlsOpen ? (
-        <GameDialog title="Controls" actions={{ close: () => setControlsOpen(false) }}>
+      {panel !== null ? (
+        <GameDialog
+          title={panel === "settings" ? "Settings" : "Controls"}
+          actions={{ close: () => setPanel(null) }}
+        >
           <header className="astra-dialog-header">
-            <h1 className="astra-heading">Controls</h1>
-            <button className="astra-button" onClick={() => setControlsOpen(false)}>
+            <h1 className="astra-heading">{panel === "settings" ? "Settings" : "Controls"}</h1>
+            <button className="astra-button" onClick={() => setPanel(null)}>
               Close <kbd>Esc</kbd>
             </button>
           </header>
-          <GameControls />
+          {panel === "settings" ? <SettingsMenu initialCategory="audio" /> : <GameControls />}
         </GameDialog>
       ) : null}
     </main>
@@ -47,7 +86,9 @@ export function TitleScreen({ actions }: { actions: { start: () => void } }) {
 
 function moveMenuFocus(event: KeyboardEvent<HTMLElement>) {
   if (!(event.target instanceof HTMLButtonElement)) return;
-  const buttons = Array.from(event.currentTarget.querySelectorAll("button"));
+  const buttons = Array.from(
+    event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"),
+  );
   const index = buttons.indexOf(event.target);
   let next: number;
   switch (event.key) {

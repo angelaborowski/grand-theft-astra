@@ -611,6 +611,29 @@ Keep backend actions, rewards, identity, persistence, and broadcasts unchanged. 
 The planned story URL is `http://localhost:6006/?path=/story/game-audio--controls`; it does not exist yet.
 Before implementation ships, run `pnpm check` and the web Storybook build. Report listening and browser evidence separately from automated checks.
 
+## Title menu
+
+The title menu offers New Game, Continue, Settings, and Controls without an Enter hint.
+New Game creates a fresh player in the shared city and replaces this browser's session cookie.
+Continue restores the current saved player. It stays disabled when no saved session exists.
+Checking for a saved session never creates a player. A new session requires a same-origin POST.
+Settings uses the existing audio settings. Controls uses the existing controls panel.
+Session failures keep the title menu open and show an error. Failed creation does not retry automatically.
+Verify session creation, saved identity, absent sessions, and origin checks before deployment.
+
+## First-start voice and subtitles
+
+The first playable session uses “Ah, here we go again.” in English with a Russian male voice.
+ElevenLabs MCP generates the 2.56-second recording with Eleven v3 and Igor - Deep Zen Tenor.
+`public/assets/audio/first-start.metadata.json` records the prompt, voice, model, and generation.
+The runtime starts the recording after loading, connection, and browser playback permission are ready.
+It records the first playback in browser storage. Reloading and Continue do not repeat the recording.
+New Game resets the flag so the new player hears the recording after loading.
+Subtitles follow actual playback at the bottom center, separate from the central controls.
+Their width reserves space for the radar. Their bottom offset keeps them above the location label.
+Completion, mute, hidden tabs, chat, and menus remove the voice and subtitles together.
+The user checks the voice and layout in the game. Automated checks do not prove voice quality.
+
 ## Verification and current evidence
 
 Before this port, a real WebSocket session completed direct delivery, guesthouse entry, and bed rental.

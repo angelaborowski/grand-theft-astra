@@ -1,6 +1,7 @@
 import type { Entity } from "@gpta/core/world";
 import { actionErrorMessage } from "../../../lib/world-connection";
 import type { ReadyWorld } from "./game-session";
+import { useGameAudio } from "../hooks/use-game-audio";
 import "../../../ui/gameplay.css";
 
 /** Controls stay at the screen center, independent of the status area. */
@@ -13,6 +14,7 @@ export function GameplayHud({
   active: boolean;
   command: ReadyWorld["command"];
 }) {
+  const { subtitle } = useGameAudio();
   if (!active) return null;
   return (
     <div className="gameplay-hud">
@@ -28,6 +30,11 @@ export function GameplayHud({
         )}
         <CommandFeedback command={command} />
       </div>
+      {subtitle && (
+        <p className="gameplay-subtitle" role="status">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }

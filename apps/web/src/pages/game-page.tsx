@@ -1,5 +1,6 @@
 import { ClientOnly } from "@tanstack/react-router";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense } from "react";
+import { useGameEntry } from "../features/game/hooks/use-game-entry";
 import { useAudioScreen } from "../features/game/hooks/use-audio-screen";
 import { GameAudioProvider } from "../features/game/hooks/use-game-audio";
 import { LoadingScreen } from "../ui/loading-screen";
@@ -17,13 +18,13 @@ export function GamePage() {
 }
 
 function GameEntry() {
-  const [started, setStarted] = useState(false);
-  useAudioScreen(started ? null : "title");
-  if (!started) return <TitleScreen actions={{ start: () => setStarted(true) }} />;
+  const entry = useGameEntry();
+  useAudioScreen(entry.started ? null : "title");
+  if (!entry.started) return <TitleScreen {...entry} />;
   return (
     <ClientOnly fallback={<Loading />}>
       <Suspense fallback={<Loading />}>
-        <Game actions={{ leave: () => setStarted(false) }} />
+        <Game actions={{ leave: entry.actions.leave }} />
       </Suspense>
     </ClientOnly>
   );

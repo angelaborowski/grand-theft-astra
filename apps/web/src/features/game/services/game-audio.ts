@@ -15,6 +15,7 @@ import {
   type SoundLoop,
 } from "../models/audio-catalog";
 import { DEFAULT_AUDIO_PREFERENCES, type AudioMix, type AudioStatus } from "../models/audio-state";
+import { readFirstStartPlayed, saveFirstStartPlayed } from "../models/first-start";
 
 type Position = Readonly<{ x: number; y: number; z: number }>;
 type Voice<T extends ThreeAudio<AudioNode> = ThreeAudio<AudioNode>> = {
@@ -38,7 +39,6 @@ const MAX_CUES = 12;
 const MAX_POSITIONED_LOOPS = 24;
 const FADE_SECONDS = 0.1;
 const PAUSE_DELAY_MS = 600;
-const FIRST_START_KEY = "gpta.audio.first-start.v1";
 
 /** Owns game audio resources; Three.js owns loading, playback, and spatial sound. */
 export class GameAudio {
@@ -90,6 +90,20 @@ export class GameAudio {
 
   /** Returns the same snapshot object until its visible status changes. */
   readonly getSnapshot = (): AudioStatus => this.snapshot;
+
+  /** Subtitles follow the active voice, including interruption and natural completion. */
+  readonly getSubtitleSnapshot = (): string | null => {
+    if (!this.canPlay()) return null;
+    for (const entry of this.cues)
+      if (entry.cue === "first-start" && entry.voice.sound.isPlaying)
+        return "Ah, here we go again.";
+    return null;
+  };
+
+  /** A new player gets the intro again; continuing a player keeps the saved flag. */
+  resetFirstStart(): void {
+    this.firstStartPlayed = false;
+  }
 
   /** Starts the menu request first; one failed asset does not reject the load. */
   preload(): Promise<void> {
@@ -155,6 +169,7 @@ export class GameAudio {
     entry.voice.sound.source?.addEventListener("ended", () => this.removeCue(entry), {
       once: true,
     });
+    if (cue === "first-start") this.notify();
     return entry.voice.sound.isPlaying;
   }
 
@@ -277,6 +292,7 @@ export class GameAudio {
 
   private readonly contextChanged = (): void => {
     if (this.disposed) return;
+    if (!this.canPlay()) this.clearCues();
     this.refresh();
     this.updateStatus();
   };
@@ -311,11 +327,7 @@ export class GameAudio {
     )
       return;
     this.firstStartPlayed = true;
-    try {
-      localStorage.setItem(FIRST_START_KEY, "true");
-    } catch {
-      /* The audio session still prevents repeats when browser storage is unavailable. */
-    }
+    saveFirstStartPlayed(true);
   }
 
   private refreshPositioned(request: PositionedRequest): void {
@@ -422,6 +434,7 @@ export class GameAudio {
   private removeCue(cue: CueVoice): void {
     if (!this.cues.delete(cue)) return;
     this.releaseVoice(cue.voice);
+    if (cue.cue === "first-start") this.notify();
   }
 
   private clearCues(): void {
@@ -461,18 +474,14 @@ export class GameAudio {
     )
       return;
     this.snapshot = snapshot;
+    this.notify();
+  }
+
+  private notify(): void {
     for (const subscriber of this.subscribers) subscriber();
   }
 }
 
 function boundedGain(gain: number): number {
   return Number.isFinite(gain) ? Math.min(1, Math.max(0, gain)) : 0;
-}
-
-function readFirstStartPlayed(): boolean {
-  try {
-    return localStorage.getItem(FIRST_START_KEY) === "true";
-  } catch {
-    return false;
-  }
 }

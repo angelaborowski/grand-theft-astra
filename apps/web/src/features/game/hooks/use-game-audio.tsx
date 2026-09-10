@@ -18,6 +18,7 @@ const INITIAL_STATUS: AudioStatus = {
 const AudioContext = createContext<ReturnType<typeof useAudioSession> | null>(null);
 const subscribeNothing = () => () => {};
 const initialSnapshot = () => INITIAL_STATUS;
+const noSubtitle = () => null;
 const PREFERENCE_KEY = "gpta.audio.muted.v1";
 
 /** Keep one audio session across the title, loading, and playable world. */
@@ -29,7 +30,15 @@ export function GameAudioProvider({ children }: { children: ReactNode }) {
 /** Scene audio stays optional in isolated scene previews. */
 export function useGameAudio() {
   const session = useContext(AudioContext);
-  return session ?? { audio: null, muted: false, status: INITIAL_STATUS, toggle: () => {} };
+  return (
+    session ?? {
+      audio: null,
+      muted: false,
+      status: INITIAL_STATUS,
+      subtitle: null,
+      toggle: () => {},
+    }
+  );
 }
 
 function useAudioSession() {
@@ -44,6 +53,11 @@ function useAudioSession() {
     audio?.subscribe ?? subscribeNothing,
     audio?.getSnapshot ?? initialSnapshot,
     initialSnapshot,
+  );
+  const subtitle = useSyncExternalStore(
+    audio?.subscribe ?? subscribeNothing,
+    audio?.getSubtitleSnapshot ?? noSubtitle,
+    noSubtitle,
   );
   useEffect(() => {
     let disposed = false;
@@ -108,7 +122,7 @@ function useAudioSession() {
     runtime.status === "failed"
       ? { status: "unavailable", message: runtime.message, unlocked: false }
       : playback;
-  return { audio, muted, status, toggle };
+  return { audio, muted, status, subtitle, toggle };
 }
 
 function readMuted(): boolean {

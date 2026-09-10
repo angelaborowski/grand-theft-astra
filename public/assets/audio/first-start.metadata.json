@@ -1,11 +1,12 @@
 {
   "path": "/assets/audio/first-start.mp3",
-  "prompt": "Ah, here we go again.",
+  "text": "Ah, here we go again.",
+  "prompt": "[Russian accent] [slowly] [weary] Ah… here we go again.",
   "provider": "ElevenLabs MCP",
-  "model": "eleven_multilingual_v2",
-  "voice_id": "XNyApoNbiKO6a4LFT3Qe",
-  "voice_name": "Curtiss",
-  "generation_id": "Qw6nVEjm2uXchzOjkOxQ",
+  "model": "eleven_v3",
+  "voice_id": "v65YwoQKtY6NCX4jFhAq",
+  "voice_name": "Igor - Deep Zen Tenor",
+  "generation_id": "YIbY01lFidnU8QgLwsQ5",
   "flow_id": "R7tUoSSGmEmcmwAoXXIx",
-  "duration_seconds": 1.44
+  "duration_seconds": 2.56
 }

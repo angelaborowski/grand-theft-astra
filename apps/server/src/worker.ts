@@ -16,16 +16,28 @@ export default {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname === "/api/health") return Response.json({ status: "ok" });
-    if (request.method !== "GET") return problem(405, "Use GET for this endpoint.");
+    const newSession = url.pathname === "/api/session/new";
+    if (request.method !== (newSession ? "POST" : "GET"))
+      return problem(
+        405,
+        newSession ? "Use POST for this endpoint." : "Use GET for this endpoint.",
+      );
     const origin = request.headers.get("origin");
     if (origin && origin !== url.origin) return problem(403, "Origin is not allowed.");
+    if (newSession && !origin) return problem(403, "Origin is required.");
     const world = env.WORLD.getByName(env.WORLD_NAME);
     try {
       const token = parseCookie(request.headers.get("cookie") ?? "").gpta_session;
       const existingHash = token ? await tokenHash(token) : undefined;
-      if (url.pathname === "/api/session") {
+      if (url.pathname === "/api/session/current") {
+        const playerId = existingHash ? await world.authenticate(existingHash) : undefined;
+        return Response.json(playerId ? { playerId } : null, {
+          headers: { "cache-control": "no-store" },
+        });
+      }
+      if (url.pathname === "/api/session" || newSession) {
         const sessionToken =
-          token && existingHash && (await world.authenticate(existingHash))
+          !newSession && token && existingHash && (await world.authenticate(existingHash))
             ? token
             : crypto.randomUUID();
         const playerId = await world.createSession(await tokenHash(sessionToken));

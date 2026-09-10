@@ -7,7 +7,13 @@ import { type PlayerAction } from "@gpta/core/actions";
 import { methodTable, ServerMessageSchema, SessionSchema, type Request } from "@gpta/core/protocol";
 import { GUESTHOUSE, SCENE_IDS, STUNT } from "@gpta/core/scene";
 import type { PlayerCommand, PlayerControl } from "@gpta/core/gameplay-v2";
-import { MISSION_TERMS, type EntityId, type Position, type WorldSnapshot } from "@gpta/core/world";
+import {
+  MISSION_TERMS,
+  WorldSnapshotSchema,
+  type EntityId,
+  type Position,
+  type WorldSnapshot,
+} from "@gpta/core/world";
 
 async function call(socket: WebSocket, request: Request) {
   const messages = on(socket, "message", { signal: AbortSignal.timeout(5000) });
@@ -111,37 +117,27 @@ async function prepare(server: TestHarness) {
     return found;
   };
   const place = async (position: Position = GUESTHOUSE.entrance) => {
-    // An active simulation tick can save between the fixture SQL write and reload.
-    // Verify setup before exercising movement; never retry the gameplay assertions.
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const env = await worker.getEnv();
-      const world = env.WORLD.getByName(env.WORLD_NAME);
-      const sql = await worker.getDurableObjectStorage("WORLD", { name: env.WORLD_NAME });
-      const current: WorldSnapshot = await world.snapshot();
-      const entities = current.entities.map((entity) => {
-        if (entity.kind === "player") return { ...entity, position };
-        if (
-          entity.id === SCENE_IDS.mila ||
-          entity.id === SCENE_IDS.lev ||
-          entity.id === SCENE_IDS.niko
-        )
-          return { ...entity, position: { x: 56, z: 64 }, behavior: { type: "idle" as const } };
-        return entity;
-      });
-      await sql.exec(
-        "UPDATE world SET snapshot = ? WHERE id = 1",
-        JSON.stringify({ ...current, entities }),
-      );
-      await server.update((options) => options);
-      const restored = await (await worker.getEnv()).WORLD.getByName(env.WORLD_NAME).snapshot();
+    const env = await worker.getEnv();
+    const sql = await worker.getDurableObjectStorage("WORLD", { name: env.WORLD_NAME });
+    const rows = await sql.exec<{ snapshot: string }>("SELECT snapshot FROM world WHERE id = 1");
+    const row = rows[0];
+    if (!row) throw new Error("The fixture world does not exist.");
+    const current = WorldSnapshotSchema.parse(JSON.parse(row.snapshot));
+    const entities = current.entities.map((entity) => {
+      if (entity.kind === "player") return { ...entity, position };
       if (
-        restored.entities
-          .filter((entity) => entity.kind === "player")
-          .every((entity) => entity.position.x === position.x && entity.position.z === position.z)
+        entity.id === SCENE_IDS.mila ||
+        entity.id === SCENE_IDS.lev ||
+        entity.id === SCENE_IDS.niko
       )
-        return;
-    }
-    throw new Error("Could not establish the requested physics fixture position.");
+        return { ...entity, position: { x: 56, z: 64 }, behavior: { type: "idle" as const } };
+      return entity;
+    });
+    await sql.exec(
+      "UPDATE world SET snapshot = ? WHERE id = 1",
+      JSON.stringify({ ...current, entities }),
+    );
+    await worker.evictDurableObject("WORLD", { name: env.WORLD_NAME });
   };
   await place();
   const sockets: WebSocket[] = [];

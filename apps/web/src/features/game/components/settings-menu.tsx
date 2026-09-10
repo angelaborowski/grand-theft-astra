@@ -10,9 +10,13 @@ const contexts: { id: ControlContext; label: string }[] = [
 ];
 
 /** Settings contain only controls whose implementation is available in the game. */
-export function SettingsMenu() {
+export function SettingsMenu({
+  initialCategory = "controls",
+}: {
+  initialCategory?: "controls" | "audio";
+}) {
   const [context, setContext] = useState<ControlContext>("on-foot");
-  const [category, setCategory] = useState<"controls" | "audio">("controls");
+  const [category, setCategory] = useState<"controls" | "audio">(initialCategory);
   const { audio } = useGameAudio();
   const showAudio = category === "audio" && audio !== null;
   return (
