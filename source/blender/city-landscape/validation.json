@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "trees": 84,
+  "triangles": 69888,
+  "meshes": 5,
+  "bytes": 6489252,
+  "checks": [
+    "editable tree collection count",
+    "all roots outside square boundary",
+    "finite exported coordinates",
+    "export mesh and triangle counts"
+  ]
+}

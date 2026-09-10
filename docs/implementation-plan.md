@@ -212,3 +212,7 @@ An isolated building task adds an editable museum replacement in `source/blender
 The composer now updates the sun shadow map once per frame during the beauty pass; the normals pass reuses it. This removes a redundant shadow render without reducing shadow resolution.
 
 Final integration incorporates Alexander’s persistent conversation commit 8e572ea. The cache-only speech observer explicitly uses skipToken to avoid repeated missing-query-function warnings. A fresh game load after animation effect cleanup correction was verified; initial creation and subsequent reload no longer reuse uncached actions. Museum replacement and the overview ground fix were checked in the running scene. Frontend was restarted after a development error loop; the backend and local saves were preserved.
+
+### City overview and tree context
+
+Added a separate editable Blender tree asset using a conservative subset of OSM natural=tree locations west of the playable square. Approximate crowns and heights; source attribution, tree positions and export counts are retained in `source/blender/city-landscape/`. A standalone Three.js coverage overview exposes the partial surrounding-city model. Principal square landmarks are present; a convincing city-wide aerial view still needs broader mapped building, street and terrain coverage. Parent task owns adding the GLB to the shared React scene, using its existing -0.12m group offset. No collision or gameplay changes in this asset pass.

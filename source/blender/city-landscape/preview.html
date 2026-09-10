@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>City overview and mapped trees</title>
+<style>
+body{margin:0;background:#c4cbd0;color:#242b2e;font:14px system-ui}canvas{display:block;width:100vw;height:100vh}aside{position:fixed;top:16px;left:16px;background:#ffffffed;padding:14px 18px;border-radius:10px;max-width:330px}h1{font-size:17px;margin:0 0 8px}p{margin:8px 0;font-size:12px;line-height:1.4}button{border:1px solid #9a9a9a;background:#fff;border-radius:5px;padding:7px 12px;margin:3px;cursor:pointer}button[aria-pressed=true]{background:#873c2e;color:#fff}#status{font-variant-numeric:tabular-nums}
+</style>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<aside><h1>Red Square · city coverage</h1><button id="before" aria-pressed="false">Without trees</button><button id="after" aria-pressed="true">With trees</button><button id="front">Overview</button><button id="oblique">Above</button><p>Game scene coordinates. Mapped context trees west of the Kremlin wall. Surrounding city coverage is incomplete. Drag to orbit.</p><p id="status">Loading exported assets…</p></aside>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {museumDetail} from '/public/world-polish.js';
+const scene=new THREE.Scene();scene.background=new THREE.Color('#c4cbd0');
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.append(renderer.domElement);
+const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,1,3000);camera.position.set(9,1.7,-42);const controls=new OrbitControls(camera,renderer.domElement);
+const hemi=new THREE.HemisphereLight('#e1ebfa','#a4a196',2.2);scene.add(hemi);const sun=new THREE.DirectionalLight('#fff0db',3.2);sun.position.set(-400,700,-400);sun.target.position.set(13,22,-154);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-600,right:600,top:600,bottom:-600,far:2000});sun.shadow.bias=-.0001;scene.add(sun,sun.target);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(1700,1700),new THREE.MeshStandardMaterial({color:'#aaa9a2',roughness:1}));floor.rotation.x=-Math.PI/2;floor.position.y=-.12;floor.receiveShadow=true;scene.add(floor);
+const status=document.querySelector('#status');
+try{
+ const loader=new GLTFLoader();const [cityFile,newFile]=await Promise.all([loader.loadAsync('/public/assets/red-square.glb'),loader.loadAsync('/public/assets/museum-detail.glb')]);
+ const trees=(await loader.loadAsync('/public/assets/city-landscape.glb')).scene;scene.add(trees);trees.position.y=-.12;trees.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}}); const city=cityFile.scene,replacement=newFile.scene;const oldMuseum=city.children.find(o=>/Historical.*Museum/.test(o.name));
+ city.traverse(o=>{if(/Paved.*site/.test(o.name))o.visible=false;if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(/Ground|Terrain/i.test(o.name))o.visible=false;}});
+ if(!oldMuseum)throw new Error('Original museum node missing');
+ const originalDetail=museumDetail(city);const group=new THREE.Group();group.position.y=-.12;group.add(city,replacement,originalDetail);scene.add(group);
+ const texLoader=new THREE.TextureLoader();const [map,normalMap,roughnessMap]=await Promise.all(['Diffuse','nor_gl','Rough'].map(s=>texLoader.loadAsync('/public/assets/materials/scanned/red_brick-'+s+'.jpg')));map.colorSpace=THREE.SRGBColorSpace;for(const t of [map,normalMap,roughnessMap]){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;}
+ city.traverse(o=>{if(!o.isMesh)return;let usesBrick=false;const apply=ma=>{const m=ma.clone();if(/red brick|orange-red masonry|Museum.*oxblood|Brick.*terracotta/.test(m.name)){m.color.set('#ffffff');m.map=map;m.normalMap=normalMap;m.roughnessMap=roughnessMap;m.normalScale=new THREE.Vector2(.35,.35);m.roughness=1;usesBrick=true;}return m;};o.material=Array.isArray(o.material)?o.material.map(apply):apply(o.material);if(usesBrick){o.geometry=o.geometry.clone();const p=o.geometry.attributes.position,n=o.geometry.attributes.normal,uv=new Float32Array(p.count*2);for(let i=0;i<p.count;i++){uv[i*2]=(Math.abs(n.getY(i))<=.7&&Math.abs(n.getX(i))>Math.abs(n.getZ(i))?p.getZ(i):p.getX(i))/2.24;uv[i*2+1]=Math.abs(n.getY(i))>.7?p.getZ(i)/1.44:p.getY(i)/1.44;}o.geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));}});
+ let replacementTriangles=0,replacementMeshes=0;replacement.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;replacementMeshes++;replacementTriangles+=(o.geometry.index?.count??o.geometry.attributes.position.count)/3;}});
+ function mode(after){oldMuseum.visible=false;originalDetail.visible=false;replacement.visible=true;trees.visible=after;document.querySelector('#after').setAttribute('aria-pressed',String(after));document.querySelector('#before').setAttribute('aria-pressed',String(!after));status.textContent=(after?'Mapped trees visible':'Trees hidden')+' · OSM positions, approximate crowns';}
+ function view(above){camera.position.set(...(above?[-100,950,0]:[620,580,650]));controls.target.set(-95,0,-25);controls.update();}
+ document.querySelector('#before').onclick=()=>mode(false);document.querySelector('#after').onclick=()=>mode(true);document.querySelector('#front').onclick=()=>view(false);document.querySelector('#oblique').onclick=()=>view(true);mode(true);view(false);
+}catch(error){status.textContent='Asset error: '+error.message;console.error(error);}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);});
+</script>
+</html>
