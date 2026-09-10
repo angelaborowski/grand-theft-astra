@@ -17,6 +17,7 @@ const sceneAssets = [
   "/assets/world-detail.glb",
   "/assets/gum-detail.glb",
   "/assets/museum-detail.glb",
+  "/assets/city-landscape.glb",
 ];
 const pavingTextures = {
   map: "/assets/materials/scanned/cobblestone_floor_08-Diffuse.jpg",
