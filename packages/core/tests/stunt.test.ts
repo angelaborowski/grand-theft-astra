@@ -178,3 +178,30 @@ it("reserves mission cars against another player's takeover", () => {
   );
   expect(result.accepted).toBe(false);
 });
+
+it("launches from the menu in the owned car without granting progress or resetting an active timer", () => {
+  const world = addPlayer(createInitialWorld(1000), SCENE_IDS.player);
+  const result = applyPlayerAction(
+    world,
+    SCENE_IDS.player,
+    { type: "launch_stunt", targetId: SCENE_IDS.mila },
+    { id: "launch", now: 1000 },
+  );
+  if (!result.accepted) throw new Error(result.error.message);
+  const driver = player(result.world);
+  expect(driver.behavior).toEqual({ type: "driving", vehicleId: stuntVehicleId(driver.id) });
+  expect(driver.money).toBe(player(world).money);
+  expect(driver.stunt).toMatchObject({ stage: "running", checkpoint: 0 });
+  expect(driver.position).toEqual(
+    result.world.entities.find((e) => e.id === stuntVehicleId(driver.id))?.position,
+  );
+  const resumed = applyPlayerAction(
+    result.world,
+    driver.id,
+    { type: "launch_stunt", targetId: SCENE_IDS.mila },
+    { id: "resume", now: 2000 },
+  );
+  if (!resumed.accepted) throw new Error(resumed.error.message);
+  expect(player(resumed.world).stunt).toEqual(driver.stunt);
+  expect(resumed.world.entities.length).toBe(result.world.entities.length);
+});

@@ -11,7 +11,7 @@ const player = PlayerSchema.parse(
 const meta = {
   title: "Game/Last Flight",
   component: StuntObjective,
-  args: { player, time: 1000, select: () => {} },
+  args: { player, time: 1000, select: () => {}, launch: () => {} },
 } satisfies Meta<typeof StuntObjective>;
 export default meta;
 type Story = StoryObj<typeof meta>;

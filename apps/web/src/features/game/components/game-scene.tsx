@@ -78,6 +78,7 @@ export function GameScene({
             {!inside && <StuntCourse player={player} />}
             {player.behavior.type === "driving" ? (
               <DrivingPlayer
+                key={`${player.behavior.vehicleId}:${player.stunt?.stage === "running" ? player.stunt.deadline : "free-drive"}`}
                 actor={player}
                 enabled={enabled}
                 overview={overview}

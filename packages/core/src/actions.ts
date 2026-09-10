@@ -26,6 +26,7 @@ export const PlayerActionSchema = z.discriminatedUnion("type", [
     targetId: EntityIdSchema,
     text: z.string().trim().min(1).max(500),
   }),
+  z.object({ type: z.literal("launch_stunt"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("start_stunt"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("finish_stunt"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("take_vehicle"), targetId: EntityIdSchema }),
@@ -148,6 +149,29 @@ export function applyPlayerAction(
   const target = world.entities.find((entity) => entity.id === action.targetId);
   if (actor?.kind !== "player" || actor.health <= 0) return reject("This player cannot act.");
   if (!target || target.id === actorId) return reject("Choose another entity.");
+  if (action.type === "launch_stunt") {
+    if (target.id !== SCENE_IDS.mila) return reject("Choose Last Flight with Mila.");
+    if (actor.stunt?.stage === "completed")
+      return reject("Last Flight is complete. Continue exploring the city.");
+    if (actor.stunt?.stage === "running" && actor.stunt.deadline > context.now)
+      return accept(world, actorId, action.type, "Last Flight resumed.", "player", context);
+    actor.position = { ...target.position };
+    actor.behavior = { type: "idle" };
+    const started = applyPlayerAction(
+      world,
+      actorId,
+      { type: "start_stunt", targetId: target.id },
+      context,
+    );
+    if (!started.accepted) return started;
+    const driver = started.world.entities.find((entity) => entity.id === actorId);
+    const car = started.world.entities.find((entity) => entity.id === stuntVehicleId(actorId));
+    if (driver?.kind !== "player" || car?.kind !== "vehicle")
+      return reject("Mission car unavailable.");
+    driver.position = { ...car.position };
+    driver.behavior = { type: "driving", vehicleId: car.id };
+    return started;
+  }
   if (action.type === "leave_location") {
     if (target.id !== SCENE_IDS.guesthouse || !isInsideGuesthouse(actor.position))
       return reject("This player is not inside the guesthouse.");

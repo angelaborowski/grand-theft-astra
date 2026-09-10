@@ -5,10 +5,14 @@ export function StuntObjective({
   player,
   time,
   select,
+  launch,
+  canLaunch = true,
 }: {
   player: Player;
   time: number;
   select: (id: EntityId) => void;
+  launch: () => void;
+  canLaunch?: boolean;
 }) {
   const mission = player.stunt;
   const running = mission?.stage === "running";
@@ -30,7 +34,7 @@ export function StuntObjective({
     : mission?.stage === "completed"
       ? "₽250 earned · +2 reputation. Your next stop is up to you."
       : mission?.stage === "failed"
-        ? "No penalty. Meet Mila to try again."
+        ? "No penalty. Start again when you’re ready."
         : "Mila needs a driver. Two ramps, one film canister, and a helicopter that won't wait.";
   const target = running
     ? mission.checkpoint === 4
@@ -49,7 +53,12 @@ export function StuntObjective({
       </div>
       <h2>{title}</h2>
       <p>{description}</p>
-      {mission?.stage !== "completed" && (
+      {!running && mission?.stage !== "completed" && (
+        <button className="primary-button" disabled={!canLaunch} onClick={launch}>
+          Play first mission
+        </button>
+      )}
+      {running && (
         <button onClick={() => select(target)}>
           {running ? (mission.checkpoint === 4 ? "Locate pickup" : "Locate car") : "Find Mila"}
         </button>

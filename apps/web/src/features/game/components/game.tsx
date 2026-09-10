@@ -10,7 +10,7 @@ import { InteractionPanel } from "./interaction-panel";
 import { Minimap } from "./minimap";
 import { StuntObjective } from "./stunt-objective";
 import { MissionPanel } from "./mission-panel";
-import { isInsideGuesthouse } from "@gpta/core/scene";
+import { isInsideGuesthouse, SCENE_IDS } from "@gpta/core/scene";
 import { ConversationSpeech } from "./conversation-speech";
 
 /** This composition keeps scene, interaction, and inspector views on the same accepted snapshot. */
@@ -107,7 +107,13 @@ export default function Game() {
               {showOverview ? "Return to player" : "City overview"}
             </button>
           </div>
-          <StuntObjective player={player} time={snapshot.time} select={setSelectedId} />
+          <StuntObjective
+            player={player}
+            time={snapshot.time}
+            select={setSelectedId}
+            canLaunch={sceneReady && connection.status === "connected" && !action.isPending}
+            launch={() => action.mutate({ type: "launch_stunt", targetId: SCENE_IDS.mila })}
+          />
           <ConversationSpeech entity={entity} playerId={player.id} />
           {connection.status === "disconnected" && (
             <div className="disconnect-alert" role="alert">
