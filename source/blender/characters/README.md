@@ -1,4 +1,6 @@
-# Animated NPC cast — first playable interpretation
+# Animated NPC cast — placeholders; likeness work incomplete
+
+**User acceptance requirement:** The final six NPCs must match the approved reference images in face, hair, body proportions, clothing, accessories and materials. The current procedural models fail that visual requirement and must not be presented as final character integration. Retain the animation infrastructure while replacing the meshes. Check each replacement against the reference from a matched camera before accepting it. Unseen back and side details require additional references or explicitly documented reconstruction choices.
 
 Six original Blender meshes now represent Mila, Lev, Niko, Irina, Sasha and Alexei. They follow costume descriptions from the separate character concept task. They are stylized procedural interpretations, **not converted Higgsfield portraits or photorealistic likenesses**. No additional image generation or credits were used.
 
