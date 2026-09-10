@@ -155,3 +155,15 @@ The live HTTPS start page and `/api/health` respond successfully. These checks d
 
 The integrated scene has not received a browser playtest. A full mission and restart check in the integrated scene remains for joint iteration.
 V1 still uses simplified car physics and complete world snapshots. This pass does not establish large-world capacity or production readiness.
+
+## Consolidated visual work — 10 September 2026
+
+Continue GPT8 work in the task “Evaluate GPT8 GTA concept” (01a08bfb-a84c-73c2-92a4-91b3ebe7b377). Related tasks are archived with their histories retained; conversation histories are not physically merged. This repository is the shared source of truth.
+
+- Vehicles: editable Ferrari-inspired car, sedan, and Mila scooter sources and exports are in `source/blender/vehicles/` and `public/assets/vehicles/`. Ferrari and scooter are integrated into normal gameplay. The canonical vehicle name remains “Blue sedan”; these are stylized approximations, not photorealistic replicas.
+- Environment: integrated the reviewed lighting, shadow, paving, glazing, and museum facade improvements. See `docs/environment-polish.md` for measurements and limitations.
+- Characters: Mila's current Blender study and six prototype NPC meshes remain available. Character concept provenance and team references are preserved under `source/characters/references/`. Exact likeness and deforming realistic replacement meshes remain unfinished.
+- Higgsfield inside Blender: signed in and Mila reference attached. Last displayed balance was 6.68 credits; Tripo standard showed 9 credits and Meshy 7 standard showed 38. No new 3D generation was submitted. Installed Blender/add-on binaries, credentials, and transient session data stay local.
+- Entry-page task: character-creator design direction was recorded, but connected generation was blocked by provider reauthentication; no completed entry-page implementation was delivered.
+- Notion: the red MVP scope review was added and verified; the later checkpoint update was interrupted and remains unconfirmed. Page: https://app.notion.com/p/3d7c55d417b4801e98bfd5d68d56f8a4 .
+- Browser verification from vehicle integration: connected gameplay displayed the car and scooter. Player physics readiness guards were added after a startup error; re-entry then produced no new reported errors. Full mission/restart verification remains open. Pushing these changes does not itself verify deployment of the new visual assets.

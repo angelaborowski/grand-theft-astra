@@ -1,0 +1,60 @@
+{
+  "characters": [
+    {
+      "index": 0,
+      "name": "Lev",
+      "prompt": "Create one original human character for the same GTA-esque contemporary open-world Moscow game cast as Mila. Premium AAA game cinematic screenshot, grounded realistic high-end 3D rendering, natural adult anatomy, distinctive face, believable skin pores and hair, tactile worn fabrics, strong readable silhouette and understated personality. Full-body single-character portrait, complete head and both shoes visible, eye-level restrained 50mm lens. LEV: a 64-year-old male bookseller, lean slightly stooped build, deeply lined intelligent face, salt-and-pepper thinning hair, reading glasses low on nose, skeptical half smile. Worn tailored dark forest-green wool coat, burgundy scarf, brown trousers and polished but old leather shoes, battered leather satchel. Holding a weathered book gently in one hand. Standing beside his small outdoor book stall with neatly arranged books. Quiet dignity and dry wit, a formidable negotiator. Shared art direction: wet Moscow pavement, softly blurred red masonry and street life, warm late-afternoon light balanced with cool teal shadows, cinematic contrast, rich but controlled color accents. Human character dominates frame, authentic everyday urban atmosphere. Original fictional person. No text, no logos, no watermarks, no UI, no weapons, no cartoon outlines, no animal features, no fashion-model pose. One polished image."
+    },
+    {
+      "index": 1,
+      "name": "Niko",
+      "prompt": "Create one original human character for the same GTA-esque contemporary open-world Moscow game cast as Mila. Premium AAA game cinematic screenshot, grounded realistic high-end 3D rendering, natural adult anatomy, distinctive face, believable skin pores and hair, tactile worn fabrics, strong readable silhouette and understated personality. Full-body single-character portrait, complete head and both shoes visible, eye-level restrained 50mm lens. NIKO: a 27-year-old male bicycle courier, wiry athletic build, unruly dark curls, expressive brows, mischievous overconfident grin, subtle stubble. Cobalt blue and rust-orange technical sports jacket, charcoal tapered work trousers, bright cycling gloves, scuffed chunky trainers, small practical courier bag. Standing beside a scratched silver city bicycle with one foot grounded and one hand on handlebar. Cocky but endearing, perpetually short of repair money. Shared art direction: wet Moscow pavement, softly blurred red masonry and street life, warm late-afternoon light balanced with cool teal shadows, cinematic contrast, rich but controlled color accents. Human character dominates frame, authentic everyday urban atmosphere. Original fictional person. No text, no logos, no watermarks, no UI, no weapons, no cartoon outlines, no animal features, no fashion-model pose. One polished image."
+    },
+    {
+      "index": 2,
+      "name": "Irina",
+      "prompt": "Create one original human character for the same GTA-esque contemporary open-world Moscow game cast as Mila. Premium AAA game cinematic screenshot, grounded realistic high-end 3D rendering, natural adult anatomy, distinctive face, believable skin pores and hair, tactile worn fabrics, strong readable silhouette and understated personality. Full-body single-character portrait, complete head and both shoes visible, eye-level restrained 50mm lens. IRINA: a 57-year-old female guesthouse owner, sturdy average build, broad distinctive face, observant grey eyes, silver-streaked dark hair in a neat bun, composed unsmiling warmth. Immaculate plum cardigan over a cream blouse, straight dark trousers, practical burgundy leather loafers, small gold earrings, heavy brass key ring held at her side and slim ledger under other arm. Standing outside an old guesthouse doorway. Commanding calm, strict but compassionate, natural mature skin. Shared art direction: wet Moscow pavement, softly blurred red masonry and street life, warm late-afternoon light balanced with cool teal shadows, cinematic contrast, rich but controlled color accents. Human character dominates frame, authentic everyday urban atmosphere. Original fictional person. No text, no logos, no watermarks, no UI, no weapons, no cartoon outlines, no animal features, no fashion-model pose. One polished image."
+    },
+    {
+      "index": 3,
+      "name": "Sasha",
+      "prompt": "Create one original human character for the same GTA-esque contemporary open-world Moscow game cast as Mila. Premium AAA game cinematic screenshot, grounded realistic high-end 3D rendering, natural adult anatomy, distinctive face, believable skin pores and hair, tactile worn fabrics, strong readable silhouette and understated personality. Full-body single-character portrait, complete head and both shoes visible, eye-level restrained 50mm lens. SASHA: a 34-year-old female urban gardener, strong average build, warm freckled face, auburn hair loosely tied up, cheerful stubborn expression. Patched faded sage chore jacket over rust-red sweatshirt, practical dark work trousers with soil marks, muddy sturdy boots, bright yellow headphones resting around neck, worn gardening gloves. Holding a small potted plant with one hand supporting its base. Standing near a raised planting bed and a wheelbarrow on the edge of the square. Resourceful optimism, grounded working person. Shared art direction: wet Moscow pavement, softly blurred red masonry and street life, warm late-afternoon light balanced with cool teal shadows, cinematic contrast, rich but controlled color accents. Human character dominates frame, authentic everyday urban atmosphere. Original fictional person. No text, no logos, no watermarks, no UI, no weapons, no cartoon outlines, no animal features, no fashion-model pose. One polished image."
+    },
+    {
+      "index": 4,
+      "name": "Alexei",
+      "prompt": "Create one original human character for the same GTA-esque contemporary open-world Moscow game cast as Mila. Premium AAA game cinematic screenshot, grounded realistic high-end 3D rendering, natural adult anatomy, distinctive face, believable skin pores and hair, tactile worn fabrics, strong readable silhouette and understated personality. Full-body single-character portrait, complete head and both shoes visible, eye-level restrained 50mm lens. ALEXEI: a 59-year-old male public-square steward, solid build, square weathered face, short grey hair, neat grey moustache, observant tired eyes and very subtle dry smile. Faded navy municipal work jacket with subtle reflective piping but no insignia or text, grey sweater, dark work trousers, sensible black boots. Metal thermos in one hand and small closed notebook tucked under arm. Standing beside a park bench on his walking patrol. Meticulous manners, approachable authority, everyday civilian steward, no police equipment. Shared art direction: wet Moscow pavement, softly blurred red masonry and street life, warm late-afternoon light balanced with cool teal shadows, cinematic contrast, rich but controlled color accents. Human character dominates frame, authentic everyday urban atmosphere. Original fictional person. No text, no logos, no watermarks, no UI, no weapons, no cartoon outlines, no animal features, no fashion-model pose. One polished image."
+    }
+  ],
+  "jobs": [
+    {
+      "index": 0,
+      "job_id": "005b3fee-5d04-4990-b549-c955bf545c05",
+      "status": "pending"
+    },
+    {
+      "index": 1,
+      "job_id": "f98dcaf4-bcda-4ddd-84b2-afb6b3f0f4ae",
+      "status": "pending"
+    },
+    {
+      "index": 2,
+      "job_id": "56491ac7-822b-4a2f-9b94-b003c5d2d9da",
+      "status": "pending"
+    },
+    {
+      "index": 3,
+      "job_id": "efff4317-f291-4f2c-9583-c39561157870",
+      "status": "pending"
+    },
+    {
+      "index": 4,
+      "job_id": "27fc203b-bbcd-4e89-82a7-ac455259ba5f",
+      "status": "pending"
+    }
+  ],
+  "model": "soul_2",
+  "quality": "1.5k",
+  "aspect_ratio": "3:4",
+  "assetType": "2D visual concepts; not rigged geometry"
+}
