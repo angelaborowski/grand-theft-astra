@@ -1,5 +1,6 @@
+import { characterProfile } from "@gpta/core/characters";
 import type { ConversationTurn } from "@gpta/core/conversations";
-import type { Entity, EntityId } from "@gpta/core/world";
+import { isActor, type Entity, type EntityId } from "@gpta/core/world";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { actionErrorMessage, conversationSendRejected } from "../../../lib/world-connection";
@@ -19,6 +20,16 @@ import {
   type ConversationSubmission,
 } from "../models/conversation-submission";
 import { conversationQuery, conversationQueryKey } from "../queries/conversation-queries";
+
+/** Who the player is talking to: stable identity from the world, not from generated speech. */
+export type ConversationCharacter = {
+  name: string;
+  job: string;
+  story: string;
+  desire: string;
+  aiDriven: boolean;
+  talks: number;
+};
 
 /** Drafts and unresolved sends survive closing the view; saved turns own reply progress. */
 export function useConversation({
@@ -137,6 +148,19 @@ export function useConversation({
     history = { status: "failed", error: actionErrorMessage(query.error), turns };
   else history = { status: "ready", turns };
   const speech = latestPlayerTurn(query.data ?? [], playerId);
+  const actor = entities.find((entity) => entity.id === actorId);
+  let character: ConversationCharacter | null = null;
+  if (actor && isActor(actor) && actor.kind !== "player") {
+    const profile = characterProfile(actor);
+    character = {
+      name: actor.name,
+      job: actor.job,
+      story: profile.story,
+      desire: profile.desire,
+      aiDriven: available,
+      talks: (query.data ?? []).filter((turn) => turn.playerId === playerId).length,
+    };
+  }
   const composer = conversationComposer({
     actorId,
     text,
@@ -150,6 +174,7 @@ export function useConversation({
   const unresolved = submission.status === "sending" || submission.status === "uncertain";
   return {
     actorName,
+    character,
     history,
     composer,
     speech: speech?.response ?? null,

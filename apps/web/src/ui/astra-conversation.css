@@ -180,6 +180,34 @@
   font: var(--astra-weight-normal) var(--astra-text-body)/20px var(--astra-font-ui);
 }
 
+.astra-conversation-character {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--astra-line);
+  color: var(--astra-muted);
+}
+
+.astra-conversation-character p {
+  margin: 0 0 4px;
+}
+
+.astra-conversation-character-kicker {
+  display: flex;
+  gap: 10px;
+  color: var(--astra-gold);
+  font-size: var(--astra-text-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.astra-conversation-character-ai {
+  color: var(--astra-text);
+}
+
+.astra-conversation-character-meta {
+  font-size: var(--astra-text-small);
+}
+
 .astra-conversation-history ol {
   display: flex;
   flex-direction: column;

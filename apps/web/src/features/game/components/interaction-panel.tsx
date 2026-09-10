@@ -23,6 +23,7 @@ export function InteractionPanel({
     >
       <ConversationPanel
         actorName={conversation.actorName}
+        character={conversation.character}
         {...(mission ? { mission } : {})}
         history={conversation.history}
         composer={conversation.composer}

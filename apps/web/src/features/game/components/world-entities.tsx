@@ -1,5 +1,12 @@
 import { SCENE_IDS } from "@gpta/core/scene";
-import { isActor, type Entity, type EntityId, type WorldSnapshot } from "@gpta/core/world";
+import {
+  distance,
+  isActor,
+  type Entity,
+  type EntityId,
+  type WorldSnapshot,
+} from "@gpta/core/world";
+import { isInsideGuesthouse } from "@gpta/core/scene";
 import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
@@ -25,6 +32,13 @@ export function WorldEntities({
   selectedId: EntityId | null;
   select: (id: EntityId) => void;
 }) {
+  const player = snapshot.entities.find((entity) => entity.id === playerId);
+  const nearby = (entity: Entity) =>
+    player !== undefined &&
+    isActor(entity) &&
+    entity.kind !== "player" &&
+    isInsideGuesthouse(entity.position) === isInsideGuesthouse(player.position) &&
+    distance(entity.position, player.position) < TAG_RANGE;
   return (
     <>
       {snapshot.entities
@@ -42,6 +56,8 @@ export function WorldEntities({
             key={entity.id}
             entity={entity}
             selected={entity.id === selectedId}
+            tagged={nearby(entity)}
+            ai={snapshot.ai.status === "ready"}
             select={select}
           />
         ))}
@@ -49,13 +65,20 @@ export function WorldEntities({
   );
 }
 
+/** Every person within this distance shows a name tag, so the player knows who they can talk to. */
+const TAG_RANGE = 18;
+
 function WorldEntity({
   entity,
   selected,
+  tagged,
+  ai,
   select,
 }: {
   entity: Entity;
   selected: boolean;
+  tagged: boolean;
+  ai: boolean;
   select: (id: EntityId) => void;
 }) {
   const group = useRef<Group>(null);
@@ -107,10 +130,18 @@ function WorldEntity({
       ) : (
         <EntityBody entity={entity} />
       )}
-      {(selected || (GAME_DEBUG && namedEntities.has(entity.id))) && (
+      {(selected || tagged || (GAME_DEBUG && namedEntities.has(entity.id))) && (
         <Html position={[0, entity.kind === "business" ? 4 : 2.5, 0]} center zIndexRange={[8, 0]}>
-          <button className="entity-label" onClick={() => select(entity.id)}>
-            {entity.kind === "player" && entity.name === "You" ? "Player" : entity.name}
+          <button className="entity-label" data-talk={tagged} onClick={() => select(entity.id)}>
+            <strong>
+              {entity.kind === "player" && entity.name === "You" ? "Player" : entity.name}
+            </strong>
+            {tagged && isActor(entity) && (
+              <small>
+                {entity.job}
+                {ai && " · AI"}
+              </small>
+            )}
           </button>
         </Html>
       )}

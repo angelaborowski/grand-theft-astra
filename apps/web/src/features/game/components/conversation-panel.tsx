@@ -3,6 +3,7 @@ import type {
   ConversationEntry,
   ConversationHistory,
 } from "../models/conversation-view";
+import type { ConversationCharacter } from "../hooks/use-conversation";
 import { ConversationTranscript } from "./conversation-transcript";
 import { ConversationResponse } from "./conversation-response";
 import { ConversationReply } from "./conversation-reply";
@@ -10,6 +11,7 @@ import { ConversationReply } from "./conversation-reply";
 /** Current speech and History share one lower area and one unchanged reply draft. */
 export function ConversationPanel({
   actorName,
+  character = null,
   history,
   composer,
   speech = null,
@@ -19,6 +21,7 @@ export function ConversationPanel({
   actions,
 }: {
   actorName: string;
+  character?: ConversationCharacter | null;
   history: ConversationHistory;
   composer: ConversationComposer;
   speech?: ConversationEntry["response"] | null;
@@ -45,7 +48,12 @@ export function ConversationPanel({
           </button>
         )}
         {view === "history" ? (
-          <ConversationTranscript actorName={actorName} history={history} reload={actions.reload} />
+          <ConversationTranscript
+            actorName={actorName}
+            character={character}
+            history={history}
+            reload={actions.reload}
+          />
         ) : (
           <>
             {speech !== null && <ConversationResponse actorName={actorName} response={speech} />}

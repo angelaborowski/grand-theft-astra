@@ -93,6 +93,9 @@
   font-size: 13px;
 }
 .entity-label {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
   white-space: nowrap;
   font-size: 10px;
   padding: 3px 7px;
@@ -100,6 +103,13 @@
   background: #15231ee6;
   color: #f0f2ec;
   border-color: #78928566;
+}
+.entity-label small {
+  font-size: 9px;
+  color: #bebdb9;
+}
+.entity-label[data-talk="true"] {
+  border-color: #dab27c99;
 }
 .game-sidebar {
   display: flex;
