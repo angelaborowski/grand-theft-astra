@@ -189,7 +189,7 @@
 .astra-opening-actions {
   position: absolute;
   right: 24px;
-  top: 24px;
+  top: 72px;
   display: flex;
   gap: 8px;
   pointer-events: auto;
