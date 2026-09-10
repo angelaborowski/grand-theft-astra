@@ -40,3 +40,5 @@ blender --background --factory-startup --python-exit-code 1 --python source/blen
 ```
 
 The before image uses the GLB from parent commit `b51fd71`; retain that commit to reproduce it. Independent review checked the wheel pivots and identified the canopy gap fixed in this pass. GLB reimport validation passes. A separate Three.js GPU viewer verifies model import and wheel rotation; this is distinct from a driving playthrough in the parent game's current mission build.
+
+The Ferrari carries ivory `ASTRA` / `MOBILE` lettering on both doors at the user's request. The text is converted to subdivided mesh geometry and projected onto the body surface, so it survives GLB export without external fonts or textures.

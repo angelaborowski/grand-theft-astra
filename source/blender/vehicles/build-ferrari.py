@@ -80,6 +80,25 @@ for x in [-.72,.72]:
  for xx in [x-.065,x+.065]:rod('Exhaust tip',(xx,1.93,.41),(xx,2.15,.41),.055,chrome)
 box('Rear diffuser',(0,2.05,.42),(1.52,.15,.16),black,.02)
 for x in [-.5,-.25,0,.25,.5]:box('Diffuser vane',(x,2.08,.34),(.025,.29,.19),black,.005)
+# Painted door lettering is real exportable geometry fitted to the existing body.
+from mathutils.bvhtree import BVHTree
+bpy.context.view_layer.update()
+hull=BVHTree.FromObject(body,bpy.context.evaluated_depsgraph_get())
+lettering=mat('Astra Mobile ivory lettering',(.91,.92,.86),0,.48)
+for side in [-1,1]:
+ for word,height,size in [('ASTRA',.67,.19),('MOBILE',.51,.09)]:
+  bpy.ops.object.select_all(action='DESELECT')
+  curve=bpy.data.curves.new('Astra Mobile lettering','FONT');curve.body=word;curve.align_x='CENTER';curve.align_y='CENTER';curve.size=size;curve.resolution_u=8
+  label=bpy.data.objects.new('Astra Mobile '+word+(' left' if side<0 else ' right'),curve);bpy.context.collection.objects.link(label);label.select_set(True);bpy.context.view_layer.objects.active=label;bpy.ops.object.convert(target='MESH')
+  label=bpy.context.object;label.data.materials.append(lettering)
+  import bmesh
+  bm=bmesh.new();bm.from_mesh(label.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bmesh.ops.subdivide_edges(bm,edges=list(bm.edges),cuts=3,use_grid_fill=True);bm.to_mesh(label.data);bm.free()
+  for vertex in label.data.vertices:
+   y=side*vertex.co.x;z=height+vertex.co.y
+   hit,normal,index,distance=hull.ray_cast(Vector((side*2,y,z)),Vector((-side,0,0)),3)
+   assert hit is not None,'Lettering must lie on the door surface'
+   vertex.co=(hit.x+side*.006,y,z)
+  label.select_set(False)
 import bmesh
 for o in list(bpy.context.scene.objects):
  if o.type=='MESH':

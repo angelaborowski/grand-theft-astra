@@ -41,8 +41,8 @@
   },
   {
     "asset": "ferrari-12cilindri",
-    "triangles": 30868,
-    "meshes": 149,
+    "triangles": 41844,
+    "meshes": 153,
     "wheel_pivots": [
       "WheelFrontL",
       "WheelRearL",
@@ -54,8 +54,8 @@
       4.440000057220459,
       1.3390000333311036
     ],
-    "bytes": 1431764,
-    "sha256": "7913f3ce8aba845cd9c66807424b038c6f6b128bb30e139b1123e89ae33d24d1",
+    "bytes": 2281472,
+    "sha256": "3e5cbe842dd3e83aee96acb488c0f8b82de18b1b1650a207355f66bd97769d80",
     "reimported": true,
     "finite_coordinates": true,
     "uvs": true
