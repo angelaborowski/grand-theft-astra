@@ -230,3 +230,5 @@ Codex browser screenshots saved in the parent outputs/playability directory show
 ### Direct first-mission entry
 
 The in-game mission panel offers Play first mission once assets and the connection are ready. It places the player in their own stunt car near Mila and starts the existing timed mission. Active attempts retain their timer; completed rewards remain protected; other saved progress is retained. The server alone chooses spawn and validates the action. Driving bodies remount for a fresh mission deadline/vehicle so retries use the accepted spawn. Existing approach-Mila interactions remain available; the opening screen is unchanged. Storybook: /?path=/story/game-last-flight--briefing.
+
+Mission readiness follow-up: menu launches now select a clear starting lane at x=20 before the first gate, independent of Mila's moving position. The mission HUD reports next-gate distance and driving controls and offers Exit car / Deliver film after gate four; completion still uses existing server range, deadline and reward checks. Browser verified failure-to-retry button and the earlier direct launch; full continuous manual driving remains a separate verification item.

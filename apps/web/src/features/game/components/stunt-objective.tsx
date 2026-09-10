@@ -1,17 +1,20 @@
-import { SCENE_IDS, STUNT, stuntVehicleId } from "@gpta/core/scene";
-import type { EntityId, Player } from "@gpta/core/world";
+import { MOVEMENT, SCENE_IDS, STUNT, stuntVehicleId } from "@gpta/core/scene";
+import type { PlayerAction } from "@gpta/core/actions";
+import { distance, type EntityId, type Player } from "@gpta/core/world";
 
 export function StuntObjective({
   player,
   time,
   select,
   launch,
+  act,
   canLaunch = true,
 }: {
   player: Player;
   time: number;
   select: (id: EntityId) => void;
   launch: () => void;
+  act: (action: PlayerAction) => void;
   canLaunch?: boolean;
 }) {
   const mission = player.stunt;
@@ -36,6 +39,7 @@ export function StuntObjective({
       : mission?.stage === "failed"
         ? "No penalty. Start again when you’re ready."
         : "Mila needs a driver. Two ramps, one film canister, and a helicopter that won't wait.";
+  const nextGate = running ? STUNT.checkpoints[mission.checkpoint] : undefined;
   const target = running
     ? mission.checkpoint === 4
       ? SCENE_IDS.helipad
@@ -58,6 +62,35 @@ export function StuntObjective({
           Play first mission
         </button>
       )}
+      {nextGate && (
+        <p>
+          Next gate: {Math.round(distance(player.position, nextGate))} m · W accelerate · A/D steer
+          · Space brake
+        </p>
+      )}
+      {running &&
+        mission.checkpoint === 4 &&
+        (player.behavior.type === "driving" ? (
+          <button
+            disabled={!canLaunch}
+            onClick={() => {
+              if (player.behavior.type === "driving")
+                act({ type: "exit_vehicle", targetId: player.behavior.vehicleId });
+            }}
+          >
+            Exit car
+          </button>
+        ) : (
+          <button
+            className="primary-button"
+            disabled={
+              !canLaunch || distance(player.position, STUNT.pickup) > MOVEMENT.interactionRange
+            }
+            onClick={() => act({ type: "finish_stunt", targetId: SCENE_IDS.helipad })}
+          >
+            Deliver film · ₽250
+          </button>
+        ))}
       {running && (
         <button onClick={() => select(target)}>
           {running ? (mission.checkpoint === 4 ? "Locate pickup" : "Locate car") : "Find Mila"}

@@ -168,6 +168,20 @@ export function applyPlayerAction(
     const car = started.world.entities.find((entity) => entity.id === stuntVehicleId(actorId));
     if (driver?.kind !== "player" || car?.kind !== "vehicle")
       return reject("Mission car unavailable.");
+    const startPosition = [110, 117, 124, 131]
+      .map((z) => ({ x: STUNT.checkpoints[0].x, z }))
+      .find(
+        (position) =>
+          positionIsWalkable(position) &&
+          !started.world.entities.some(
+            (entity) =>
+              entity.id !== car.id &&
+              entity.kind === "vehicle" &&
+              distance(position, entity.position) < 6,
+          ),
+      );
+    if (!startPosition) return reject("The starting lane is occupied. Try again in a moment.");
+    car.position = startPosition;
     driver.position = { ...car.position };
     driver.behavior = { type: "driving", vehicleId: car.id };
     return started;

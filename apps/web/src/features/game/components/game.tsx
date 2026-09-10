@@ -45,7 +45,11 @@ export default function Game() {
     );
   const { snapshot, player, connection, action } = world;
   const showOverview = overview && !isInsideGuesthouse(player.position);
-  const entity = selectedEntity(snapshot, player, selectedId);
+  const entity = selectedEntity(
+    snapshot,
+    player,
+    player.behavior.type === "driving" ? player.behavior.vehicleId : selectedId,
+  );
   const view = activityView(snapshot);
   const result =
     action.status === "error"
@@ -112,6 +116,7 @@ export default function Game() {
             time={snapshot.time}
             select={setSelectedId}
             canLaunch={sceneReady && connection.status === "connected" && !action.isPending}
+            act={action.mutate}
             launch={() => action.mutate({ type: "launch_stunt", targetId: SCENE_IDS.mila })}
           />
           <ConversationSpeech entity={entity} playerId={player.id} />

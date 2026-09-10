@@ -190,6 +190,8 @@ it("launches from the menu in the owned car without granting progress or resetti
   if (!result.accepted) throw new Error(result.error.message);
   const driver = player(result.world);
   expect(driver.behavior).toEqual({ type: "driving", vehicleId: stuntVehicleId(driver.id) });
+  expect(driver.position.x).toBe(STUNT.checkpoints[0].x);
+  expect(driver.position.z).toBeGreaterThan(STUNT.checkpoints[0].z);
   expect(driver.money).toBe(player(world).money);
   expect(driver.stunt).toMatchObject({ stage: "running", checkpoint: 0 });
   expect(driver.position).toEqual(
