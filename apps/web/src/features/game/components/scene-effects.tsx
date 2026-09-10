@@ -42,8 +42,16 @@ export function SceneEffects() {
       Math.max(1, Math.round(size.height * viewport.dpr * 0.5)),
     );
   }, [gl, scene, camera, size.width, size.height, viewport.dpr]);
-  useFrame(() => {
-    current.current?.render();
+  useFrame(({ gl: renderer }) => {
+    // Update the sun once in the beauty pass; the normals pass reuses the same shadow map.
+    const autoUpdate = renderer.shadowMap.autoUpdate;
+    renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true;
+    try {
+      current.current?.render();
+    } finally {
+      renderer.shadowMap.autoUpdate = autoUpdate;
+    }
   }, 1);
   return null;
 }

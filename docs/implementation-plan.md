@@ -207,4 +207,6 @@ The Ferrari now carries user-requested ivory `ASTRA MOBILE` lettering on both do
 
 ## Museum facade asset pass — 10 September 2026
 
-An isolated building task adds an editable museum replacement in `source/blender/museum-detail/` and `public/assets/museum-detail.glb`. It retains the original mapped shell and collision coordinates, adds photo-informed arched facade geometry and roof materials, and supplies Blender/WebGL comparisons. Parent owns the loader integration: hide the complete old museum group, disable `museumDetail`, load the replacement at the shared scene offset. See `docs/building-accuracy.md` for evidence, validation and unresolved accuracy work.
+An isolated building task adds an editable museum replacement in `source/blender/museum-detail/` and `public/assets/museum-detail.glb`. It retains the original mapped shell and collision coordinates, adds photo-informed arched facade geometry and roof materials, and supplies Blender/WebGL comparisons. Integrated in the game loader: the complete old museum group is hidden, `museumDetail` is disabled, and the replacement loads at the shared scene offset with its exported materials. See `docs/building-accuracy.md` for evidence, validation and unresolved accuracy work.
+
+The composer now updates the sun shadow map once per frame during the beauty pass; the normals pass reuses it. This removes a redundant shadow render without reducing shadow resolution.

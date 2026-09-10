@@ -38,19 +38,21 @@ function AnimatedCharacter({
   const gltf = useGLTF(asset);
   const [model] = useState(() => cloneCharacter(gltf.scene, color));
   const [mixer] = useState(() => new AnimationMixer(model));
-  const [actions] = useState(() =>
-    Object.fromEntries(gltf.animations.map((clip) => [clip.name, mixer.clipAction(clip)])),
-  );
+  const actions = useRef<Record<string, AnimationAction>>({});
   const position = useRef(new Vector3());
   const elapsed = useRef(0);
-  useEffect(
-    () => () => {
+  const current = useRef<AnimationAction | null>(null);
+  useEffect(() => {
+    actions.current = Object.fromEntries(
+      gltf.animations.map((clip) => [clip.name, mixer.clipAction(clip)]),
+    );
+    return () => {
+      current.current = null;
+      actions.current = {};
       mixer.stopAllAction();
       mixer.uncacheRoot(model);
-    },
-    [mixer, model],
-  );
-  const current = useRef<AnimationAction | null>(null);
+    };
+  }, [gltf.animations, mixer, model]);
   useFrame(({ camera }, delta) => {
     model.getWorldPosition(position.current);
     const distance = camera.position.distanceToSquared(position.current);
@@ -61,7 +63,7 @@ function AnimatedCharacter({
     const step = elapsed.current;
     elapsed.current = 0;
     const speed = motion.current.speed;
-    const action = actions[speed > 0.05 ? "Walk" : "Idle"];
+    const action = actions.current[speed > 0.05 ? "Walk" : "Idle"];
     if (!action) return;
     if (current.current !== action) {
       current.current?.fadeOut(0.2);

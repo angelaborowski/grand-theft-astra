@@ -10,9 +10,14 @@ import {
   SRGBColorSpace,
   Vector2,
 } from "three";
-import { extendGum, museumDetail } from "../models/world-polish";
+import { extendGum } from "../models/world-polish";
 
-const sceneAssets = [RED_SQUARE_SCENE.asset, "/assets/world-detail.glb", "/assets/gum-detail.glb"];
+const sceneAssets = [
+  RED_SQUARE_SCENE.asset,
+  "/assets/world-detail.glb",
+  "/assets/gum-detail.glb",
+  "/assets/museum-detail.glb",
+];
 const pavingTextures = {
   map: "/assets/materials/scanned/cobblestone_floor_08-Diffuse.jpg",
   normalMap: "/assets/materials/scanned/cobblestone_floor_08-nor_gl.jpg",
@@ -51,14 +56,20 @@ function LoadedScene() {
     return textures;
   });
   const [scenes] = useState(() =>
-    assets.map((asset) => {
+    assets.map((asset, index) => {
       const scene = asset.scene.clone(true);
       scene.traverse((object) => {
+        if (
+          /Paved.*site/.test(object.name) ||
+          (index === 0 && /Mapped.*Historical.*Museum/.test(object.name))
+        )
+          object.visible = false;
         if (!(object instanceof Mesh)) return;
         object.geometry = object.geometry.clone();
         const applyBrick = (material: import("three").Material) => {
           const m = material.clone();
           if (
+            index !== 3 &&
             m instanceof MeshStandardMaterial &&
             /red brick|orange-red masonry|Museum.*oxblood|Brick.*terracotta/.test(m.name)
           ) {
@@ -104,14 +115,12 @@ function LoadedScene() {
     }),
   );
   const [polish] = useState(() => {
-    const city = scenes[0],
-      gum = scenes[2];
-    return { museum: city ? museumDetail(city) : null, gum: gum ? extendGum(gum) : null };
+    const gum = scenes[2];
+    return { gum: gum ? extendGum(gum) : null };
   });
   return (
     <>
       <group position={[0, RED_SQUARE_SCENE.offsetY, 0]}>
-        {polish.museum && <primitive object={polish.museum} dispose={null} />}
         {polish.gum && <primitive object={polish.gum} dispose={null} />}
         {scenes.map((scene) => (
           <primitive key={scene.uuid} object={scene} dispose={null} />
