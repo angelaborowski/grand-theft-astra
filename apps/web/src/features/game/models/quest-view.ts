@@ -12,6 +12,26 @@ export type QuestEntry = {
   reward: string | null;
 };
 
+/** Quest identity survives destination changes; map destinations remain independent. */
+export type QuestTracking =
+  | { type: "objective" }
+  | { type: "quest"; id: QuestEntry["id"] }
+  | { type: "entity"; id: EntityId }
+  | { type: "none" };
+
+/** Stopping tracking hides the quest until the player explicitly tracks it again. */
+export function trackedQuest(player: Player, tracking: QuestTracking): QuestEntry | null {
+  if (tracking.type === "none" || tracking.type === "entity") return null;
+  const id =
+    tracking.type === "quest"
+      ? tracking.id
+      : player.stunt?.stage === "running"
+        ? "stunt"
+        : "shelter";
+  const quest = playerQuests(player).find((entry) => entry.id === id);
+  return quest?.targetId ? quest : null;
+}
+
 /** Only offered rewards and missions already present in player state appear here. */
 export function playerQuests(player: Player): [QuestEntry, ...QuestEntry[]] {
   const objective = missionObjective(player);
@@ -38,7 +58,9 @@ function stuntQuest(playerId: EntityId, stunt: NonNullable<Player["stunt"]>): Qu
     return {
       id: "stunt",
       name: "Last Flight",
-      objective: atPickup ? "Deliver the film" : "Drive through the gates",
+      objective: atPickup
+        ? "Deliver the film at the helipad"
+        : (STUNT.checkpoints[stunt.checkpoint]?.label ?? "Drive through the gates"),
       description: atPickup
         ? "Park at the helicopter and hand over the film."
         : "Follow the amber gates in order.",

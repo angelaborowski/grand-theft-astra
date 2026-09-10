@@ -87,8 +87,10 @@ export function useCharacterInput({
     const key = PLAYER_KEYBOARD_MAP.find((entry) => entry.keys.includes(event.code))?.name;
     if (key) {
       blockedKeys.current.delete(key);
-      if (DIRECTION_KEYS.some((directionKey) => directionKey === key))
+      if (DIRECTION_KEYS.some((directionKey) => directionKey === key)) {
+        if (!captured()) camera.current?.lockPointer();
         needsDirection.current = false;
+      }
     }
     if (event.code === "Space") {
       event.preventDefault();

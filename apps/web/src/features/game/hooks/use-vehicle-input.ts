@@ -27,7 +27,10 @@ export function useVehicleInput(
   const keydown = useEffectEvent((event: KeyboardEvent) => {
     if (!active() || event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
     const key = PLAYER_KEYBOARD_MAP.find((entry) => entry.keys.includes(event.code))?.name;
-    if (key) blockedKeys.current.delete(key);
+    if (key) {
+      if (!pointerCaptured(gl.domElement)) camera.current?.lockPointer();
+      blockedKeys.current.delete(key);
+    }
     if (event.code === "Space") event.preventDefault();
     if (event.code === "KeyF") {
       event.preventDefault();

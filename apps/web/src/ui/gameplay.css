@@ -17,11 +17,9 @@
 }
 
 .gameplay-equipment {
-  position: absolute;
-  right: var(--astra-screen-gutter);
-  top: calc(var(--astra-screen-gutter) + 5rem);
   display: grid;
-  gap: 0.4rem;
+  gap: var(--astra-space-xs);
+  margin-top: var(--astra-space-sm);
   text-align: right;
   font-size: var(--astra-text-body);
 }
@@ -29,12 +27,13 @@
 .gameplay-prompt {
   position: absolute;
   left: 50%;
-  bottom: 18%;
+  top: calc(50% + var(--astra-space-lg));
   transform: translateX(-50%);
   display: grid;
   justify-items: center;
-  gap: 0.5rem;
-  max-width: 70%;
+  gap: var(--astra-space-sm);
+  width: max-content;
+  max-width: min(32rem, 70%);
   text-align: center;
 }
 

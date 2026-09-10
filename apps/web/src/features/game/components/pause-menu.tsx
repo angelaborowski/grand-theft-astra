@@ -5,6 +5,7 @@ import type { ConnectionState } from "../../../lib/world-connection";
 import { ControlHint } from "../../../ui/game-controls";
 import { GameDialog } from "../../../ui/game-dialog";
 import type { PauseTab } from "../models/menu-state";
+import type { QuestEntry } from "../models/quest-view";
 import { PauseContent } from "./pause-content";
 import { PauseTabs } from "./pause-tabs";
 
@@ -16,6 +17,7 @@ export function PauseMenu({
   connection,
   pending,
   destinationId = null,
+  trackedQuestId,
   notice,
   actions,
 }: {
@@ -25,12 +27,14 @@ export function PauseMenu({
   connection: ConnectionState;
   pending: boolean;
   destinationId?: EntityId | null;
+  trackedQuestId: QuestEntry["id"] | null;
   notice?: ReactNode;
   actions: {
     close: () => void;
     tab: (tab: PauseTab) => void;
     select?: (id: EntityId) => void;
     track?: (id: EntityId | null) => void;
+    trackQuest: (id: QuestEntry["id"] | null) => void;
     overview: () => void;
     leave: () => void;
     command?: (command: PlayerCommand) => Promise<void>;
@@ -66,9 +70,11 @@ export function PauseMenu({
           connection={connection}
           pending={pending}
           destinationId={destinationId}
+          trackedQuestId={trackedQuestId}
           actions={{
             close: actions.close,
             track: actions.track,
+            trackQuest: actions.trackQuest,
             overview: actions.overview,
             leave: actions.leave,
             ...(actions.command ? { command: actions.command } : {}),

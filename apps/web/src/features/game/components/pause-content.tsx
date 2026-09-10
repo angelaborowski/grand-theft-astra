@@ -2,6 +2,7 @@ import type { PlayerCommand } from "@gpta/core/gameplay-v2";
 import type { EntityId, Player, WorldSnapshot } from "@gpta/core/world";
 import type { ConnectionState } from "../../../lib/world-connection";
 import type { PauseTab } from "../models/menu-state";
+import type { QuestEntry } from "../models/quest-view";
 import { InventoryMenu } from "./inventory-menu";
 import { MissionPanel } from "./mission-panel";
 import { PauseGame } from "./pause-game";
@@ -16,6 +17,7 @@ export function PauseContent({
   connection,
   pending,
   destinationId,
+  trackedQuestId,
   actions,
 }: {
   tab: PauseTab;
@@ -24,9 +26,11 @@ export function PauseContent({
   connection: ConnectionState;
   pending: boolean;
   destinationId: EntityId | null;
+  trackedQuestId: QuestEntry["id"] | null;
   actions: {
     close: () => void;
     track: ((id: EntityId | null) => void) | undefined;
+    trackQuest: (id: QuestEntry["id"] | null) => void;
     overview: () => void;
     leave: () => void;
     command?: (command: PlayerCommand) => Promise<void>;
@@ -46,8 +50,8 @@ export function PauseContent({
       <MissionPanel
         player={player}
         snapshot={snapshot}
-        destinationId={destinationId}
-        actions={{ track: actions.track }}
+        trackedQuestId={trackedQuestId}
+        actions={{ track: actions.trackQuest }}
       />
     );
   if (tab === "inventory")

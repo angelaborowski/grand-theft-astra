@@ -1,12 +1,15 @@
-import { isInsideGuesthouse, SCENE_IDS, STUNT, stuntVehicleId } from "@gpta/core/scene";
+import { isInsideGuesthouse } from "@gpta/core/scene";
+import { FlagPennantIcon } from "@phosphor-icons/react";
 import type { EntityId, Player, WorldSnapshot } from "@gpta/core/world";
 import type { ConnectionState } from "../../../lib/world-connection";
 import { ControlHint } from "../../../ui/game-controls";
 import { DebugDetails } from "../../../ui/debug-details";
-import { missionObjective } from "../models/mission-view";
+import { gameTime } from "../models/game-view";
+import type { QuestEntry } from "../models/quest-view";
 import { Minimap } from "./minimap";
+import { GameEquipment } from "./game-equipment";
 
-/** HUD notices follow accepted game state; CSS owns their brief display lifetime. */
+/** Status stays visible; the tracked quest shares the map destination. */
 export function GameHud({
   snapshot,
   player,
@@ -14,6 +17,7 @@ export function GameHud({
   overview,
   destinationId = null,
   quiet = false,
+  quest,
   actions,
 }: {
   snapshot: WorldSnapshot;
@@ -22,48 +26,58 @@ export function GameHud({
   overview: boolean;
   destinationId?: EntityId | null;
   quiet?: boolean;
+  quest: QuestEntry | null;
   actions: { pause: () => void; interact: () => void; overview: () => void; mission: () => void };
 }) {
   const inside = isInsideGuesthouse(player.position);
-  const mission = missionObjective(player);
   const stunt = player.stunt;
-  let objective = mission.title;
-  if (stunt?.stage === "running")
-    objective = STUNT.checkpoints[stunt.checkpoint]?.label ?? "Deliver the film at the helipad";
   const remaining =
     stunt?.stage === "running"
       ? Math.max(0, Math.ceil((stunt.deadline - snapshot.time) / 1000))
       : null;
   return (
     <div className="astra-hud" data-quiet={quiet}>
-      <div className="astra-hud-stats" aria-label="Cash">
-        <output key={player.money} className="astra-hud-cash astra-notice">
+      <div className="astra-hud-stats" aria-label="Player status">
+        <time className="astra-hud-clock" aria-label="Game time">
+          {gameTime(snapshot.time).slice(0, 5)}
+        </time>
+        <output className="astra-hud-cash" aria-label="Money">
           ₽{player.money.toLocaleString("en-US")}
         </output>
+        <GameEquipment player={player} />
+        {quest && (
+          <div className="astra-hud-quest" role="status">
+            <span className="astra-hud-quest-name">
+              <FlagPennantIcon size={18} weight="fill" aria-hidden="true" />
+              <span>Quest · {quest.name}</span>
+            </span>
+            <p className="astra-hud-objective">{quest.objective}</p>
+          </div>
+        )}
+        {remaining !== null && (
+          <output className="astra-hud-timer" aria-label="Time remaining">
+            {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, "0")}
+          </output>
+        )}
       </div>
-      <p key={objective} className="astra-hud-objective astra-notice" role="status">
-        {objective}
-      </p>
-      {remaining !== null && (
-        <output className="astra-hud-timer" aria-label="Time remaining">
-          {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, "0")}
-        </output>
-      )}
       <div className="astra-hud-map">
         <Minimap snapshot={snapshot} player={player} destinationId={destinationId} />
-        <meter
-          className="astra-hud-health"
-          aria-label="Health"
-          min={0}
-          max={100}
-          value={player.health}
-        >
-          {player.health}
-        </meter>
+        <div className="astra-hud-vitals">
+          <span className="astra-hud-health-label">
+            Health <strong>{player.health}</strong>
+          </span>
+          <meter
+            className="astra-hud-health"
+            aria-label="Health"
+            min={0}
+            max={100}
+            value={player.health}
+          >
+            {player.health}
+          </meter>
+        </div>
       </div>
-      <p key={String(inside)} className="astra-hud-location astra-notice">
-        {inside ? "Irina’s guesthouse" : "Red Square"}
-      </p>
+      <p className="astra-hud-location">{inside ? "Irina’s guesthouse" : "Red Square"}</p>
       {overview && (
         <button className="astra-overview-return" onClick={actions.overview}>
           <ControlHint keys="ESC">Return</ControlHint>
@@ -77,11 +91,4 @@ export function GameHud({
       )}
     </div>
   );
-}
-
-/** New sessions track the current real objective without opening an interaction. */
-export function initialDestination(player: Player): EntityId | null {
-  if (player.stunt?.stage === "running")
-    return player.stunt.checkpoint === 4 ? SCENE_IDS.helipad : stuntVehicleId(player.id);
-  return player.shelter === "rented" ? null : missionObjective(player).targetId;
 }

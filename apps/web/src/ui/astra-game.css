@@ -21,17 +21,31 @@
   z-index: 9;
   pointer-events: none;
   text-shadow: var(--astra-text-shadow);
+  display: grid;
+  grid-template-columns: 1fr var(--astra-hud-status-width);
+  align-content: start;
+  padding: var(--astra-screen-gutter);
 }
 .astra-hud-stats {
-  position: absolute;
-  top: var(--astra-screen-gutter);
-  right: var(--astra-screen-gutter);
+  grid-column: 2;
+  display: grid;
+  justify-items: end;
+  gap: var(--astra-space-xs);
+  width: var(--astra-hud-status-width);
+  text-align: right;
   font-variant-numeric: tabular-nums;
 }
+.astra-hud-clock,
 .astra-hud-cash {
   display: block;
-  font-size: var(--astra-text-heading);
+  font-size: var(--astra-text-status);
   font-weight: var(--astra-weight-bold);
+  line-height: 1;
+  -webkit-text-stroke: 1px var(--astra-ink);
+  paint-order: stroke fill;
+}
+.astra-hud-cash {
+  color: var(--astra-hud-green);
 }
 .astra-hud-map {
   position: absolute;
@@ -39,59 +53,76 @@
   bottom: var(--astra-screen-gutter);
   width: var(--astra-radar-width);
 }
+.astra-hud-vitals {
+  padding: var(--astra-space-xs) var(--astra-space-sm) var(--astra-space-sm);
+  background: var(--astra-panel);
+}
+.astra-hud-health-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--astra-space-xs);
+  font-size: var(--astra-text-small);
+  font-variant-numeric: tabular-nums;
+}
 .astra-hud-health {
   display: block;
   width: 100%;
-  height: 4px;
-  margin-top: 3px;
+  height: var(--astra-health-height);
   appearance: none;
   border: 0;
   background: var(--astra-panel-strong);
 }
 .astra-hud-health::-webkit-meter-bar {
-  height: 4px;
+  height: var(--astra-health-height);
   border: 0;
   border-radius: 0;
   background: var(--astra-panel-strong);
 }
 .astra-hud-health::-webkit-meter-optimum-value {
-  background: var(--astra-gold);
+  background: var(--astra-hud-green);
 }
 .astra-hud-health::-moz-meter-bar {
-  background: var(--astra-gold);
+  background: var(--astra-hud-green);
+}
+.astra-hud-quest {
+  display: grid;
+  gap: var(--astra-space-xs);
+  margin-top: var(--astra-space-lg);
+}
+.astra-hud-quest-name {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--astra-space-sm);
+  color: var(--astra-gold);
+  font-size: var(--astra-text-body);
+  font-weight: var(--astra-weight-bold);
 }
 .astra-hud-objective {
-  position: absolute;
-  left: 50%;
-  bottom: calc(var(--astra-screen-gutter) + 1rem);
-  width: min(42rem, 54vw);
-  transform: translateX(-50%);
-  text-align: center;
-  font-size: var(--astra-text-heading);
-  line-height: 1.2;
-  animation-duration: var(--astra-objective-duration);
+  margin: 0;
+  font-size: var(--astra-text-body);
+  line-height: 1.35;
 }
 .astra-hud-location {
   position: absolute;
   right: var(--astra-screen-gutter);
   bottom: var(--astra-screen-gutter);
+  margin: 0;
+  max-width: 44vw;
+  text-align: right;
   font-size: var(--astra-text-heading);
+  font-style: italic;
+  font-weight: var(--astra-weight-bold);
 }
 .astra-hud-timer {
-  position: absolute;
-  top: var(--astra-screen-gutter);
-  left: 50%;
-  transform: translateX(-50%);
   font-size: var(--astra-text-heading);
+  color: var(--astra-gold);
   font-variant-numeric: tabular-nums;
 }
 .astra-notice {
   animation-name: astra-notice;
   animation-duration: var(--astra-notice-duration);
   animation-fill-mode: both;
-}
-.astra-hud-objective.astra-notice {
-  animation-duration: var(--astra-objective-duration);
 }
 .astra-hud[data-quiet="true"] > :not(.astra-hud-map, .astra-connection-alert) {
   visibility: hidden;
@@ -102,7 +133,7 @@
 .astra-overview-return {
   position: absolute;
   right: var(--astra-screen-gutter);
-  bottom: var(--astra-screen-gutter);
+  bottom: calc(var(--astra-screen-gutter) + var(--astra-text-heading) + var(--astra-space-md));
   pointer-events: auto;
   border: 0;
   border-radius: 0;
@@ -173,15 +204,11 @@
   }
 }
 @media (max-width: 700px) {
-  .astra-hud-objective {
-    width: 60%;
-    font-size: var(--astra-text-body);
-    bottom: 10rem;
+  .astra-hud-clock,
+  .astra-hud-cash {
+    font-size: var(--astra-text-heading);
   }
   .astra-hud-location {
     font-size: var(--astra-text-body);
-  }
-  .astra-hud-map {
-    width: 10rem;
   }
 }
