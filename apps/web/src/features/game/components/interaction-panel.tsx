@@ -34,7 +34,7 @@ export function InteractionPanel({
     inspect: (id: EntityId) => Promise<MethodResult<"actor.inspect">>;
   };
 }) {
-  const [text, setText] = useState("What is happening in the square?");
+  const [text, setText] = useState("");
   if (!entity)
     return (
       <section className="interaction-panel panel">
@@ -47,89 +47,100 @@ export function InteractionPanel({
     <section className="interaction-panel panel" aria-label="Entity interaction">
       <div className="interaction-heading">
         <div>
-          <span className="eyebrow">{entity.kind} / INSPECT & INTERACT</span>
+          <span className="eyebrow">{entity.kind}</span>
           <strong>{entity.name}</strong>
         </div>
         <span>{meters.toFixed(1)} m</span>
       </div>
-      <p className="interaction-goal">{entityDescription(entity)}</p>
-      <label className="target-select">
-        Target
-        <select
-          aria-label="Interaction target"
-          value={entity.id}
-          onChange={(event) => {
-            const target = snapshot.entities.find((entry) => entry.id === event.target.value);
-            if (target) actions.select(target.id);
-          }}
-        >
-          {snapshot.entities
-            .filter(
-              (entry) =>
-                entry.id !== player.id &&
-                isInsideGuesthouse(entry.position) === isInsideGuesthouse(player.position),
-            )
-            .map((entry) => (
-              <option key={entry.id} value={entry.id}>
-                {entry.name} · {distance(player.position, entry.position).toFixed(0)} m
-              </option>
-            ))}
-        </select>
-      </label>
-      <div className="interaction-buttons">
-        <MissionActions player={player} entity={entity} enabled={canAct} act={actions.act} />
-        <LeaveGuesthouse
-          player={player}
-          enabled={enabled && result.status !== "pending"}
-          act={actions.act}
-        />
-        {player.behavior.type === "driving" && (
-          <button
-            className="primary-button"
-            disabled={!enabled || result.status === "pending"}
-            onClick={() => {
-              if (player.behavior.type === "driving")
-                actions.act({ type: "exit_vehicle", targetId: player.behavior.vehicleId });
+      <p className="interaction-goal">
+        {entity.kind === "vehicle"
+          ? entity.ownerId === player.id
+            ? "Your car"
+            : "Parked vehicle"
+          : entityDescription(entity)}
+      </p>
+      <details className="target-picker">
+        <summary>Choose another target</summary>
+        <label className="target-select">
+          Target
+          <select
+            aria-label="Interaction target"
+            value={entity.id}
+            onChange={(event) => {
+              const target = snapshot.entities.find((entry) => entry.id === event.target.value);
+              if (target) actions.select(target.id);
             }}
           >
-            Exit vehicle
-          </button>
-        )}
-        {entity.kind === "vehicle" && (
-          <button
-            className="primary-button"
-            disabled={!canAct || player.behavior.type === "driving"}
-            onClick={() => actions.act({ type: "take_vehicle", targetId: entity.id })}
-          >
-            Take vehicle
-          </button>
-        )}
-        {isActor(entity) && (
-          <button
-            disabled={!canAct}
-            onClick={() => actions.act({ type: "hit", targetId: entity.id })}
-          >
-            Hit NPC
-          </button>
-        )}
-        {(entity.kind === "business" || entity.kind === "location") && (
-          <button
-            disabled={!canAct}
-            onClick={() => actions.act({ type: "enter", targetId: entity.id })}
-          >
-            Enter location
-          </button>
-        )}
-        {entity.kind === "business" && (
-          <button
-            disabled={!canAct}
-            onClick={() => actions.act({ type: "rob", targetId: entity.id })}
-          >
-            Rob location
-          </button>
-        )}
-      </div>
-      {isActor(entity) && (
+            {snapshot.entities
+              .filter(
+                (entry) =>
+                  entry.id !== player.id &&
+                  isInsideGuesthouse(entry.position) === isInsideGuesthouse(player.position),
+              )
+              .map((entry) => (
+                <option key={entry.id} value={entry.id}>
+                  {entry.name} · {distance(player.position, entry.position).toFixed(0)} m
+                </option>
+              ))}
+          </select>
+        </label>
+      </details>
+      {(meters <= MOVEMENT.interactionRange || player.behavior.type === "driving") && (
+        <div className="interaction-buttons">
+          <MissionActions player={player} entity={entity} enabled={canAct} act={actions.act} />
+          <LeaveGuesthouse
+            player={player}
+            enabled={enabled && result.status !== "pending"}
+            act={actions.act}
+          />
+          {player.behavior.type === "driving" && (
+            <button
+              className="primary-button"
+              disabled={!enabled || result.status === "pending"}
+              onClick={() => {
+                if (player.behavior.type === "driving")
+                  actions.act({ type: "exit_vehicle", targetId: player.behavior.vehicleId });
+              }}
+            >
+              Exit vehicle
+            </button>
+          )}
+          {entity.kind === "vehicle" && player.behavior.type !== "driving" && (
+            <button
+              className="primary-button"
+              disabled={!canAct}
+              onClick={() => actions.act({ type: "take_vehicle", targetId: entity.id })}
+            >
+              Take vehicle
+            </button>
+          )}
+          {isActor(entity) && (
+            <button
+              disabled={!canAct}
+              onClick={() => actions.act({ type: "hit", targetId: entity.id })}
+            >
+              Hit NPC
+            </button>
+          )}
+          {(entity.kind === "business" || entity.kind === "location") && (
+            <button
+              disabled={!canAct}
+              onClick={() => actions.act({ type: "enter", targetId: entity.id })}
+            >
+              Enter location
+            </button>
+          )}
+          {entity.kind === "business" && (
+            <button
+              disabled={!canAct}
+              onClick={() => actions.act({ type: "rob", targetId: entity.id })}
+            >
+              Rob location
+            </button>
+          )}
+        </div>
+      )}
+      {isActor(entity) && meters <= MOVEMENT.interactionRange && (
         <form
           className="talk-form"
           onSubmit={(event) => {
@@ -139,6 +150,7 @@ export function InteractionPanel({
         >
           <input
             aria-label="Say something"
+            placeholder="Say something…"
             maxLength={500}
             value={text}
             onChange={(event) => setText(event.target.value)}
@@ -158,19 +170,22 @@ export function InteractionPanel({
       )}
       {result.status === "success" && (
         <p role="status" className="action-result">
-          Action saved. Watch city activity for the response.
+          Done.
         </p>
       )}
       <details className="entity-inspector">
         <summary>Inspect entity state</summary>
         <pre>{JSON.stringify(entity, null, 2)}</pre>
       </details>
-      <ActorMemory
-        entity={entity}
-        snapshot={snapshot}
-        enabled={enabled}
-        inspect={actions.inspect}
-      />
+      <details>
+        <summary>Character memory</summary>
+        <ActorMemory
+          entity={entity}
+          snapshot={snapshot}
+          enabled={enabled}
+          inspect={actions.inspect}
+        />
+      </details>
     </section>
   );
 }

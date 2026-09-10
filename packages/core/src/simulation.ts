@@ -8,6 +8,8 @@ import {
   positionIsWalkable,
   SCENE_IDS,
   SCENE_POSITIONS,
+  STUNT,
+  stuntVehicleId,
 } from "./scene";
 import {
   distance,
@@ -254,6 +256,13 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
       ...named,
       ...people,
       {
+        id: SCENE_IDS.helipad,
+        kind: "location",
+        name: "Helicopter pickup",
+        category: "landmark",
+        position: STUNT.pickup,
+      },
+      {
         id: SCENE_IDS.vehicle,
         kind: "vehicle",
         name: "Blue sedan",
@@ -375,7 +384,21 @@ export function movePlayer(
     ...world,
     revision: world.revision + 1,
     entities: world.entities.map((entity) => {
-      if (entity.id === playerId) return { ...entity, position };
+      if (entity.id === playerId) {
+        if (entity.kind !== "player") return entity;
+        let stunt = entity.stunt;
+        if (
+          stunt?.stage === "running" &&
+          stunt.deadline > world.time &&
+          player.behavior.type === "driving" &&
+          player.behavior.vehicleId === stuntVehicleId(player.id)
+        ) {
+          const gate = STUNT.checkpoints[stunt.checkpoint];
+          if (gate && distance(position, gate) < 5)
+            stunt = { ...stunt, checkpoint: stunt.checkpoint + 1 };
+        }
+        return { ...entity, position, stunt };
+      }
       if (player.behavior.type === "driving" && entity.id === player.behavior.vehicleId)
         return { ...entity, position };
       return entity;
@@ -386,7 +409,24 @@ export function movePlayer(
 /** Movement stays in memory between periodic position checkpoints. */
 export function advanceMovement(world: WorldSnapshot, seconds: number): WorldSnapshot {
   const active = new Set(world.population.activeIds);
+  const drivers = world.entities.filter(
+    (entity) => isActor(entity) && entity.behavior.type === "driving",
+  );
   const entities = world.entities.map((entity) => {
+    // A short physical avoidance reflex; it does not invent an Astra decision or a destination.
+    if (isActor(entity) && entity.kind !== "player" && entity.health > 0) {
+      const nearby = drivers.find((driver) => distance(driver.position, entity.position) < 5);
+      if (nearby) {
+        const dx = entity.position.x - nearby.position.x;
+        const dz = entity.position.z - nearby.position.z;
+        const length = Math.hypot(dx, dz);
+        const position = {
+          x: entity.position.x + (length < 0.001 ? 1 : dx / length) * seconds * 3,
+          z: entity.position.z + (length < 0.001 ? 0 : dz / length) * seconds * 3,
+        };
+        if (positionIsWalkable(position)) return { ...entity, position };
+      }
+    }
     if (
       !isActor(entity) ||
       entity.health <= 0 ||
@@ -418,6 +458,11 @@ export function advanceRoutines(world: WorldSnapshot, now: number): WorldSnapsho
     ...world,
     revision: world.revision + 1,
     time: now,
+    entities: world.entities.map((entity) =>
+      entity.kind === "player" && entity.stunt?.stage === "running" && now >= entity.stunt.deadline
+        ? { ...entity, stunt: { stage: "failed" as const } }
+        : entity,
+    ),
     population: { total: activeIds.length, activeIds },
   };
 }

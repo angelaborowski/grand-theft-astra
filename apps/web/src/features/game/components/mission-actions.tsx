@@ -17,6 +17,27 @@ export function MissionActions({
   return (
     <>
       {entity.id === SCENE_IDS.mila &&
+        player.stunt?.stage !== "running" &&
+        player.stunt?.stage !== "completed" && (
+          <button
+            className="primary-button"
+            disabled={!enabled}
+            onClick={() => act({ type: "start_stunt", targetId: entity.id })}
+          >
+            Start Last Flight · ₽250
+          </button>
+        )}
+      {entity.id === SCENE_IDS.helipad && player.stunt?.stage === "running" && (
+        <button
+          className="primary-button"
+          disabled={!enabled || player.behavior.type === "driving" || player.stunt.checkpoint < 4}
+          onClick={() => act({ type: "finish_stunt", targetId: entity.id })}
+        >
+          Hand over film
+        </button>
+      )}
+
+      {entity.id === SCENE_IDS.mila &&
         (player.mission.stage === "available" || player.mission.stage === "offered") && (
           <>
             <button

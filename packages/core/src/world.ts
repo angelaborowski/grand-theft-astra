@@ -43,6 +43,17 @@ export const PlayerSchema = z.object({
   ...actor,
   kind: z.literal("player"),
   mission: MissionSchema,
+  stunt: z
+    .discriminatedUnion("stage", [
+      z.object({
+        stage: z.literal("running"),
+        checkpoint: z.number().int().min(0).max(4),
+        deadline: z.number(),
+      }),
+      z.object({ stage: z.literal("failed") }),
+      z.object({ stage: z.literal("completed") }),
+    ])
+    .optional(),
   reputation: z.number().int(),
   shelter: z.enum(["none", "rented"]),
 });
@@ -165,5 +176,8 @@ export function distance(a: Position, b: Position): number {
 
 /** Inventory derives from mission state so the parcel cannot disagree with delivery progress. */
 export function playerInventory(player: Player): string[] {
-  return player.mission.stage === "carrying" ? ["Sealed parcel for Lev"] : [];
+  return [
+    ...(player.mission.stage === "carrying" ? ["Sealed parcel for Lev"] : []),
+    ...(player.stunt?.stage === "running" ? ["Film canister"] : []),
+  ];
 }

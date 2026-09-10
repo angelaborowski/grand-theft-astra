@@ -10,6 +10,7 @@ export const SCENE_IDS = {
   vehicle: EntityIdSchema.parse("vehicle-1"),
   shop: EntityIdSchema.parse("business-kiosk"),
   headquarters: EntityIdSchema.parse("location-police"),
+  helipad: EntityIdSchema.parse("location-helipad"),
   square: EntityIdSchema.parse("location-square"),
   mila: EntityIdSchema.parse("person-witness"),
   lev: EntityIdSchema.parse("person-merchant"),
@@ -186,4 +187,26 @@ export function positionIsWalkable(position: Position): boolean {
       Math.abs(position.x - building.x) < building.width / 2 + r &&
       Math.abs(position.z - building.z) < building.depth / 2 + r,
   );
+}
+
+/** Fictional film-stunt course in the clear central corridor; all coordinates are shared. */
+export const STUNT = {
+  duration: 150_000,
+  reward: 250,
+  pickup: { x: 20, z: -93 },
+  checkpoints: [
+    { x: 20, z: 94, label: "Line up on the avenue" },
+    { x: 20, z: 59, label: "Take the first ramp" },
+    { x: 20, z: -18, label: "Clear the second ramp" },
+    { x: 20, z: -74, label: "Brake at the landing zone" },
+  ],
+  ramps: [
+    { x: 20, z: 68 },
+    { x: 20, z: -9 },
+  ],
+} as const;
+
+/** Stable personal mission vehicle, retained across reconnects. */
+export function stuntVehicleId(playerId: string) {
+  return EntityIdSchema.parse(`stunt:${playerId.slice(0, 90)}`);
 }

@@ -1,11 +1,13 @@
 import { PCFShadowMap } from "three";
-import type { Actor, EntityId, Position, WorldSnapshot } from "@gpta/core/world";
+import type { Player as PlayerState, EntityId, Position, WorldSnapshot } from "@gpta/core/world";
 import { KeyboardControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Suspense, useEffect } from "react";
 import { isInsideGuesthouse } from "@gpta/core/scene";
 import { CityScene } from "./city-scene";
+import { DrivingPlayer } from "./driving-player";
+import { StuntCourse } from "./stunt-course";
 import { Player } from "./player";
 import { WorldEntities } from "./world-entities";
 import { SceneEffects } from "./scene-effects";
@@ -17,6 +19,7 @@ const keyboardMap = [
   { name: "backward", keys: ["KeyS", "ArrowDown"] },
   { name: "leftward", keys: ["KeyA", "ArrowLeft"] },
   { name: "rightward", keys: ["KeyD", "ArrowRight"] },
+  { name: "brake", keys: ["Space"] },
   { name: "run", keys: ["ShiftLeft", "ShiftRight"] },
 ];
 
@@ -30,7 +33,7 @@ export function GameScene({
   actions,
 }: {
   snapshot: WorldSnapshot;
-  player: Actor;
+  player: PlayerState;
   enabled: boolean;
   overview: boolean;
   selectedId: EntityId | null;
@@ -70,7 +73,17 @@ export function GameScene({
               selectedId={selectedId}
               select={actions.select}
             />
-            <Player actor={player} enabled={enabled} overview={overview} move={actions.move} />
+            {!inside && <StuntCourse player={player} />}
+            {player.behavior.type === "driving" ? (
+              <DrivingPlayer
+                actor={player}
+                enabled={enabled}
+                overview={overview}
+                move={actions.move}
+              />
+            ) : (
+              <Player actor={player} enabled={enabled} overview={overview} move={actions.move} />
+            )}
             <SceneReady ready={actions.ready} />
           </Physics>
         </Suspense>

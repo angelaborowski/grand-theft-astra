@@ -67,8 +67,11 @@ export function Player({
   useFrame(({ clock }, delta) => {
     const character = controller.current;
     if (!character?.body) return;
-    const typing = document.activeElement instanceof HTMLInputElement;
-    const controlsEnabled = enabled && !typing && !overview;
+    const focus = document.activeElement;
+    const typing =
+      focus instanceof HTMLElement &&
+      (focus.matches("input,textarea,select") || focus.isContentEditable);
+    const controlsEnabled = enabled && !typing && !overview && document.hasFocus();
     character.setMovement(
       controlsEnabled
         ? getKeys()
@@ -138,7 +141,7 @@ export function Player({
         maxDistance={500}
         maxPolarAngle={Math.PI / 2.15}
         minPolarAngle={0.2}
-        smoothTime={0.6}
+        smoothTime={0.18}
         onControlStart={() => {
           orbiting.current = true;
         }}

@@ -8,6 +8,7 @@ import { activityView, gameTime, selectedEntity } from "../models/game-view";
 import { GameScene } from "./game-scene";
 import { InteractionPanel } from "./interaction-panel";
 import { Minimap } from "./minimap";
+import { StuntObjective } from "./stunt-objective";
 import { MissionPanel } from "./mission-panel";
 import { isInsideGuesthouse } from "@gpta/core/scene";
 
@@ -16,6 +17,7 @@ export default function Game() {
   const world = useWorld();
   const [selectedId, setSelectedId] = useState<EntityId | null>(null);
   const [overview, setOverview] = useState(false);
+  const [journal, setJournal] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
   if (world.status === "failed")
     return (
@@ -45,7 +47,7 @@ export default function Game() {
   const entity = selectedEntity(snapshot, player, selectedId);
   const view = activityView(snapshot);
   const messages = snapshot.dialogue
-    .filter((message) => message.to === player.id || message.from === player.id)
+    .filter((message) => message.to === player.id && snapshot.time - message.time < 14000)
     .slice(-2)
     .map((message) => ({
       id: message.id,
@@ -57,16 +59,19 @@ export default function Game() {
       ? { status: "error" as const, message: actionErrorMessage(action.error) }
       : { status: action.status };
   return (
-    <main className="game-shell">
+    <main className="game-shell immersive-game">
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark">G</div>
           <h1>GPTA</h1>
-          <div className="brand-sub">
-            <strong>A living city.</strong>
-            <span className="eyebrow">ONE ACTION CHANGES THE WORLD</span>
-          </div>
         </div>
+        <button
+          className="journal-toggle"
+          aria-expanded={journal}
+          onClick={() => setJournal(!journal)}
+        >
+          {journal ? "Close journal" : "Journal"}
+        </button>
         <StatusBar
           connection={connection.status}
           time={gameTime(snapshot.time)}
@@ -109,6 +114,7 @@ export default function Game() {
               {showOverview ? "Return to player" : "City overview"}
             </button>
           </div>
+          <StuntObjective player={player} time={snapshot.time} select={setSelectedId} />
           <DialoguePanel messages={messages} />
           {connection.status === "disconnected" && (
             <div className="disconnect-alert" role="alert">
@@ -134,18 +140,21 @@ export default function Game() {
             />
           </div>
         </section>
-        <aside className="game-sidebar">
-          <MissionPanel player={player} select={setSelectedId} />
-          <ActivityPanel {...view} />
-        </aside>
+        {journal && (
+          <aside className="game-sidebar" aria-label="Journal">
+            <MissionPanel player={player} select={setSelectedId} />
+            <ActivityPanel {...view} />
+          </aside>
+        )}
       </div>
       <footer className="game-footer">
         <div className="key-controls">
           <span>
-            <kbd>W A S D</kbd> Move
+            <kbd>W A S D</kbd> {player.behavior.type === "driving" ? "Drive / steer" : "Move"}
           </span>
           <span>
-            <kbd>SHIFT</kbd> Run
+            <kbd>{player.behavior.type === "driving" ? "SPACE" : "SHIFT"}</kbd>{" "}
+            {player.behavior.type === "driving" ? "Brake" : "Run"}
           </span>
           <span>
             <kbd>DRAG</kbd> Camera
@@ -153,10 +162,10 @@ export default function Game() {
           <span>
             <kbd>SCROLL</kbd> Zoom
           </span>
-          <span>Click an entity to inspect</span>
+          <span>Click a person or vehicle to interact</span>
         </div>
         <span className="prototype-note">
-          ANGELA’S RED SQUARE · LIVE WORLD · REV {snapshot.revision}
+          {snapshot.ai.status === "disabled" ? "Scripted simulation" : "Astra connected"}
         </span>
       </footer>
     </main>

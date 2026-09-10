@@ -181,3 +181,202 @@
     flex: auto;
   }
 }
+
+/* Gameplay owns the screen; the journal is an optional overlay. */
+.game-shell.immersive-game {
+  padding: 0;
+  height: 100dvh;
+  min-height: 480px;
+  gap: 0;
+  grid-template-rows: 54px minmax(0, 1fr) 36px;
+}
+.immersive-game .topbar {
+  height: 54px;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+.immersive-game .brand-mark {
+  width: 28px;
+  height: 28px;
+  font-size: 21px;
+  border-radius: 5px;
+  transform: none;
+}
+.immersive-game .brand h1 {
+  font-size: 20px;
+}
+.immersive-game .status-bar {
+  font-size: 10px;
+}
+.immersive-game .status-bar > span:not(:first-child) {
+  display: none;
+}
+.immersive-game .game-layout {
+  display: block;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.immersive-game .scene-wrap {
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+.immersive-game .game-sidebar {
+  position: absolute;
+  right: 18px;
+  top: 70px;
+  bottom: 18px;
+  width: 310px;
+  z-index: 20;
+  overflow-y: auto;
+}
+.immersive-game .scene-location {
+  top: 20px;
+  left: 24px;
+}
+.immersive-game .scene-location h2 {
+  font-size: 20px;
+  margin: 4px 0;
+}
+.immersive-game .scene-location .eyebrow {
+  display: none;
+}
+.immersive-game .scene-controls {
+  top: 20px;
+  right: 24px;
+}
+.immersive-game .bottom-overlay {
+  left: 24px;
+  bottom: 20px;
+  align-items: flex-end;
+  gap: 16px;
+}
+.immersive-game .interaction-panel {
+  width: 290px;
+  padding: 13px 16px;
+  max-height: 38vh;
+  overflow-y: auto;
+  background: #11191cdd;
+  border-radius: 5px;
+}
+.immersive-game .interaction-heading .eyebrow {
+  display: none;
+}
+.immersive-game .interaction-panel details {
+  margin-top: 7px;
+  font-size: 11px;
+  color: #b4c0c4;
+}
+.immersive-game .interaction-goal {
+  font-size: 11px;
+  margin: 6px 0;
+}
+.immersive-game .dialogue-panel {
+  left: 50%;
+  top: auto;
+  bottom: 28px;
+  transform: translateX(-30%);
+  max-width: 420px;
+  background: #10181ee8;
+  border: 0;
+  border-radius: 5px;
+}
+.immersive-game .dialogue-panel .eyebrow {
+  display: none;
+}
+.immersive-game .game-footer {
+  padding: 9px 24px;
+  background: #0e1417;
+}
+.journal-toggle {
+  margin-left: auto;
+  margin-right: 20px;
+  padding: 6px 12px;
+  font-size: 11px;
+}
+.stunt-objective {
+  position: absolute;
+  top: 86px;
+  left: 24px;
+  width: 290px;
+  padding: 15px 17px;
+  background: #11191cdd;
+  border-left: 3px solid #efbb69;
+  border-radius: 0 5px 5px 0;
+  color: #f2f0e9;
+}
+.objective-kicker {
+  display: flex;
+  justify-content: space-between;
+  font: 10px var(--font-mono);
+  letter-spacing: 1px;
+  color: #efbb69;
+}
+.objective-kicker time {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.objective-kicker .urgent {
+  color: #ff8978;
+}
+.stunt-objective h2 {
+  font-size: 19px;
+  margin: 9px 0 6px;
+}
+.stunt-objective p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #c3cdcf;
+  margin: 0;
+}
+.stunt-objective button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  font-size: 11px;
+  background: transparent;
+}
+.route-label {
+  white-space: nowrap;
+  padding: 6px 10px;
+  font: 11px var(--font-mono);
+  color: #ffe0a4;
+  background: #20231deb;
+  border-radius: 3px;
+  pointer-events: none;
+}
+@media (max-width: 760px) {
+  .immersive-game .topbar {
+    padding: 0 12px;
+  }
+  .immersive-game .game-layout {
+    grid-template-rows: none;
+  }
+  .stunt-objective {
+    left: 12px;
+    width: 240px;
+    top: 76px;
+    padding: 10px 12px;
+  }
+  .immersive-game .bottom-overlay {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+  .immersive-game .bottom-overlay .minimap {
+    display: none;
+  }
+  .immersive-game .game-footer {
+    padding: 6px 12px;
+  }
+  .immersive-game .game-sidebar {
+    right: 12px;
+    width: min(310px, 90vw);
+  }
+  .immersive-game .dialogue-panel {
+    left: 12px;
+    bottom: 240px;
+    transform: none;
+    max-width: 85vw;
+  }
+}

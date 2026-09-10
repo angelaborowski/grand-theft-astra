@@ -1,5 +1,5 @@
 import { SCENE_IDS } from "@gpta/core/scene";
-import type { Entity, EntityId, WorldSnapshot } from "@gpta/core/world";
+import { isActor, type Entity, type EntityId, type WorldSnapshot } from "@gpta/core/world";
 import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
@@ -28,7 +28,9 @@ export function WorldEntities({
         .filter(
           (entity) =>
             entity.id !== playerId &&
-            (entity.kind !== "location" || entity.category === "guesthouse"),
+            (entity.kind !== "location" ||
+              entity.category === "guesthouse" ||
+              entity.id === SCENE_IDS.helipad),
         )
         .map((entity) => (
           <WorldEntity
@@ -54,7 +56,13 @@ function WorldEntity({
   const group = useRef<Group>(null);
   const motion = useRef<CharacterMotion>({ speed: 0 });
   const [initialPosition] = useState(() => entity.position);
-  const asset = entity.kind === "player" ? PLAYER_ASSET : CHARACTER_ASSETS.get(entity.id);
+  const asset = CHARACTER_ASSETS.get(entity.id) ?? (isActor(entity) ? PLAYER_ASSET : undefined);
+  const palette = ["#3f596a", "#6d5148", "#4b6251", "#80624b", "#66536d", "#69747a"];
+  const color = !CHARACTER_ASSETS.has(entity.id)
+    ? palette[
+        Array.from(entity.id).reduce((n, letter) => n + letter.charCodeAt(0), 0) % palette.length
+      ]
+    : undefined;
   useFrame((_, delta) => {
     if (!group.current || delta <= 0) return;
     const alpha = 1 - Math.exp(-delta * 10);
@@ -74,7 +82,11 @@ function WorldEntity({
         select(entity.id);
       }}
     >
-      {asset ? <CharacterModel asset={asset} motion={motion} /> : <EntityBody entity={entity} />}
+      {asset ? (
+        <CharacterModel asset={asset} motion={motion} {...(color ? { color } : {})} />
+      ) : (
+        <EntityBody entity={entity} />
+      )}
       {(selected || namedEntities.has(entity.id)) && (
         <Html
           position={[0, entity.kind === "business" ? 4 : 2.5, 0]}
@@ -99,6 +111,13 @@ function WorldEntity({
 
 function EntityBody({ entity }: { entity: Entity }) {
   if (entity.kind === "vehicle") return <Vehicle color={entity.color} />;
+  if (entity.id === SCENE_IDS.helipad)
+    return (
+      <mesh position={[0, 1, 0]}>
+        <boxGeometry args={[2, 2, 2]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+    );
   if (entity.kind === "location")
     return (
       <group>

@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { GUESTHOUSE, isInsideGuesthouse, MOVEMENT, positionIsWalkable, SCENE_IDS } from "./scene";
+import {
+  GUESTHOUSE,
+  isInsideGuesthouse,
+  MOVEMENT,
+  positionIsWalkable,
+  SCENE_IDS,
+  STUNT,
+  stuntVehicleId,
+} from "./scene";
 import {
   distance,
   EntityIdSchema,
@@ -17,6 +25,8 @@ export const PlayerActionSchema = z.discriminatedUnion("type", [
     targetId: EntityIdSchema,
     text: z.string().trim().min(1).max(500),
   }),
+  z.object({ type: z.literal("start_stunt"), targetId: EntityIdSchema }),
+  z.object({ type: z.literal("finish_stunt"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("take_vehicle"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("exit_vehicle"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("hit"), targetId: EntityIdSchema }),
@@ -154,6 +164,87 @@ export function applyPlayerAction(
   if (distance(actor.position, target.position) > MOVEMENT.interactionRange)
     return reject("Move closer to the target.");
   switch (action.type) {
+    case "start_stunt": {
+      if (target.id !== SCENE_IDS.mila) return reject("Meet Mila to start Last Flight.");
+      if (actor.stunt?.stage === "completed") return reject("You already earned this reward.");
+      if (actor.stunt?.stage === "running" && actor.stunt.deadline > context.now)
+        return reject("The clock is already running.");
+      if (actor.behavior.type === "driving") return reject("Park and get out before meeting Mila.");
+      const carId = stuntVehicleId(actor.id);
+      if (
+        world.entities.some(
+          (entity) =>
+            isActor(entity) &&
+            entity.behavior.type === "driving" &&
+            entity.behavior.vehicleId === carId,
+        )
+      )
+        return reject("Your mission car has a driver. Wait until it is parked before retrying.");
+      const parking = [4, -6, 10, -12]
+        .map((x) => ({ x: actor.position.x + x, z: actor.position.z + 4 }))
+        .find(
+          (position) =>
+            positionIsWalkable(position) &&
+            !world.entities.some(
+              (entity) =>
+                entity.kind === "vehicle" &&
+                entity.id !== carId &&
+                distance(position, entity.position) < 5,
+            ),
+        );
+      if (!parking)
+        return reject("There is no clear space for your car. Move a few metres and try again.");
+      const car = world.entities.find((entity) => entity.id === carId);
+      if (car?.kind === "vehicle") {
+        car.position = parking;
+        car.ownerId = actor.id;
+      } else
+        world.entities.push({
+          id: carId,
+          kind: "vehicle",
+          name: "Last Flight · stunt car",
+          position: parking,
+          ownerId: actor.id,
+          color: "#b8202b",
+        });
+      actor.stunt = { stage: "running", checkpoint: 0, deadline: context.now + STUNT.duration };
+      world.dialogue.push({
+        id: context.id,
+        time: context.now,
+        from: target.id,
+        to: actor.id,
+        text: "Last Flight. Get in your marked stunt car, follow the amber gates and take both ramps. Brake at the helicopter, get out and hand over the film. Two and a half minutes. Go!",
+      });
+      world.dialogue = world.dialogue.slice(-100);
+      return accept(
+        world,
+        actorId,
+        action.type,
+        "Last Flight started. Deliver the film before the helicopter leaves.",
+        "player",
+        context,
+      );
+    }
+    case "finish_stunt": {
+      if (target.id !== SCENE_IDS.helipad || actor.stunt?.stage !== "running")
+        return reject("Start Last Flight with Mila first.");
+      if (context.now >= actor.stunt.deadline)
+        return reject("The flight left. Return to Mila to retry.");
+      if (actor.stunt.checkpoint !== STUNT.checkpoints.length)
+        return reject("Drive through every route gate in order first.");
+      if (actor.behavior.type === "driving") return reject("Park and get out to deliver the film.");
+      actor.stunt = { stage: "completed" };
+      actor.money += STUNT.reward;
+      actor.reputation += 2;
+      return accept(
+        world,
+        actorId,
+        action.type,
+        `Film delivered. Earned ₽${STUNT.reward} and 2 reputation.`,
+        "player",
+        context,
+      );
+    }
     case "ask_for_work": {
       if (target.id !== SCENE_IDS.mila || !isActor(target))
         return reject("Ask Mila about the parcel delivery.");
@@ -252,6 +343,8 @@ export function applyPlayerAction(
       );
     case "take_vehicle": {
       if (target.kind !== "vehicle") return reject("This entity is not a vehicle.");
+      if (target.id.startsWith("stunt:") && target.ownerId !== actorId)
+        return reject("This stunt car is reserved for its driver.");
       if (
         actor.behavior.type === "driving" ||
         world.entities.some(
