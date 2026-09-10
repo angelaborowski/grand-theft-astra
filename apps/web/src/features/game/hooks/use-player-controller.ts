@@ -6,7 +6,7 @@ import { useFrame } from "@react-three/fiber";
 import { useRapier } from "@react-three/rapier";
 import type { EcctrlHandle, MovementInput } from "ecctrl";
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
-import { Quaternion, Vector3, type Object3D } from "three";
+import { Quaternion, Vector3, type Group, type Object3D } from "three";
 import type { CharacterMotion, CharacterPose } from "../models/character-poses";
 import type { PlayerActions } from "../models/player-controls";
 import { useCharacterInput } from "./use-character-input";
@@ -37,6 +37,11 @@ export function usePlayerController({
 }) {
   const controller = useRef<EcctrlHandle>(null);
   const camera = useRef<CameraControls>(null);
+  const visual = useRef<Group>(null);
+  const visualCorrection = useRef(new Vector3());
+  const visualLocal = useRef(new Vector3());
+  const visualRotation = useRef(new Quaternion());
+  const cameraTarget = useRef(new Vector3());
   const { world, rapier } = useRapier();
   const [spawn] = useState(() => actor);
   const [postureState, setPostureState] = useState({
@@ -89,6 +94,7 @@ export function usePlayerController({
   };
   const restore = useEffectEvent(() => {
     resizeBody(actor.posture);
+    visualCorrection.current.set(0, 0, 0);
     restoreBody(controller.current, actor);
     jump.current = false;
   });
@@ -258,8 +264,19 @@ export function usePlayerController({
         actionTime,
       },
     };
+    // Blend only the render offset; the collision body accepts corrections immediately.
+    visualCorrection.current.multiplyScalar(Math.exp(-18 * delta));
+    if (visual.current?.parent) {
+      visual.current.parent.getWorldQuaternion(visualRotation.current);
+      visualLocal.current
+        .copy(visualCorrection.current)
+        .applyQuaternion(visualRotation.current.invert());
+      visual.current.position.copy(visualLocal.current);
+      visual.current.getWorldPosition(cameraTarget.current);
+    } else cameraTarget.current.set(position.x, position.y, position.z);
     if (camera.current && !overview) {
-      void camera.current.moveTo(position.x, position.y + 0.3, position.z, true);
+      const target = cameraTarget.current;
+      void camera.current.moveTo(target.x, target.y + 0.3, target.z, true);
       if (keys.aim !== lastAim.current) {
         lastAim.current = keys.aim;
         void camera.current.dollyTo(keys.aim ? 2.5 : cameraDistance, true);
@@ -312,8 +329,10 @@ export function usePlayerController({
           const errorLength = Math.hypot(error.x, error.y, error.z);
           if (errorLength > 2) {
             input.release();
+            visualCorrection.current.set(0, 0, 0);
             restoreBody(controller.current, accepted);
           } else if (errorLength > 0.08) {
+            visualCorrection.current.sub(new Vector3(error.x, error.y, error.z));
             const current = body.translation();
             body.setTranslation(
               { x: current.x + error.x, y: current.y + error.y, z: current.z + error.z },
@@ -337,7 +356,7 @@ export function usePlayerController({
       );
   });
 
-  return { controller, camera, spawn, motion, posture, actions: { attachCameraColliders } };
+  return { controller, camera, visual, spawn, motion, posture, actions: { attachCameraColliders } };
 }
 
 export function capsuleHalfHeight(posture: Player["posture"]): number {

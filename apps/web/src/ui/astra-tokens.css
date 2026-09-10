@@ -24,8 +24,8 @@
   --astra-danger: #ffb1a2;
   --astra-gold: #dab27c;
   --astra-line: rgb(245 243 238 / 24%);
-  --astra-map-ground: #25282b;
-  --astra-map-building: #595a58;
+  --astra-map-ground: #b8b8aa;
+  --astra-map-building: #4e5355;
   --astra-map-person: #d1cec4;
   --astra-map-police: #9dbdd3;
   --astra-map-player: var(--astra-text);
@@ -39,6 +39,10 @@
   --astra-text-body: 1rem;
   --astra-text-menu: var(--astra-text-body);
   --astra-text-heading: 1.5rem;
+  --astra-text-status: 1.875rem;
+  --astra-hud-green: #9bd86c;
+  --astra-health-height: 0.5rem;
+  --astra-hud-status-width: min(21rem, 44vw);
   --astra-weight-normal: 400;
   --astra-weight-bold: 700;
   --astra-screen-gutter: clamp(1.25rem, 4vw, 4.25rem);

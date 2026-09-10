@@ -14,7 +14,7 @@ export function InteractionPanel({
   mission?: { enabled: boolean; start: () => void };
   actions: { close: () => void; recover: (actorId: EntityId) => void };
 }) {
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(true);
   return (
     <GameDialog
       title={`Conversation with ${conversation.actorName}`}

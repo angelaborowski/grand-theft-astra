@@ -7,6 +7,7 @@ import { useEffect, useEffectEvent, useRef, useState } from "react";
 import type { Group } from "three";
 import type { PlayerActions } from "../models/player-controls";
 import type { Move } from "../models/player-movement";
+import { boundedDrivingSpeed } from "../models/driving-prediction";
 import { useVehicleInput } from "./use-vehicle-input";
 
 /** Car steering restores rejected movement before resuming the existing distance-budget contract. */
@@ -30,6 +31,7 @@ export function useDrivingController({
   const camera = useRef<CameraControls>(null);
   const [spawn] = useState(actor.position);
   const generation = useRef(0);
+  const sampledPosition = useRef(actor.position);
   const state = useRef({ heading: Math.PI - actor.heading, speed: 0, lastSent: 0, pending: false });
   const stop = () => {
     const rigid = body.current;
@@ -46,6 +48,7 @@ export function useDrivingController({
   });
   const restore = (position: Position) => {
     input.release();
+    sampledPosition.current = position;
     body.current?.setTranslation({ ...position, y: 1 }, true);
     stop();
   };
@@ -92,6 +95,12 @@ export function useDrivingController({
     current.speed = Math.max(-5, Math.min(MOVEMENT.driveSpeed * 0.92, current.speed));
     current.heading +=
       steering * Math.sign(current.speed) * Math.min(1, Math.abs(current.speed) / 4) * 1.25 * delta;
+    const predicted = rigid.translation();
+    current.speed = boundedDrivingSpeed(
+      current.speed,
+      Math.hypot(predicted.x - sampledPosition.current.x, predicted.z - sampledPosition.current.z),
+      delta,
+    );
     rigid.setLinvel(
       {
         x: Math.sin(current.heading) * current.speed,
@@ -113,6 +122,7 @@ export function useDrivingController({
     if (Math.hypot(position.x - actor.position.x, position.z - actor.position.z) < 0.06) return;
     current.lastSent = clock.elapsedTime;
     current.pending = true;
+    sampledPosition.current = { x: position.x, z: position.z };
     const submittedGeneration = generation.current;
     void move({ x: position.x, z: position.z })
       .then(

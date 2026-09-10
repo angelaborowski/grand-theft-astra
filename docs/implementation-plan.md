@@ -755,3 +755,13 @@ Compared against local `46d5060`: existing runtime assets, Blender sources, char
 Restarted frontend/backend after both stopped. A separate local player on 127.0.0.1 entered the menu, completed loading, walked through the museum and exited to Red Square. The in-game Play first mission button started Last Flight, supplied the owned car and began the countdown. Exiting the car also worked. The handoff retained the museum heading; launch now resets driver and car heading to zero, toward the checkpoint course, with a regression assertion.
 
 Museum measurements after restart were approximately 60–90 FPS; outdoor loading fell to 8–12 FPS before recovering to roughly 25–37 FPS. A position-recovery failure occurred during early driving and cleared after reload; its cause and the full checkpoint-to-finish browser run remain unverified. Live NPC AI awaits the team key; do not present scripted simulation as verified model-driven behaviour.
+
+## Team handoff: combined HUD and movement pass
+
+Merged remote changes through `94b20bd`, including quest tracking, conversation draft handling and public metadata, while retaining the museum opening and direct mission launch. Museum guidance overrides outdoor quest directions until exit. Opening buttons now sit away from the status display. Existing runtime assets and Blender sources are preserved.
+
+Car prediction is bounded to 3.5 metres beyond its latest submitted sample, reserving server movement credit for delayed requests. Normal server rejection/recovery remains available. Walking uses a decaying visual correction offset and an interpolated visual camera target; authoritative collision corrections still apply immediately. These changes do not guarantee a fixed frame rate or eliminate transport failures.
+
+The combined build completed an isolated Rapier/WebSocket Last Flight run: four ordered gates, both ramps, braking near the helipad, one ₽250 reward, idempotent completion and reconnect persistence. This is an automated physics/server run, not a complete browser keyboard playthrough. Browser verification showed the in-game launch/retry UI and museum directions; an intermittent recovery failure and Chromium errors still require further investigation. Live NPC AI remains disabled until the existing team key is configured locally.
+
+The README links `docs/build-your-own-city.md`, a London example covering setup, reference research, Blender exports, shared coordinates, missions, verification and asset attribution.

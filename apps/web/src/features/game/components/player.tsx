@@ -27,6 +27,7 @@ export function Player({
   const {
     controller,
     camera,
+    visual,
     spawn,
     motion,
     posture,
@@ -60,13 +61,15 @@ export function Player({
         fallingGravityScale={1}
         rayHitForgiveness={0.03}
       >
-        <group position={[0, -bodyCenter(posture), 0]} userData={{ localCharacter: true }}>
-          <CharacterModel
-            asset={PLAYER_ASSET}
-            motion={motion}
-            color="#d5ff78"
-            armed={actor.equipment.pistol?.equipped === true}
-          />
+        <group ref={visual}>
+          <group position={[0, -bodyCenter(posture), 0]} userData={{ localCharacter: true }}>
+            <CharacterModel
+              asset={PLAYER_ASSET}
+              motion={motion}
+              color="#d5ff78"
+              armed={actor.equipment.pistol?.equipped === true}
+            />
+          </group>
         </group>
       </Ecctrl>
       <CameraControls

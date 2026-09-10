@@ -8,7 +8,8 @@ import { LoadingScreen } from "../../../ui/loading-screen";
 import { useGameMenu } from "../hooks/use-game-menu";
 import type { useWorld } from "../hooks/use-world";
 import { nearbyInteraction } from "../models/world-interaction";
-import { GameHud, initialDestination } from "./game-hud";
+import { GameHud } from "./game-hud";
+import { trackedQuest, type QuestTracking } from "../models/quest-view";
 import { GameInteraction } from "./game-interaction";
 import { GameScene } from "./game-scene";
 import { PauseMenu } from "./pause-menu";
@@ -32,9 +33,7 @@ export function GameSession({
   const { ready: sceneReady, setAssetsReady } = useSceneReady();
   const [lookTargetId, setLookTargetId] = useState<EntityId | null>(null);
   const [recoveryActive, setRecoveryActive] = useState(false);
-  const [tracking, setTracking] = useState<
-    { type: "objective" } | { type: "entity"; id: EntityId } | { type: "none" }
-  >({ type: "objective" });
+  const [tracking, setTracking] = useState<QuestTracking>({ type: "objective" });
   const { menu, actions: menuActions } = useGameMenu(
     sceneReady,
     {
@@ -50,9 +49,13 @@ export function GameSession({
   const { snapshot, player, connection, action } = world;
   const showOverview = overview && sceneSpace(player.position) === "square";
   const entity = snapshot.entities.find((candidate) => candidate.id === selectedId);
-  const objectiveId = initialDestination(player);
+  const quest = trackedQuest(player, tracking);
   const destinationId =
-    tracking.type === "objective" ? objectiveId : tracking.type === "entity" ? tracking.id : null;
+    sceneSpace(player.position) === "museum"
+      ? null
+      : tracking.type === "entity"
+        ? tracking.id
+        : (quest?.targetId ?? null);
   const connected = connection.status === "connected";
   const audioScreen = sceneReady ? (menu.view === "pause" ? "paused" : "playing") : "loading";
   useSessionAudio({
@@ -161,6 +164,7 @@ export function GameSession({
           connection={connection}
           overview={showOverview}
           destinationId={destinationId}
+          quest={quest}
           quiet={menu.view !== "closed" || recoveryActive}
           pending={action.isPending || !connected || !movementAvailable}
           actions={{
@@ -175,7 +179,6 @@ export function GameSession({
       )}
       {connected && <MovementStatus {...world.movement} />}
       <GameplayHud
-        player={player}
         target={menu.view === "closed" ? nearbyTarget(lookTargetId) : null}
         active={
           sceneReady && connected && menu.view === "closed" && !showOverview && !recoveryActive
@@ -197,18 +200,13 @@ export function GameSession({
           connection={connection}
           pending={leavingBlocked}
           destinationId={destinationId}
+          trackedQuestId={quest?.id ?? null}
           actions={{
             close: menuActions.close,
             command: world.command.mutateAsync,
             tab: menuActions.pause,
-            track: (id) =>
-              setTracking(
-                id === null
-                  ? { type: "none" }
-                  : id === objectiveId
-                    ? { type: "objective" }
-                    : { type: "entity", id },
-              ),
+            track: (id) => setTracking(id === null ? { type: "none" } : { type: "entity", id }),
+            trackQuest: (id) => setTracking(id === null ? { type: "none" } : { type: "quest", id }),
             overview: openOverview,
             leave: () => {
               if (!leavingBlocked) actions.leave();

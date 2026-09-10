@@ -1,4 +1,4 @@
-import type { EntityId, Player, WorldSnapshot } from "@gpta/core/world";
+import type { Player, WorldSnapshot } from "@gpta/core/world";
 import { useState } from "react";
 import { playerQuests, type QuestEntry } from "../models/quest-view";
 
@@ -6,19 +6,19 @@ import { playerQuests, type QuestEntry } from "../models/quest-view";
 export function MissionPanel({
   player,
   snapshot,
-  destinationId,
+  trackedQuestId,
   actions,
 }: {
   player: Player;
   snapshot: WorldSnapshot;
-  destinationId: EntityId | null;
-  actions: { track: ((id: EntityId | null) => void) | undefined };
+  trackedQuestId: QuestEntry["id"] | null;
+  actions: { track: (id: QuestEntry["id"] | null) => void };
 }) {
   const [selectedId, setSelectedId] = useState<QuestEntry["id"]>("shelter");
   const quests = playerQuests(player);
   const selected = quests.find((quest) => quest.id === selectedId) ?? quests[0];
   const target = snapshot.entities.find((entity) => entity.id === selected.targetId);
-  const tracked = target !== undefined && destinationId === target.id;
+  const tracked = trackedQuestId === selected.id;
   return (
     <div className="astra-pause-columns">
       <div className="astra-pause-rows" aria-label="Quests">
@@ -53,11 +53,10 @@ export function MissionPanel({
         {target && (
           <button
             className="astra-pause-row"
-            disabled={!actions.track}
             aria-pressed={tracked}
-            onClick={() => actions.track?.(tracked ? null : target.id)}
+            onClick={() => actions.track(tracked ? null : selected.id)}
           >
-            {tracked ? "Stop tracking" : "Track"}
+            {tracked ? "Stop tracking" : "Start tracking"}
           </button>
         )}
         {selected.targetId !== null && !target && (

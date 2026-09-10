@@ -2,7 +2,7 @@ import type { ConversationComposer } from "../models/conversation-view";
 import { CONVERSATION_MESSAGE_LIMIT } from "../models/conversation-submission";
 import { ControlHint } from "../../../ui/game-controls";
 
-/** Enter sends; Shift+Enter keeps a line break inside the same bounded draft. */
+/** The draft stays editable while a reply is pending; only Send waits for the reply. */
 export function ConversationReply({
   actorName,
   composer,
@@ -23,7 +23,12 @@ export function ConversationReply({
     recover?: (() => void) | undefined;
   };
 }) {
-  const editable = composer.status === "ready" || composer.status === "rejected";
+  const editable =
+    composer.status === "ready" ||
+    composer.status === "rejected" ||
+    composer.status === "waiting" ||
+    composer.status === "sending";
+  const sendable = composer.status === "ready" || composer.status === "rejected";
   return (
     <div className="astra-conversation-compose">
       <form
@@ -48,7 +53,7 @@ export function ConversationReply({
             event.currentTarget.form?.requestSubmit();
           }}
         />
-        <button type="submit" disabled={!editable || composer.draft.trim().length === 0}>
+        <button type="submit" disabled={!sendable || composer.draft.trim().length === 0}>
           <ControlHint keys="Enter">Send</ControlHint>
         </button>
       </form>

@@ -32,6 +32,9 @@ export function InteractionTarget({
           .toSorted(
             (a, b) => distance(player.position, a.position) - distance(player.position, b.position),
           )
+          .toSorted(
+            (a, b) => distance(player.position, a.position) - distance(player.position, b.position),
+          )
           .map((entry) => (
             <option key={entry.id} value={entry.id}>
               {entry.name} · {distance(player.position, entry.position).toFixed(0)} m

@@ -87,8 +87,10 @@ export function useCharacterInput({
     const key = PLAYER_KEYBOARD_MAP.find((entry) => entry.keys.includes(event.code))?.name;
     if (key) {
       blockedKeys.current.delete(key);
-      if (DIRECTION_KEYS.some((directionKey) => directionKey === key))
+      if (DIRECTION_KEYS.some((directionKey) => directionKey === key)) {
+        if (!captured()) camera.current?.lockPointer();
         needsDirection.current = false;
+      }
     }
     if (event.code === "Space") {
       event.preventDefault();
@@ -97,8 +99,11 @@ export function useCharacterInput({
       event.preventDefault();
       actions.crouch();
     } else if (!event.ctrlKey && event.code === "KeyR") actions.reload();
-    else if (!event.ctrlKey && event.code === "KeyE") actions.interact(target());
-    else if (!event.ctrlKey && event.code === "KeyF") actions.vehicle(target());
+    else if (!event.ctrlKey && event.code === "KeyE") {
+      // The opened panel focuses its text field; the key must not type into it.
+      event.preventDefault();
+      actions.interact(target());
+    } else if (!event.ctrlKey && event.code === "KeyF") actions.vehicle(target());
   });
   const pointerdown = useEffectEvent((event: PointerEvent) => {
     if (!active()) return;

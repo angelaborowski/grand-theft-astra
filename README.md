@@ -1,5 +1,7 @@
 # GPT8 — Astra game integration
 
+Want to adapt the game to London or another place? Read [Build your own city](docs/build-your-own-city.md).
+
 The new TypeScript game combines the GPTA systems with Angela's Red Square assets. Normal gameplay now includes the extended GUM facade, raycast-fitted museum details, scanned brick/paving materials, sky/environment lighting, contact shadows, and original furnishings adapted to the new guesthouse. Mila uses the latest Blender study; its likeness remains unfinished. The other five named NPC models remain integrated. No separate asset-library UI is required.
 
 The original renders, source files, comparison view, and two team-character image references remain preserved. The two team characters still have no playable meshes. Guesthouse furniture remains visual, matching the new game's existing non-collidable furniture behavior; server movement and saved coordinates were not changed.

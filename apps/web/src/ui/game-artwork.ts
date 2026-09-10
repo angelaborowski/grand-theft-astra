@@ -30,3 +30,23 @@ export const loadingArtworks: readonly [GameArtwork, GameArtwork, GameArtwork] =
 ];
 
 export const gameLogo = "/assets/interface/grand-theft-astra.webp";
+
+/** The public site address; link previews need absolute image URLs. */
+export const SITE_URL = "https://grandtheftastra.com";
+
+/** Link preview card composed from the title artwork and logo. */
+export const socialCard = {
+  src: "/assets/interface/social-card.jpg",
+  width: 1200,
+  height: 630,
+  alt: "Grand Theft Astra logo over Red Square at dusk",
+} as const;
+
+/** Square icons derived from the logo for browser tabs and home screens. */
+export const siteIcons = {
+  favicon: "/favicon.ico",
+  small: "/assets/interface/icons/favicon-32.png",
+  standard: "/assets/interface/icons/icon-192.png",
+  apple: "/assets/interface/icons/apple-touch-icon.png",
+  manifest: "/site.webmanifest",
+} as const;
