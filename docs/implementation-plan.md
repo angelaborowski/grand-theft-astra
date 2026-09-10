@@ -11,7 +11,7 @@ Astra chooses NPC speech and actions. The game validates actions and owns money,
 1. Preserve Angela's Git history, assets, editable Blender sources, original prototype, and original tests.
 2. Port the React game, Cloudflare backend, shared schemas, and existing checks into `apps/` and `packages/`.
 3. Connect third-person movement, vehicles, dialogue, a city overview, and the shelter mission to Angela's scene.
-4. Retain 100 individual Person Durable Objects, World SQLite, and asynchronous Astra Workflows.
+4. Retain individual Person Durable Objects for the expanded 164-NPC cast, World SQLite, and asynchronous Astra Workflows.
 5. Validate the integrated game and push the changes without replacing concurrent remote work.
 
 This pass excludes new asset production, full GTA combat, traffic simulation, and broad economy systems.
@@ -109,7 +109,7 @@ sequenceDiagram
   World-->>Browser: Accepted changes and activity
 ```
 
-All 100 NPCs are canonical entities. Each Person object has a schedule and recent memory; the World owns its physical state.
+All 164 NPCs are canonical entities. Each Person object has a schedule and recent memory; the World owns its physical state.
 One-second World alarms continue without connected browsers while the backend runs. Connected browsers receive movement updates every 200 milliseconds.
 Astra selects destinations; the simulation advances accepted movement while other decisions remain pending.
 
@@ -248,3 +248,13 @@ User-requested blue-sky revision: visible background is now an animated procedur
 ### End-to-end mission simulation — 10 September 2026
 
 An isolated Worker on port 8788 validated direct launch, ordered gates, early-handoff rejection, reward idempotency and reconnect persistence without touching the user's save. A second run fed actual Rapier car/ramp positions at 200 ms intervals through the same WebSocket API. This caught a ramp entrance lip: starting from z=110 could stop the car at z=75. Lowered ramp centres from 1.15 m to 1.0 m so the entry edge is below paving. The rerun cleared both ramps (body-centre peaks 3.45/3.42 m), passed four gates, braked at z=-89.88, delivered, received ₽250/+2, and restored completion on reconnect. This is physics-plus-server simulation, not a complete browser keyboard playthrough.
+
+### Expanded occupational cast — September 10
+
+Added 64 persistent residents, for 164 NPCs plus the player, including five police officers. Sixteen job-specific animated models add aprons, caps, medical uniforms, protective clothing, equipment and bags. Existing person-0 through person-91 identities remain intact; saved worlds add the new IDs once through the existing migration. Named characters keep their specific models, and the full cast now uses the refined textured-head exports. Source recipes, CC0 attribution, exports and validation live under source/blender/characters. These are stylized game models, not GTA-level scans.
+
+### Museum opening integration
+
+New players begin in the Historical Museum central hall, 25 metres from the exit. Existing saves retain progress and can use Museum opening when on foot outside an active mission. Walking through the central threshold triggers a server-validated transition to the museum-side edge of Red Square (13,-140); the district's north edge now includes that landing. Interior coordinates are isolated around x=200, and scene-space filtering keeps outdoor actors/weather out. The central hall, eight steps (with a smooth collision ramp), and entrance corridor are walkable. Side galleries remain decorative. Restart museum walk replays the opening without resetting progress. The portal uses a scene transition, not a continuously rendered outdoor view. Exit camera retains the outward direction. The exterior building asset is untouched. Museum asset/source/license from frozen18f9fce plus arch fix10ec25de are preserved in source/blender/museum-interior. Storybook: /?path=/story/game-museum-opening--entrance.
+
+Combined validation also replaces the conversation fixture's direct snapshot SQL edit (which raced live alarms) with acknowledged mission/exit/walk actions to position its test actors. Character task's 164-resident asset integration is preserved; its preview ref write was moved into an effect.

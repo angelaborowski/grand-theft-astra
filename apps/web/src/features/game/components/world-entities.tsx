@@ -4,7 +4,7 @@ import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Group } from "three";
-import { CHARACTER_ASSETS, PLAYER_ASSET } from "../models/scene-assets";
+import { PLAYER_ASSET, characterAsset } from "../models/scene-assets";
 import { CharacterModel, type CharacterMotion } from "./character-model";
 import { Person, Vehicle } from "./primitive-entities";
 
@@ -57,13 +57,14 @@ function WorldEntity({
   const group = useRef<Group>(null);
   const motion = useRef<CharacterMotion>({ speed: 0 });
   const [initialPosition] = useState(() => entity.position);
-  const asset = CHARACTER_ASSETS.get(entity.id) ?? (isActor(entity) ? PLAYER_ASSET : undefined);
+  const asset = isActor(entity) ? characterAsset(entity) : undefined;
   const palette = ["#3f596a", "#6d5148", "#4b6251", "#80624b", "#66536d", "#69747a"];
-  const color = !CHARACTER_ASSETS.has(entity.id)
-    ? palette[
-        Array.from(entity.id).reduce((n, letter) => n + letter.charCodeAt(0), 0) % palette.length
-      ]
-    : undefined;
+  const color =
+    asset === PLAYER_ASSET
+      ? palette[
+          Array.from(entity.id).reduce((n, letter) => n + letter.charCodeAt(0), 0) % palette.length
+        ]
+      : undefined;
   useFrame((_, delta) => {
     if (!group.current || delta <= 0) return;
     const alpha = 1 - Math.exp(-delta * 10);
@@ -92,7 +93,7 @@ function WorldEntity({
       }}
     >
       {asset ? (
-        <CharacterModel asset={asset} motion={motion} {...(color ? { color } : {})} />
+        <CharacterModel key={asset} asset={asset} motion={motion} {...(color ? { color } : {})} />
       ) : (
         <EntityBody entity={entity} />
       )}

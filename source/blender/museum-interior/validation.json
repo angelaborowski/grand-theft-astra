@@ -1,0 +1,122 @@
+{
+  "passed": true,
+  "triangles": 110028,
+  "meshes": 14,
+  "bytes": 13927972,
+  "sha256": "e7a57092b25dc4c1c008892e375e369939b4a73f9d0424736ce13611a1288567",
+  "blender_bounds": [
+    [
+      -5.545,
+      5.545
+    ],
+    [
+      -1.465,
+      30.565
+    ],
+    [
+      -0.2,
+      11.7
+    ]
+  ],
+  "floor_samples": [
+    {
+      "blender_xy": [
+        0,
+        1
+      ],
+      "height": 0.003,
+      "expected": 0
+    },
+    {
+      "blender_xy": [
+        0,
+        6
+      ],
+      "height": 0.003,
+      "expected": 0
+    },
+    {
+      "blender_xy": [
+        0,
+        7.15
+      ],
+      "height": 0.15,
+      "expected": 0.15
+    },
+    {
+      "blender_xy": [
+        0,
+        8.35
+      ],
+      "height": 0.75,
+      "expected": 0.75
+    },
+    {
+      "blender_xy": [
+        0,
+        9.25
+      ],
+      "height": 1.2,
+      "expected": 1.2
+    },
+    {
+      "blender_xy": [
+        0,
+        12
+      ],
+      "height": 1.203,
+      "expected": 1.2
+    },
+    {
+      "blender_xy": [
+        0,
+        25
+      ],
+      "height": 1.203,
+      "expected": 1.2
+    },
+    {
+      "blender_xy": [
+        4.3,
+        20
+      ],
+      "height": 2.403,
+      "expected": 2.4
+    },
+    {
+      "blender_xy": [
+        4.3,
+        28
+      ],
+      "height": 1.203,
+      "expected": 1.2
+    },
+    {
+      "blender_xy": [
+        4.3,
+        27.15
+      ],
+      "height": 1.35,
+      "expected": 1.35
+    },
+    {
+      "blender_xy": [
+        4.3,
+        25.05
+      ],
+      "height": 2.4,
+      "expected": 2.4
+    }
+  ],
+  "texture_limit": 4096,
+  "checks": [
+    "end arch separated from wall face",
+    "editable source mesh count",
+    "GLB reimport",
+    "finite vertices",
+    "UVs",
+    "triangle and mesh counts",
+    "central and gallery stair/floor heights",
+    "runtime texture size"
+  ]
+}

@@ -1,4 +1,4 @@
-import { isInsideGuesthouse } from "@gpta/core/scene";
+import { sceneSpace } from "@gpta/core/scene";
 import { distance, type Entity, type EntityId, type Player } from "@gpta/core/world";
 
 /** The target list preserves interior boundaries without hiding distant people from inspection. */
@@ -27,8 +27,7 @@ export function InteractionTarget({
         {entities
           .filter(
             (entry) =>
-              entry.id !== player.id &&
-              isInsideGuesthouse(entry.position) === isInsideGuesthouse(player.position),
+              entry.id !== player.id && sceneSpace(entry.position) === sceneSpace(player.position),
           )
           .map((entry) => (
             <option key={entry.id} value={entry.id}>

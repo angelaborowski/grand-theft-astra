@@ -1,0 +1,201 @@
+{
+  "asset": "/assets/museum-interior.glb",
+  "license": "LAL-1.3",
+  "coordinate_convention": {
+    "blender": "X across, Y inward, Z up; threshold origin",
+    "game": "X across, Y up, negative Z inward",
+    "units": "metres"
+  },
+  "placement": {
+    "mode": "separate interior scene recommended",
+    "proposed_blender_city_anchor": [
+      13,
+      145,
+      0
+    ],
+    "proposed_game_city_anchor": [
+      13,
+      -0.12,
+      -145
+    ],
+    "status": "provisional; parent must fit entry to exterior"
+  },
+  "entry": {
+    "local_game_spawn": [
+      0,
+      1.7,
+      -1.2
+    ],
+    "facing_game": [
+      0,
+      0,
+      -1
+    ],
+    "clear_width": 2.8,
+    "minimum_height": 2.4
+  },
+  "return": {
+    "local_game_position": [
+      0,
+      1.7,
+      -0.8
+    ],
+    "facing_game": [
+      0,
+      0,
+      1
+    ]
+  },
+  "central_route": {
+    "clear_x": [
+      -1.75,
+      1.75
+    ],
+    "blender_y": [
+      0.6,
+      28.5
+    ],
+    "eye_height": 1.7,
+    "floor_segments": [
+      {
+        "blender_y": [
+          0,
+          7
+        ],
+        "z": 0
+      },
+      {
+        "blender_y": [
+          7,
+          9.4
+        ],
+        "steps": 8,
+        "rise": 0.15,
+        "run": 0.3,
+        "first_step_top": 0.15,
+        "width": 6
+      },
+      {
+        "blender_y": [
+          9.4,
+          30
+        ],
+        "z": 1.2
+      }
+    ],
+    "note": "Conservative centre corridor keeps a0.35m radius clear of entrance seats. Parent must verify its character capsule."
+  },
+  "galleries": {
+    "floor_z": 2.4,
+    "blender_y": [
+      0,
+      24.9
+    ],
+    "approach_y": [
+      27.3,
+      30
+    ],
+    "approach_z": 1.2,
+    "stairs": {
+      "centres_x": [
+        -4.3,
+        4.3
+      ],
+      "start_y": 27.3,
+      "end_y": 24.9,
+      "steps": 8,
+      "rise": 0.15,
+      "run": 0.3,
+      "width": 1.4
+    },
+    "traversable": false,
+    "reason": "Pier mouldings narrow bays to approximately0.64m. Decorative only until geometry and character clearance are resolved."
+  },
+  "barriers": {
+    "end_portal": "closed at local Blender Y=30",
+    "outer_walls_x": [
+      -5,
+      5
+    ],
+    "gallery_parapets_x": [
+      -3.52,
+      3.52
+    ],
+    "pier_centres_x": [
+      -3.35,
+      3.35
+    ],
+    "pier_centres_y": [
+      0,
+      6,
+      12,
+      18,
+      24,
+      30
+    ],
+    "note": "Parent must derive final collision shapes from source, account for seats/rails and keep edges closed."
+  },
+  "lighting": {
+    "note": "Do not use exterior sun alone. Load interior-local lighting; source .blend includes reference lighting. Preview intensities are art-directed, not calibrated lux. GLB contains no lights.",
+    "warm_points_game": [
+      [
+        -2.7,
+        6.1,
+        -6
+      ],
+      [
+        -2.7,
+        6.1,
+        -12
+      ],
+      [
+        -2.7,
+        6.1,
+        -18
+      ],
+      [
+        -2.7,
+        6.1,
+        -24
+      ],
+      [
+        2.7,
+        6.1,
+        -6
+      ],
+      [
+        2.7,
+        6.1,
+        -12
+      ],
+      [
+        2.7,
+        6.1,
+        -18
+      ],
+      [
+        2.7,
+        6.1,
+        -24
+      ]
+    ],
+    "warm_color": "#ffd5a0",
+    "preview_warm_intensity": 30,
+    "window_points_game": [
+      [
+        0,
+        8.6,
+        -1
+      ],
+      [
+        0,
+        8.6,
+        -29
+      ]
+    ],
+    "window_color": "#e5efff",
+    "preview_window_intensity": 110,
+    "shadows": "Only window lights cast shadows in viewer; profile integrated game before adding more."
+  },
+  "integration_status": "asset only; parent owns gameplay entry/exit/collision/lighting changes"
+}

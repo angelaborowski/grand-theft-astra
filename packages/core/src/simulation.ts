@@ -3,7 +3,9 @@ import { ambientMovement } from "./ambient-movement";
 import {
   crowdPosition,
   GUESTHOUSE,
-  isInsideGuesthouse,
+  sceneSpace,
+  isInsideMuseum,
+  MUSEUM,
   migrateDistrictPosition,
   MOVEMENT,
   positionIsWalkable,
@@ -139,11 +141,40 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
       names.map((name) => ({ ...resident, name: `${name} ${resident.surname}` })),
     )
     .slice(0, 92);
+  const occupations = [
+    ["Antonov", "Police officer", "Patrol the district and respond to reported incidents"],
+    ["Blinov", "Chef", "Meet local food suppliers before the dinner service"],
+    ["Denisov", "Medic", "Check on residents and keep access routes clear"],
+    ["Egorov", "Doctor", "Take a break from the clinic and help neighbors find care"],
+    ["Fomin", "Mechanic", "Find drivers who need repairs and return to the workshop"],
+    ["Gusev", "Construction worker", "Inspect street repairs and keep the site tidy"],
+    ["Ilyin", "Firefighter", "Check emergency access around the square"],
+    ["Kalinin", "Shopkeeper", "Welcome customers and restock the neighborhood shop"],
+    ["Lebedev", "Florist", "Deliver flowers and meet customers around the square"],
+    ["Makarov", "Barista", "Find fresh supplies for the morning coffee service"],
+    ["Nikitin", "Delivery worker", "Find the next delivery address in the district"],
+    ["Pavlov", "Security guard", "Keep an eye on shop entrances and help visitors"],
+    ["Romanov", "Sanitation worker", "Keep the square clean and clear the street bins"],
+    ["Stepanov", "Electrician", "Inspect street lights and collect repair supplies"],
+    ["Titov", "Baker", "Bring fresh pastries to the neighborhood market"],
+    ["Zaitsev", "Photographer", "Photograph everyday life around the square"],
+  ] as const;
+  residents.push(
+    ...occupations.flatMap(([surname, job, goal], index) =>
+      names.slice(index % 9, (index % 9) + 4).map((name) => ({
+        surname,
+        job,
+        goal,
+        name: `${name} ${surname}`,
+      })),
+    ),
+  );
   const people: Actor[] = residents.map((resident, index) => ({
     id: EntityIdSchema.parse(`person-${index}`),
     name: resident.name,
-    kind: "person",
-    role: "resident",
+    ...(resident.job === "Police officer"
+      ? { kind: "police" as const, assignment: null }
+      : { kind: "person" as const, role: "resident" as const }),
     position: crowdPosition(index),
     money: 100,
     health: 100,
@@ -343,7 +374,7 @@ export function addPlayer(world: WorldSnapshot, playerId: EntityId): WorldSnapsh
         id: playerId,
         kind: "player",
         name: "You",
-        position: SCENE_POSITIONS.player,
+        position: MUSEUM.spawn,
         money: MISSION_TERMS.startingMoney,
         health: 100,
         mission: { stage: "available" },
@@ -369,7 +400,20 @@ export function movePlayer(
     return null;
   if (distance(player.position, position) > maxDistance || !positionIsWalkable(position))
     return null;
-  if (isInsideGuesthouse(player.position) !== isInsideGuesthouse(position)) return null;
+  if (
+    isInsideMuseum(player.position) &&
+    position.z >= -0.6 &&
+    Math.abs(position.x - MUSEUM.originX) < 1
+  ) {
+    return {
+      ...world,
+      revision: world.revision + 1,
+      entities: world.entities.map((entity) =>
+        entity.id === playerId ? { ...entity, position: { ...MUSEUM.exit } } : entity,
+      ),
+    };
+  }
+  if (sceneSpace(player.position) !== sceneSpace(position)) return null;
   const steps = Math.max(1, Math.ceil(distance(player.position, position) / MOVEMENT.actorRadius));
   for (let step = 1; step < steps; step += 1) {
     const ratio = step / steps;

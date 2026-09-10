@@ -1,38 +1,18 @@
-# Animated NPC cast — placeholders; likeness work incomplete
+# Animated cast — full character refinement
 
-**User acceptance requirement:** The final six NPCs must match the approved reference images in face, hair, body proportions, clothing, accessories and materials. The current procedural models fail that visual requirement and must not be presented as final character integration. Retain the animation infrastructure while replacing the meshes. Check each replacement against the reference from a matched camera before accepting it. Unseen back and side details require additional references or explicitly documented reconstruction choices.
+The current builder is `build-quality.py`. It refines Mila, Lev, Niko, Irina, Sasha, Alexei, and the shared player/crowd body while preserving the 13-bone rig and Idle/Walk clips. Greet remains available. All runtime paths are unchanged; Mila uses `public/assets/characters/mila-study.glb`, the other named characters use their lowercase name, and player/crowd use `public/assets/courier-prototype.glb`.
 
-Six original Blender meshes now represent Mila, Lev, Niko, Irina, Sasha and Alexei. They follow costume descriptions from the separate character concept task. They are stylized procedural interpretations, **not converted Higgsfield portraits or photorealistic likenesses**. No additional image generation or credits were used.
+The pass adds anatomical faces, individual jaw/nose proportions, age/freckle skin maps, fitted hair, continuous weighted knees/elbows, shaped fingers, structured shoes, garment folds, pockets, collar details and textile maps. The crowd body is decimated and retains a neutral textured `Jacket` material so the existing app palette can tint it. Heads and hair incorporate CC0 MakeHuman graphical assets. Licences, authors, original bytes and source URLs are in `vendor/makehuman/SOURCES.md`; original project garments/rigging remain editable.
 
-Each GLB has a 13-bone skeleton and Idle, Walk and Greet clips. The client loads a separate asset per NPC, crossfades animation states, and falls back to the previous courier if an asset fails. Residents and remote players retain the courier prototype. Remote players now switch between walking and idle as their displayed position changes.
+All six approved cast concept images are preserved in `source/characters/references` (Mila reference in `source/characters/mila-study`). They guide costume and identity, but these models are still approximate game assets. This pass is not GTA/AAA-quality certification or accepted exact likeness. Five haircuts share a fitted base with silhouette changes, and locomotion remains a simple in-place cycle without finger/facial animation, foot IK or root motion. Clothing and face silhouettes still differ from the concepts. The 92 background residents share one mesh, not 92 unique likenesses.
 
-Named NPCs follow short visual routines within 0.8 m of their unchanged authoritative mission anchor. During the rest portion they greet nearby players. This does not add server AI, pathfinding or NPC collisions; proximity-driven gestures are local. Movement is interpolated from server time between updates. Existing reward, dialogue and persistence rules remain authoritative.
+`quality/comparison.html` presents actual before/after GLB reimport renders and sampled Walk/Greet poses. `quality/validation.json` records byte hashes, geometry budgets, texture counts, skin and animation checks. Original older builders remain historical sources; do not run `build-cast.py` to regenerate the refined runtime cast.
 
-## Art identifiers
-
-- Mila: mustard jacket, dark trousers, pale shoes, red messenger bag.
-- Lev: long green coat, burgundy scarf, grey hair, modeled glasses and satchel.
-- Niko: cobalt jacket, orange shoulder panels, curls and courier bag.
-- Irina: plum cardigan, cream blouse, hair bun and buttons.
-- Sasha: sage jacket, tied auburn hair, yellow headphones and brown boots.
-- Alexei: navy jacket, reflective shoulder strips, grey moustache and black boots.
-
-All share the original base topology. Faces, hands and skin materials are simple; weights are rigid per part. The walk has no foot IK or root motion and is deliberately a prototype. Realistic likeness, fabric textures, facial animation and production locomotion remain outstanding.
-
-## Sources and rebuild
-
-`build.py` creates the original courier. `build-cast.py` adds costume geometry and exports each cast member's editable `.blend` and runtime `.glb`. All geometry is original code-generated work; no external meshes or textures are embedded.
-
-Concept provenance: separate task `01a08c3f-2fe3-7343-b5e4-75c04a708c45`, cast descriptions in its `outputs/cast/provenance.json` (Higgsfield Soul 2, 2D concepts). These descriptions informed the clothing only. The photos of the two real people in that task are excluded from this NPC cast.
-
-From repository root:
-
-```
-blender --background --python-exit-code 1 --python source/blender/characters/build-cast.py
-node source/blender/characters/validate-cast.mjs
-npm test
+```sh
+blender --background --python-exit-code 1 --python source/blender/characters/build-quality.py
+python3 source/blender/characters/validate-quality.py
+blender --background --python-exit-code 1 --python source/blender/characters/render-quality.py
+pnpm check
 ```
 
-`cast-validation.json` records byte sizes, SHA-256 hashes, expected bones/clips and finite float accessor checks for every GLB. Runtime browser spot checks found no errors; this is not a full device or deformation certification. The optional game-dev CLI was unavailable on PATH, so validation uses the local validator; no canonical game-dev package is claimed.
-
-Open `/?view=gum` and use the six name buttons to inspect the cast, or enter the game to approach them.
+Set `CHARACTER_SKIP_STUDIO=1` to export without source-scene studio renders. The `.blend` files remain editable either way. Exported textures are embedded; no remote asset fetch is required in the game. Independent review and browser integration evidence are reported separately from static validation.

@@ -16,8 +16,8 @@ export function GamePage() {
             <br />a life of its own.
           </h1>
           <p>
-            You arrive in Red Square with ₽20 and nowhere to sleep. Meet Mila. Find work. Decide who
-            to trust.
+            Begin inside the Historical Museum, then walk out into Red Square. Meet Mila and take
+            your first job.
           </p>
           <button className="primary-button start-button" onClick={() => setStarted(true)}>
             Start / continue <span>→</span>
@@ -33,7 +33,7 @@ export function GamePage() {
               <kbd>SHIFT</kbd> Run
             </span>
           </div>
-          <small>100 people. One persistent city. Your choices stay after you leave.</small>
+          <small>164 people. One persistent city. Your choices stay after you leave.</small>
         </div>
         <div className="start-map" aria-hidden="true">
           <div />

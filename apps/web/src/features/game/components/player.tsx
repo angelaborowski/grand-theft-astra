@@ -1,4 +1,4 @@
-import { DISTRICT_BOUNDS, MOVEMENT, isInsideGuesthouse } from "@gpta/core/scene";
+import { DISTRICT_BOUNDS, MOVEMENT, MUSEUM, sceneSpace } from "@gpta/core/scene";
 import type { Actor, Position } from "@gpta/core/world";
 import { CameraControls, CameraControlsImpl, useKeyboardControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
@@ -36,13 +36,26 @@ export function Player({
   const movement = useRef({ lastSent: 0, pending: false });
   const motion = useRef<CharacterMotion>({ speed: 0 });
   const driving = actor.behavior.type === "driving";
-  const inside = isInsideGuesthouse(actor.position);
+  const space = sceneSpace(actor.position);
+  const inside = space !== "square";
+  const leavingMuseum = Math.hypot(spawn.x - MUSEUM.exit.x, spawn.z - MUSEUM.exit.z) < 1;
+  const cameraSign = space === "museum" || leavingMuseum ? -1 : 1;
   const cameraDistance = inside ? 3.5 : 6.5;
+  const spawnHeight =
+    space === "museum" ? 1.3 + Math.min(1.2, Math.max(0, (-spawn.z - 7) * 0.5)) : 1.3;
   const followRadius = useRef(Math.hypot(6.5, 2.6));
   useEffect(() => {
     if (camera.current)
-      void camera.current.setLookAt(spawn.x, 3.8, spawn.z + 6.5, spawn.x, 1.2, spawn.z, false);
-  }, [spawn.x, spawn.z]);
+      void camera.current.setLookAt(
+        spawn.x,
+        spawnHeight + 2.5,
+        spawn.z + 6.5 * cameraSign,
+        spawn.x,
+        spawnHeight,
+        spawn.z,
+        false,
+      );
+  }, [spawn.x, spawn.z, cameraSign, spawnHeight]);
   useEffect(() => {
     if (overview && camera.current) {
       const x = (DISTRICT_BOUNDS.minX + DISTRICT_BOUNDS.maxX) / 2;
@@ -54,23 +67,49 @@ export function Player({
       void camera.current.setLookAt(
         position.x,
         position.y + 2.6,
-        position.z + cameraDistance,
+        position.z + cameraDistance * cameraSign,
         position.x,
         position.y,
         position.z,
         true,
       );
     }
-  }, [overview, cameraDistance]);
+  }, [overview, cameraDistance, cameraSign]);
   const restorePosition = useEffectEvent(() => {
     controller.current?.body?.setTranslation(
-      { x: actor.position.x, y: 1.3, z: actor.position.z },
+      {
+        x: actor.position.x,
+        y:
+          space === "museum"
+            ? 1.3 + Math.min(1.2, Math.max(0, (-actor.position.z - 7) * 0.5))
+            : 1.3,
+        z: actor.position.z,
+      },
       true,
     );
   });
   useEffect(() => {
     restorePosition();
   }, [driving, enabled, inside]);
+  const lastAccepted = useRef(actor.position);
+  useEffect(() => {
+    const previous = lastAccepted.current;
+    lastAccepted.current = actor.position;
+    if (Math.hypot(previous.x - actor.position.x, previous.z - actor.position.z) <= 3) return;
+    restorePosition();
+    controller.current?.body?.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    const height =
+      space === "museum" ? 1.3 + Math.min(1.2, Math.max(0, (-actor.position.z - 7) * 0.5)) : 1.3;
+    void camera.current?.setLookAt(
+      actor.position.x,
+      height + 2.6,
+      actor.position.z + cameraDistance * cameraSign,
+      actor.position.x,
+      height,
+      actor.position.z,
+      false,
+    );
+  }, [actor.position, space, cameraDistance, cameraSign]);
   useFrame(({ clock }, delta) => {
     const character = controller.current;
     if (!character?.body) return;
@@ -123,7 +162,17 @@ export function Player({
     movement.current.pending = true;
     void move({ x: position.x, z: position.z })
       .catch(() => {
-        character.body.setTranslation({ x: actor.position.x, y: 1.3, z: actor.position.z }, true);
+        character.body.setTranslation(
+          {
+            x: actor.position.x,
+            y:
+              space === "museum"
+                ? 1.3 + Math.min(1.2, Math.max(0, (-actor.position.z - 7) * 0.5))
+                : 1.3,
+            z: actor.position.z,
+          },
+          true,
+        );
         character.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
       })
       .finally(() => {
@@ -134,7 +183,7 @@ export function Player({
     <>
       <Ecctrl
         ref={controller}
-        position={[spawn.x, 1.3, spawn.z]}
+        position={[spawn.x, spawnHeight, spawn.z]}
         capsuleRadius={MOVEMENT.actorRadius}
         capsuleHalfHeight={0.45}
         floatHeight={0.05}

@@ -12,6 +12,6 @@ Produce a textured mesh with a deforming skeleton, Idle/Walk/Run/Greet animation
 
 ## Current status
 
-The six NPCs currently use stylized placeholders with animation integration. The two team avatars have no runtime mesh and are not shown as selectable finished characters. All eight still require the requested realistic likeness work.
+The six NPCs and the shared player/crowd body now have the full refinement in `source/blender/characters/build-quality.py`: anatomical CC0 heads, skin textures, fitted hair and continuous weighted limbs. They remain approximate game assets rather than accepted reference likenesses. Their exported-byte checks and matched GLB import renders are in `source/blender/characters/quality`. The two team avatars have no runtime mesh and are not shown as selectable finished characters. All eight still require the requested realistic likeness work.
 
 The Higgsfield models search tool returned MCP -32001 Unknown tool in this task when checking 3D production capabilities. No new jobs were started or credits spent. No functioning image-to-mesh or identity reconstruction tool has been verified here. This blocks automated production of the requested likeness assets; reference preparation does not complete that step.

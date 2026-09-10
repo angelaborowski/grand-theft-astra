@@ -1,0 +1,14 @@
+{
+  "editable_meshes": 4074,
+  "runtime_meshes": 14,
+  "triangles": 110028,
+  "gross_envelope_metres": [
+    10,
+    30,
+    11.7
+  ],
+  "dimension_status": "Provisional, photo-informed; only total hall area300m2 verified",
+  "source": "Official SHM venue brochure pp3-10; A.Savin ceiling photograph (FAL)",
+  "license": "LAL-1.3 (this new asset including photographic adaptation)",
+  "render_lights": 12
+}

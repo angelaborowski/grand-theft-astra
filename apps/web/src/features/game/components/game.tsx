@@ -10,7 +10,7 @@ import { InteractionPanel } from "./interaction-panel";
 import { Minimap } from "./minimap";
 import { StuntObjective } from "./stunt-objective";
 import { MissionPanel } from "./mission-panel";
-import { isInsideGuesthouse, SCENE_IDS } from "@gpta/core/scene";
+import { sceneSpace, SCENE_IDS } from "@gpta/core/scene";
 import { ConversationSpeech } from "./conversation-speech";
 
 /** This composition keeps scene, interaction, and inspector views on the same accepted snapshot. */
@@ -44,7 +44,7 @@ export default function Game() {
       </main>
     );
   const { snapshot, player, connection, action } = world;
-  const showOverview = overview && !isInsideGuesthouse(player.position);
+  const showOverview = overview && sceneSpace(player.position) === "square";
   const entity = selectedEntity(
     snapshot,
     player,
@@ -95,30 +95,57 @@ export default function Game() {
           )}
           <div className="scene-location">
             <span className="eyebrow">MOSCOW / DISTRICT 01</span>
-            <h2>{isInsideGuesthouse(player.position) ? "Irina’s guesthouse" : "Red Square"}</h2>
+            <h2>
+              {sceneSpace(player.position) === "museum"
+                ? "Historical Museum"
+                : sceneSpace(player.position) === "guesthouse"
+                  ? "Irina’s guesthouse"
+                  : "Red Square"}
+            </h2>
             <span className="scene-caption">
               {player.behavior.type === "driving" ? "Driving" : "Free roam"} <span>·</span> ₽
               {player.money} <span>·</span> Health {player.health}
             </span>
           </div>
           <div className="scene-controls">
+            {sceneSpace(player.position) !== "guesthouse" &&
+              player.behavior.type !== "driving" &&
+              player.stunt?.stage !== "running" && (
+                <button
+                  disabled={!sceneReady || action.isPending || connection.status !== "connected"}
+                  onClick={() =>
+                    action.mutate({ type: "visit_museum", targetId: SCENE_IDS.square })
+                  }
+                >
+                  {sceneSpace(player.position) === "museum"
+                    ? "Restart museum walk"
+                    : "Museum opening"}
+                </button>
+              )}
             <button
               onClick={() => setOverview(!showOverview)}
               aria-pressed={showOverview}
-              disabled={isInsideGuesthouse(player.position)}
+              disabled={sceneSpace(player.position) !== "square"}
             >
               <MapTrifoldIcon size={15} style={{ verticalAlign: "middle", marginRight: 5 }} />
               {showOverview ? "Return to player" : "City overview"}
             </button>
           </div>
-          <StuntObjective
-            player={player}
-            time={snapshot.time}
-            select={setSelectedId}
-            canLaunch={sceneReady && connection.status === "connected" && !action.isPending}
-            act={action.mutate}
-            launch={() => action.mutate({ type: "launch_stunt", targetId: SCENE_IDS.mila })}
-          />
+          {sceneSpace(player.position) === "museum" ? (
+            <section className="stunt-objective">
+              <h2>Step into Red Square</h2>
+              <p>Walk through the hall, down the steps, and out through the main doorway.</p>
+            </section>
+          ) : (
+            <StuntObjective
+              player={player}
+              time={snapshot.time}
+              select={setSelectedId}
+              canLaunch={sceneReady && connection.status === "connected" && !action.isPending}
+              act={action.mutate}
+              launch={() => action.mutate({ type: "launch_stunt", targetId: SCENE_IDS.mila })}
+            />
+          )}
           <ConversationSpeech entity={entity} playerId={player.id} />
           {connection.status === "disconnected" && (
             <div className="disconnect-alert" role="alert">

@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { ConversationAction, TurnId } from "./conversations";
 import {
   GUESTHOUSE,
+  MUSEUM,
   isInsideGuesthouse,
   MOVEMENT,
   positionIsWalkable,
@@ -26,6 +27,7 @@ export const PlayerActionSchema = z.discriminatedUnion("type", [
     targetId: EntityIdSchema,
     text: z.string().trim().min(1).max(500),
   }),
+  z.object({ type: z.literal("visit_museum"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("launch_stunt"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("start_stunt"), targetId: EntityIdSchema }),
   z.object({ type: z.literal("finish_stunt"), targetId: EntityIdSchema }),
@@ -149,6 +151,17 @@ export function applyPlayerAction(
   const target = world.entities.find((entity) => entity.id === action.targetId);
   if (actor?.kind !== "player" || actor.health <= 0) return reject("This player cannot act.");
   if (!target || target.id === actorId) return reject("Choose another entity.");
+  if (action.type === "visit_museum") {
+    if (target.id !== SCENE_IDS.square) return reject("Choose the museum opening.");
+    if (
+      actor.behavior.type === "driving" ||
+      (actor.stunt?.stage === "running" && actor.stunt.deadline > context.now)
+    )
+      return reject("Finish your drive before visiting the museum.");
+    actor.position = { ...MUSEUM.spawn };
+    actor.behavior = { type: "idle" };
+    return accept(world, actorId, action.type, "Entered the Historical Museum.", "player", context);
+  }
   if (action.type === "launch_stunt") {
     if (target.id !== SCENE_IDS.mila) return reject("Choose Last Flight with Mila.");
     if (actor.stunt?.stage === "completed")

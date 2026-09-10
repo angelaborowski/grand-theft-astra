@@ -32,7 +32,7 @@ export const MOVEMENT = {
 /** Angela's GLB uses native meters; its paving surface sits 0.12 meters above the gameplay floor. */
 export const RED_SQUARE_SCENE = { asset: "/assets/red-square.glb", offsetY: -0.12 } as const;
 /** These limits match the playable area in Angela's original world.mjs. */
-export const DISTRICT_BOUNDS = { minX: -42, maxX: 62, minZ: -115, maxZ: 222 } as const;
+export const DISTRICT_BOUNDS = { minX: -42, maxX: 62, minZ: -142, maxZ: 222 } as const;
 /** Stable scene anchors place new entities beside Angela's buildings and street props. */
 export const SCENE_POSITIONS = {
   player: { x: 39, z: 83 },
@@ -64,6 +64,26 @@ export function isInsideGuesthouse(position: Position): boolean {
     position.z >= bounds.minZ &&
     position.z <= bounds.maxZ
   );
+}
+/** Separate lower entrance hall; exterior geometry remains owned by the building task. */
+export const MUSEUM = {
+  originX: 200,
+  spawn: { x: 200, z: -25 },
+  exit: { x: 13, z: -140 },
+  bounds: { minX: 198.7, maxX: 201.3, minZ: -29, maxZ: 0.4 },
+} as const;
+export function isInsideMuseum(position: Position): boolean {
+  const b = MUSEUM.bounds;
+  return (
+    position.x >= b.minX && position.x <= b.maxX && position.z >= b.minZ && position.z <= b.maxZ
+  );
+}
+export function sceneSpace(position: Position): "museum" | "guesthouse" | "square" {
+  return isInsideMuseum(position)
+    ? "museum"
+    : isInsideGuesthouse(position)
+      ? "guesthouse"
+      : "square";
 }
 /** Map footprints use Blender x and negative y; conservative boxes also drive client collision shapes. */
 export const BUILDINGS = [
@@ -166,6 +186,7 @@ export function migrateDistrictPosition(position: Position): Position {
 /** Both physics setup and server checks use these same footprints. */
 export function positionIsWalkable(position: Position): boolean {
   const r = MOVEMENT.actorRadius;
+  if (isInsideMuseum(position)) return true;
   if (isInsideGuesthouse(position)) {
     const bounds = GUESTHOUSE.bounds;
     return (

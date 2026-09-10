@@ -1,14 +1,14 @@
 {
-  "bytes": 2782108,
-  "sha256": "35ae6d4eba6da897b0a922ecca5f2621c4714aa84693d1e9619248c25dba1920",
-  "triangles": 69128,
+  "bytes": 3009360,
+  "sha256": "1e151426610d9c894901e05aea9415c2d67c1dd1d9f0e054202564a1b284c031",
+  "triangles": 33016,
   "bones": 13,
   "clips": [
     "Greet",
     "Idle",
     "Walk"
   ],
-  "blendedVertices": 686,
+  "blendedVertices": 656,
   "finiteFloatAccessors": true,
   "normalizedWeights": true,
   "runtimeMatchesSource": true,

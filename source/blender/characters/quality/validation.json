@@ -1,0 +1,416 @@
+[
+  {
+    "name": "mila-study",
+    "sha256": "1e151426610d9c894901e05aea9415c2d67c1dd1d9f0e054202564a1b284c031",
+    "bytes": 3009360,
+    "triangles": 33016,
+    "vertices": 18751,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 656,
+    "embeddedTextures": 6,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "lev",
+    "sha256": "1d0b8259936d8890fb7c8eb36fa392cb868ba946d80d53a6467aa01b0fe2fdb8",
+    "bytes": 2854856,
+    "triangles": 31664,
+    "vertices": 18020,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 656,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "niko",
+    "sha256": "28c744c38e384bae0135be7e8b18821e3a324bda7585335bc642f8f296cf39f4",
+    "bytes": 2773684,
+    "triangles": 30616,
+    "vertices": 17454,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 656,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "irina",
+    "sha256": "795ffb5d88d7102bd0b3d964bb89a0a86b687ff114f5aff44329eb32b21322dc",
+    "bytes": 3082896,
+    "triangles": 36636,
+    "vertices": 20932,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 656,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "sasha",
+    "sha256": "afbc888fad9c0a231fb597da1931badc22dfbf49878846527ef68e786c4a3d54",
+    "bytes": 3287324,
+    "triangles": 32836,
+    "vertices": 18765,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 656,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "alexei",
+    "sha256": "456397e358706e3194c99816de88600c1ec63244ee5d326a6288249f5f3b8847",
+    "bytes": 2739480,
+    "triangles": 30364,
+    "vertices": 17262,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 656,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "courier-prototype",
+    "sha256": "6c0cd105323310bd1e0f7b8cac82539a29881aa32a26c5178167a61e83927420",
+    "bytes": 1969572,
+    "triangles": 6071,
+    "vertices": 3939,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 144,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-baker",
+    "sha256": "ce4ba351004dad41ee00a6f3d7899fc4414cdb89bf1ee2f95e5db46b1d5ec550",
+    "bytes": 2369680,
+    "triangles": 6368,
+    "vertices": 4155,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-barista",
+    "sha256": "1869869b96b9920f5b2531adb05bfba75e398624e7ab5663e4bd0b5d67f4c168",
+    "bytes": 2001672,
+    "triangles": 6167,
+    "vertices": 4025,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-chef",
+    "sha256": "fe8b99827caa4c0d5619198cb223782cc20ce6ee35fa1a9fa5ebb00990786b9b",
+    "bytes": 2011700,
+    "triangles": 6369,
+    "vertices": 4155,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 141,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-construction",
+    "sha256": "1f174af606a0e313bf4c109995a0b10bbed9f4874a8239ca2216e470b84868cd",
+    "bytes": 2024440,
+    "triangles": 6610,
+    "vertices": 4344,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-delivery",
+    "sha256": "a4892d8e30385a41e389c6faded695fd45001d528d95137fd57cb336a60b08a9",
+    "bytes": 1933212,
+    "triangles": 6454,
+    "vertices": 4170,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 141,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-doctor",
+    "sha256": "d98bb316cd4ec271ec710f2f596dcbd968be244f545e7f35861fb7846aeef2d1",
+    "bytes": 1991980,
+    "triangles": 6284,
+    "vertices": 4075,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 144,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-electrician",
+    "sha256": "fdca965f9793bc6b589bba6bf4dfff68a05898068cb602d21857a3a53f67c90b",
+    "bytes": 2003852,
+    "triangles": 6154,
+    "vertices": 4030,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 144,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-firefighter",
+    "sha256": "70e84de7f97f03916bcfc5e87b9f1b805dc9af67d211def7a88ceb2fb1732e3f",
+    "bytes": 1936752,
+    "triangles": 6526,
+    "vertices": 4249,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-florist",
+    "sha256": "8512f4444501a528f5f20f1bb3aa3868747f50374320c84697f365b33137eafc",
+    "bytes": 2360644,
+    "triangles": 6166,
+    "vertices": 4023,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 143,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-mechanic",
+    "sha256": "76777cf33b7cff01cd550792222a6a1139c572b112d832aa62b16f1757f5227b",
+    "bytes": 2367584,
+    "triangles": 6501,
+    "vertices": 4226,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 143,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-medic",
+    "sha256": "e4d72e9565339b1ef4ee9b1cd5a252c2f4260b264d6542c213bc92792b0577a1",
+    "bytes": 1931084,
+    "triangles": 6284,
+    "vertices": 4074,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 144,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-photographer",
+    "sha256": "4ce69608c078f6c417392e8dc3f2acdfcc9e825a73f37943d362e8e42d642708",
+    "bytes": 1930720,
+    "triangles": 6307,
+    "vertices": 4106,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-police",
+    "sha256": "39cf34fbb3aad7acfd4c08d65e9711690ae5e6cb00c1dc68c8d0dacd7cbf9501",
+    "bytes": 1983144,
+    "triangles": 6498,
+    "vertices": 4212,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-sanitation",
+    "sha256": "3d76b06e4993418839641a5cb913dba894e4dfa60f092f6ff94d6f2f54ccd77b",
+    "bytes": 2377188,
+    "triangles": 6527,
+    "vertices": 4253,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-security",
+    "sha256": "647abca3057f90e63d42c1b5c0999abaa598b3714300d1e634ed95bf2e66861c",
+    "bytes": 1984384,
+    "triangles": 6498,
+    "vertices": 4212,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  },
+  {
+    "name": "resident-shopkeeper",
+    "sha256": "e0c5eb2910fd1a58a5d45fd4557247e7aeddb745b882da3090d19bfa68e4294e",
+    "bytes": 1975168,
+    "triangles": 6166,
+    "vertices": 4028,
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "blendedVertices": 142,
+    "embeddedTextures": 5,
+    "finiteAccessors": true,
+    "normalizedWeights": true,
+    "likenessAccepted": false
+  }
+]

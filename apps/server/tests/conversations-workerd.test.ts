@@ -3,8 +3,8 @@ import { expect, it } from "vitest";
 import { createTestHarness, type TestHarness } from "wrangler";
 import WebSocket from "ws";
 import { methodTable, ServerMessageSchema, SessionSchema, type Request } from "@gpta/core/protocol";
-import { SCENE_IDS } from "@gpta/core/scene";
-import type { WorldSnapshot } from "@gpta/core/world";
+import { SCENE_IDS, stuntVehicleId } from "@gpta/core/scene";
+import { EntityIdSchema, type WorldSnapshot } from "@gpta/core/world";
 
 async function call(socket: WebSocket, request: Request) {
   const messages = on(socket, "message", { signal: AbortSignal.timeout(5000) });
@@ -55,16 +55,6 @@ async function prepare(server: TestHarness) {
     }),
   );
   const sql = await worker.getDurableObjectStorage("WORLD", { name: env.WORLD_NAME });
-  const snapshot: WorldSnapshot = await world.snapshot();
-  const mila = snapshot.entities.find((entity) => entity.id === SCENE_IDS.mila);
-  if (!mila) throw new Error("The test world has no Mila.");
-  const entities = snapshot.entities.map((entity) =>
-    entity.kind === "player" ? { ...entity, position: mila.position } : entity,
-  );
-  await sql.exec(
-    "UPDATE world SET snapshot = ? WHERE id = 1",
-    JSON.stringify({ ...snapshot, entities }),
-  );
   const reload = async () => {
     await server.update((current) => current);
     const env = await worker.getEnv();
@@ -72,7 +62,7 @@ async function prepare(server: TestHarness) {
     const sql = await worker.getDurableObjectStorage("WORLD", { name: env.WORLD_NAME });
     return { env, world, sql };
   };
-  const runtime = await reload();
+  const runtime = { env, world, sql };
   const sockets: WebSocket[] = [];
   const connect = async (index = 0) => {
     const session = sessions[index];
@@ -86,6 +76,46 @@ async function prepare(server: TestHarness) {
     await once(socket, "open");
     return socket;
   };
+  // Use acknowledged game actions: direct SQL edits can race the World's live alarm.
+  for (let index = 0; index < sessions.length; index++) {
+    const session = sessions[index];
+    if (!session) throw new Error("Missing fixture session");
+    const socket = await connect(index);
+    const act = (type: "launch_stunt" | "exit_vehicle", targetId: string) =>
+      call(socket, {
+        jsonrpc: "2.0",
+        id: crypto.randomUUID(),
+        method: "player.act",
+        params: {
+          idempotencyKey: crypto.randomUUID(),
+          action: { type, targetId: EntityIdSchema.parse(targetId) },
+        },
+      });
+    await act("launch_stunt", SCENE_IDS.mila);
+    await act("exit_vehicle", stuntVehicleId(session.playerId));
+    for (let step = 0; step < 80; step++) {
+      const snapshot: WorldSnapshot = await world.snapshot();
+      const player = snapshot.entities.find((entity) => entity.id === session.playerId);
+      const mila = snapshot.entities.find((entity) => entity.id === SCENE_IDS.mila);
+      if (!player || !mila) throw new Error("Missing fixture actors");
+      const dx = mila.position.x - player.position.x,
+        dz = mila.position.z - player.position.z;
+      const distance = Math.hypot(dx, dz);
+      if (distance < 2) break;
+      if (step === 79) throw new Error("Could not walk fixture player to Mila");
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      await call(socket, {
+        jsonrpc: "2.0",
+        id: crypto.randomUUID(),
+        method: "player.move",
+        params: {
+          position: { x: player.position.x + dx / distance, z: player.position.z + dz / distance },
+        },
+      });
+    }
+    socket.close();
+    await once(socket, "close");
+  }
   return { worker, ...runtime, sessions, sockets, connect, reload };
 }
 

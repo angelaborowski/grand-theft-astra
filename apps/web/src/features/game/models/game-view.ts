@@ -7,7 +7,7 @@ import {
   type WorldSnapshot,
 } from "@gpta/core/world";
 import type { ActivityItem, DecisionItem } from "../../../ui/game-panels";
-import { isInsideGuesthouse } from "@gpta/core/scene";
+import { sceneSpace } from "@gpta/core/scene";
 
 /** Show a stable game clock using UTC, independent of the browser locale. */
 export function gameTime(time: number): string {
@@ -21,14 +21,14 @@ export function selectedEntity(
   selectedId: EntityId | null,
 ): Entity | undefined {
   const selected = snapshot.entities.find((entity) => entity.id === selectedId);
-  const inside = isInsideGuesthouse(player.position);
-  if (selected && isInsideGuesthouse(selected.position) === inside) return selected;
+  const inside = sceneSpace(player.position);
+  if (selected && sceneSpace(selected.position) === inside) return selected;
   return snapshot.entities
     .filter(
       (entity) =>
         entity.id !== player.id &&
         entity.kind !== "location" &&
-        isInsideGuesthouse(entity.position) === inside,
+        sceneSpace(entity.position) === inside,
     )
     .toSorted(
       (a, b) => distance(player.position, a.position) - distance(player.position, b.position),

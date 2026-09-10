@@ -1,16 +1,17 @@
-import { BUILDINGS, DISTRICT_BOUNDS, GUESTHOUSE, isInsideGuesthouse } from "@gpta/core/scene";
+import { BUILDINGS, DISTRICT_BOUNDS, GUESTHOUSE, MUSEUM, sceneSpace } from "@gpta/core/scene";
 import type { Actor, WorldSnapshot } from "@gpta/core/world";
 
 /** The map uses the same coordinates and footprints as the scene. */
 export function Minimap({ snapshot, player }: { snapshot: WorldSnapshot; player: Actor }) {
-  const inside = isInsideGuesthouse(player.position);
-  const bounds = inside ? GUESTHOUSE.bounds : DISTRICT_BOUNDS;
+  const space = sceneSpace(player.position);
+  const inside = space !== "square";
+  const bounds = space === "museum" ? MUSEUM.bounds : inside ? GUESTHOUSE.bounds : DISTRICT_BOUNDS;
   const width = bounds.maxX - bounds.minX;
   const depth = bounds.maxZ - bounds.minZ;
   return (
     <section className="minimap" aria-label="District minimap">
       <p>
-        <span>{inside ? "GUESTHOUSE" : "RED SQUARE"}</span>
+        <span>{space === "museum" ? "MUSEUM" : inside ? "GUESTHOUSE" : "RED SQUARE"}</span>
         <span>N ↑</span>
       </p>
       <svg
@@ -35,7 +36,7 @@ export function Minimap({ snapshot, player }: { snapshot: WorldSnapshot; player:
             (entity) =>
               entity.kind !== "location" &&
               entity.id !== player.id &&
-              isInsideGuesthouse(entity.position) === inside,
+              sceneSpace(entity.position) === space,
           )
           .map((entity) => (
             <circle

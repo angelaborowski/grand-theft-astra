@@ -4,7 +4,7 @@ import { KeyboardControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Physics } from "@react-three/rapier";
 import { Suspense, useEffect } from "react";
-import { isInsideGuesthouse } from "@gpta/core/scene";
+import { sceneSpace } from "@gpta/core/scene";
 import { CityScene } from "./city-scene";
 import { DrivingPlayer } from "./driving-player";
 import { StuntCourse } from "./stunt-course";
@@ -14,6 +14,7 @@ import { FrameMeter } from "./frame-meter";
 import { SceneEffects } from "./scene-effects";
 import { Snowfall } from "./snowfall";
 import { SceneLighting } from "./scene-lighting";
+import { MuseumScene } from "./museum-scene";
 import { GuesthouseScene } from "./guesthouse-scene";
 
 const keyboardMap = [
@@ -45,12 +46,13 @@ export function GameScene({
     ready: (ready: boolean) => void;
   };
 }) {
-  const inside = isInsideGuesthouse(player.position);
+  const space = sceneSpace(player.position);
+  const inside = space !== "square";
   const visibleWorld = {
     ...snapshot,
     entities: snapshot.entities.filter(
       (entity) =>
-        isInsideGuesthouse(entity.position) === inside &&
+        sceneSpace(entity.position) === space &&
         (player.behavior.type !== "driving" || entity.id !== player.behavior.vehicleId),
     ),
   };
@@ -63,14 +65,14 @@ export function GameScene({
         gl={{ antialias: true, localClippingEnabled: true, toneMappingExposure: 0.9 }}
       >
         <color attach="background" args={["#d4dfe8"]} />
-        <fog attach="fog" args={["#d4dfe8", 260, 1000]} />
-        <SceneLighting />
+        {!inside && <fog attach="fog" args={["#d4dfe8", 260, 1000]} />}
+        {space !== "museum" && <SceneLighting />}
         {!inside && <Snowfall />}
         <SceneEffects />
         <FrameMeter />
         <Suspense fallback={null}>
           <Physics timeStep={1 / 60} interpolate>
-            {inside ? <GuesthouseScene /> : <CityScene />}
+            {space === "museum" ? <MuseumScene /> : inside ? <GuesthouseScene /> : <CityScene />}
             <WorldEntities
               snapshot={visibleWorld}
               playerId={player.id}
@@ -87,7 +89,13 @@ export function GameScene({
                 move={actions.move}
               />
             ) : (
-              <Player actor={player} enabled={enabled} overview={overview} move={actions.move} />
+              <Player
+                key={space}
+                actor={player}
+                enabled={enabled}
+                overview={overview}
+                move={actions.move}
+              />
             )}
             <SceneReady ready={actions.ready} />
           </Physics>
