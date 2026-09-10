@@ -26,6 +26,8 @@ export const SCENE_IDS = {
   guesthouse: EntityIdSchema.parse("location-guesthouse"),
   guesthouseBed: EntityIdSchema.parse("location-guesthouse-bed"),
   guesthouseDesk: EntityIdSchema.parse("location-guesthouse-desk"),
+  museumGuardLeft: EntityIdSchema.parse("person-guard-left"),
+  museumGuardRight: EntityIdSchema.parse("person-guard-right"),
 } as const;
 /** Shared rules prevent client and server movement from diverging. */
 export const MOVEMENT = {
@@ -77,7 +79,13 @@ export const SCENE_POSITIONS = {
   ammoPickup: { x: 44, z: 78 },
   secondAmmoPickup: { x: 23, z: -88 },
   practiceTarget: { x: 30, z: 72 },
+  museumGuardLeft: { x: 199.2, z: -1.6 },
+  museumGuardRight: { x: 200.8, z: -1.6 },
 } as const;
+/** Residents with a fixed post; everyone else spawns at a crowd position. Keyed by seed name. */
+export const RESIDENT_HOMES: ReadonlyMap<string, Position> = new Map<string, Position>([
+  ["Igor Stepanov", { x: 25, z: -90 }],
+]);
 /** The guesthouse uses a separate physical room; only explicit door actions cross between spaces. */
 export const GUESTHOUSE = {
   entrance: { x: 58, z: 64 },

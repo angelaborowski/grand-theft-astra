@@ -144,7 +144,7 @@ export function characterProfile(actor: Actor): CharacterProfile {
       ? residentBackgrounds.at(number % residentBackgrounds.length)
       : undefined;
   return {
-    story: `${actor.name} works as a ${actor.job.toLowerCase()} near Red Square. ${background ?? "Work taught them to value clear promises and reliable neighbors."}`,
+    story: `${actor.name.split(" · ")[0]} works as ${/^[aeiou]/i.test(actor.job) ? "an" : "a"} ${actor.job.toLowerCase()} near Red Square. ${background ?? "Work taught them to value clear promises and reliable neighbors."}`,
     traits: ["observant", "practical", "careful with strangers"],
     speakingStyle:
       "Use natural, plain sentences and details from your work. Ask about things you do not know.",

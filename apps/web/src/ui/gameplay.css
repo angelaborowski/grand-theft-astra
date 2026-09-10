@@ -63,6 +63,26 @@
   text-shadow: var(--astra-text-shadow);
 }
 
+.gameplay-vehicle-hints {
+  display: grid;
+  gap: var(--astra-space-sm);
+  padding: var(--astra-space-sm) var(--astra-space-md);
+  background: var(--astra-panel);
+  color: var(--astra-text);
+  font-size: var(--astra-text-body);
+}
+
+.gameplay-vehicle-hints > div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--astra-space-sm) var(--astra-space-md);
+}
+
+.gameplay-vehicle-hints span {
+  white-space: nowrap;
+}
+
 .gameplay-frame-meter {
   position: absolute;
   right: var(--astra-screen-gutter);

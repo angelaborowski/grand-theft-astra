@@ -691,8 +691,18 @@ export class World extends DurableObject<Env> {
       (item) => item.from === playerId || item.to === playerId,
     );
     const audible = new Set(dialogue.map((item) => item.id));
+    // A player without an open socket is not in the city; their saved body must not stand around.
+    const connected = new Set<EntityId>([playerId]);
+    for (const socket of this.ctx.getWebSockets()) {
+      if (socket.readyState !== WebSocket.OPEN) continue;
+      const attachment = attachmentSchema.safeParse(socket.deserializeAttachment());
+      if (attachment.success) connected.add(attachment.data.playerId);
+    }
     return {
       ...this.world,
+      entities: this.world.entities.filter(
+        (entity) => entity.kind !== "player" || connected.has(entity.id),
+      ),
       dialogue,
       observations: this.world.observations.filter((item) => item.actorId === playerId),
       events: this.world.events.filter(

@@ -17,7 +17,9 @@ export type MovementState =
 /** Resolve after acceptance or a completed restoration read. */
 export type Move = (position: Position) => Promise<MovementResult>;
 /** Null means local work was superseded; it is not a server acknowledgement. */
-export type Control = (input: PlayerControl) => Promise<PlayerControlResult | null>;
+export type Control = (
+  input: Omit<PlayerControl, "sequence">,
+) => Promise<PlayerControlResult | null>;
 
 /** Callers derive input availability from this state and their connection. */
 export type MovementControl = {
@@ -48,6 +50,7 @@ export class PlayerMovement {
   private readonly applySnapshot: (snapshot: WorldSnapshot) => void;
   private source: Source | null = null;
   private generation = 0;
+  private sequence = 0;
   private state: MovementState = { status: "ready" };
 
   constructor(applySnapshot: (snapshot: WorldSnapshot) => void) {
@@ -109,7 +112,7 @@ export class PlayerMovement {
     const generation = this.generation;
     this.setState({ status: "submitting" });
     try {
-      const result = await source.transport.control(input);
+      const result = await source.transport.control({ ...input, sequence: this.sequence++ });
       if (generation !== this.generation) return null;
       this.setState({ status: "ready" });
       return result;

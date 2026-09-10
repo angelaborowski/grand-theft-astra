@@ -17,6 +17,7 @@ import { MovementStatus } from "./movement-status";
 import { CommandFeedback, GameplayHud } from "./gameplay-hud";
 import { useRejectionSound, useSessionAudio } from "../hooks/use-session-audio";
 import { useSceneReady } from "../hooks/use-scene-ready";
+import { movementContext } from "../models/player-context";
 
 export type ReadyWorld = Extract<ReturnType<typeof useWorld>, { status: "ready" }>;
 
@@ -45,9 +46,16 @@ export function GameSession({
       },
     },
     recoveryActive,
-    sceneSpace(world.player.position),
+    movementContext(world.player),
   );
   const { snapshot, player, connection, action } = world;
+  const driving = player.behavior;
+  const currentVehicle =
+    driving.type === "driving"
+      ? snapshot.entities.find(
+          (entity) => entity.kind === "vehicle" && entity.id === driving.vehicleId,
+        )
+      : null;
   const showOverview = overview && sceneSpace(player.position) === "square";
   const entity = snapshot.entities.find((candidate) => candidate.id === selectedId);
   const quest = trackedQuest(player, tracking);
@@ -180,6 +188,8 @@ export function GameSession({
       )}
       {connected && <MovementStatus {...world.movement} />}
       <GameplayHud
+        player={player}
+        vehicle={currentVehicle?.kind === "vehicle" ? currentVehicle : null}
         target={menu.view === "closed" ? nearbyTarget(lookTargetId) : null}
         active={
           sceneReady && connected && menu.view === "closed" && !showOverview && !recoveryActive

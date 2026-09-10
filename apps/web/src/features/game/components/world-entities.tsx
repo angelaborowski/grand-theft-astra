@@ -57,7 +57,6 @@ export function WorldEntities({
             entity={entity}
             selected={entity.id === selectedId}
             tagged={nearby(entity)}
-            ai={snapshot.ai.status === "ready"}
             select={select}
           />
         ))}
@@ -72,13 +71,11 @@ function WorldEntity({
   entity,
   selected,
   tagged,
-  ai,
   select,
 }: {
   entity: Entity;
   selected: boolean;
   tagged: boolean;
-  ai: boolean;
   select: (id: EntityId) => void;
 }) {
   const group = useRef<Group>(null);
@@ -136,12 +133,7 @@ function WorldEntity({
             <strong>
               {entity.kind === "player" && entity.name === "You" ? "Player" : entity.name}
             </strong>
-            {tagged && isActor(entity) && (
-              <small>
-                {entity.job}
-                {ai && " · AI"}
-              </small>
-            )}
+            {tagged && isActor(entity) && <small>{entity.job}</small>}
           </button>
         </Html>
       )}

@@ -459,7 +459,9 @@ Save a pickup's claimed state, inventory change, and receipt together. Deleting 
 Start with maximum speeds of 20 m/s horizontally and 5 m/s vertically.
 Keep flight inside the district, below 80 meters. Show the boundary; buildings block flight.
 Use a simple body collider and collisions without damage.
-F enters an available seat. Exit requires ground contact at the marked pad and speed below 1 m/s.
+F enters an available seat. Exit requires ground contact, speed below 1 m/s, and a safe exit position.
+Flight hints show WASD movement, Q/E turning, Space ascent, and Shift descent below the screen center.
+Vehicle hints replace nearby interaction prompts while driving. F exits after landing and stopping.
 Reject airborne exit with “Land before exiting.”
 Menus, focus loss, and disconnect request hover. A server restart restores helicopter and pilot at the pad, retaining ownership and progress.
 
@@ -784,6 +786,8 @@ Museum measurements after restart were approximately 60–90 FPS; outdoor loadin
 Merged remote changes through `94b20bd`, including quest tracking, conversation draft handling and public metadata, while retaining the museum opening and direct mission launch. Museum guidance overrides outdoor quest directions until exit. Opening buttons now sit away from the status display. Existing runtime assets and Blender sources are preserved.
 
 Car prediction is bounded to 3.5 metres beyond its latest submitted sample, reserving server movement credit for delayed requests. Normal server rejection/recovery remains available. Walking uses a decaying visual correction offset and an interpolated visual camera target; authoritative collision corrections still apply immediately. These changes do not guarantee a fixed frame rate or eliminate transport failures.
+
+The shared movement controller owns input sequence numbers across room and vehicle changes. Position correction preserves mouse control. Room and vehicle changes do not open the pause menu.
 
 The combined build completed an isolated Rapier/WebSocket Last Flight run: four ordered gates, both ramps, braking near the helipad, one ₽250 reward, idempotent completion and reconnect persistence. This is an automated physics/server run, not a complete browser keyboard playthrough. Browser verification showed the in-game launch/retry UI and museum directions; an intermittent recovery failure and Chromium errors still require further investigation. Live NPC AI remains disabled until the existing team key is configured locally.
 

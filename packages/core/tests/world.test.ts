@@ -41,7 +41,7 @@ it("migrates saved players without resetting money or current progress", () => {
   expect(player(migrated).mission).toEqual({ stage: "available" });
   const carrying = act(migrated, { type: "accept_mission", targetId: SCENE_IDS.mila });
   expect(player(migrateWorldSnapshot(carrying))).toEqual(player(carrying));
-  expect(migrated.population.total).toBe(164);
+  expect(migrated.population.total).toBe(166);
 });
 
 it("grants a direct delivery reward only once", () => {
@@ -121,8 +121,8 @@ it("adds the expanded cast to existing saves once without changing resident stat
       .map((entity) => (entity.id === "person-0" ? { ...entity, money: 321, health: 73 } : entity)),
   };
   const migrated = migrateWorldSnapshot(saved);
-  expect(migrated.population.total).toBe(164);
-  expect(new Set(migrated.population.activeIds).size).toBe(164);
+  expect(migrated.population.total).toBe(166);
+  expect(new Set(migrated.population.activeIds).size).toBe(166);
   expect(migrated.entities.find((entity) => entity.id === "person-0")).toMatchObject({
     money: 321,
     health: 73,

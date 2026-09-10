@@ -19,7 +19,7 @@ export function InteractionPanel({
     <GameDialog
       title={`Conversation with ${conversation.actorName}`}
       className="astra-conversation-dialog"
-      actions={{ close: () => (historyOpen ? setHistoryOpen(false) : actions.close()) }}
+      actions={{ close: actions.close }}
     >
       <ConversationPanel
         actorName={conversation.actorName}

@@ -194,7 +194,7 @@ it("gives residents stable individual stories without sharing mutable profiles",
   const profiles = world.entities
     .filter((entity) => entity.kind === "person" || entity.kind === "police")
     .map((entity) => characterProfile(entity));
-  expect(new Set(profiles.map((profile) => profile.story)).size).toBe(164);
+  expect(new Set(profiles.map((profile) => profile.story)).size).toBe(166);
   const mila = actor(world, SCENE_IDS.mila);
   const changed = characterProfile(mila);
   changed.traits.push("changed");

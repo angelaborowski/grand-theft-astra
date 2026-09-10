@@ -12,7 +12,7 @@ export function ConversationResponse({
   if (response.status === "queued" || response.status === "thinking")
     return (
       <p className="astra-conversation-status" role="status">
-        Waiting for {actorName}…
+        {actorName} is thinking…
       </p>
     );
   if (response.status === "failed")
@@ -33,11 +33,6 @@ export function ConversationResponse({
       >
         <p>{response.text}</p>
       </div>
-      {response.status === "streaming" && (
-        <span className="astra-conversation-status" role="status">
-          Speaking…
-        </span>
-      )}
       {response.status === "interrupted" && (
         <div className="astra-conversation-feedback" role="alert">
           <p>Reply interrupted. Send another message.</p>

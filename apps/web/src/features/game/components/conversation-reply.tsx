@@ -1,3 +1,4 @@
+import { KeyReturnIcon } from "@phosphor-icons/react";
 import type { ConversationComposer } from "../models/conversation-view";
 import { CONVERSATION_MESSAGE_LIMIT } from "../models/conversation-submission";
 import { ControlHint } from "../../../ui/game-controls";
@@ -32,6 +33,7 @@ export function ConversationReply({
   return (
     <div className="astra-conversation-compose">
       <form
+        data-state={composer.status}
         onSubmit={(event) => {
           event.preventDefault();
           actions.send();
@@ -39,7 +41,7 @@ export function ConversationReply({
       >
         <textarea
           aria-label={`Message ${actorName}`}
-          placeholder="Say something…"
+          placeholder={`Say something to ${actorName}…`}
           rows={1}
           maxLength={CONVERSATION_MESSAGE_LIMIT}
           value={composer.draft}
@@ -53,20 +55,21 @@ export function ConversationReply({
             event.currentTarget.form?.requestSubmit();
           }}
         />
-        <button type="submit" disabled={!sendable || composer.draft.trim().length === 0}>
-          <ControlHint keys="Enter">Send</ControlHint>
+        <button
+          type="submit"
+          className="astra-conversation-send"
+          aria-label="Send (Enter)"
+          title="Send · Enter"
+          disabled={!sendable || composer.draft.trim().length === 0}
+        >
+          <KeyReturnIcon size={20} weight="bold" aria-hidden="true" />
         </button>
       </form>
       <div className="astra-conversation-toolbar">
-        <ComposerFeedback
-          actorName={actorName}
-          composer={composer}
-          canRetry={canRetry}
-          actions={actions}
-        />
+        <ComposerFeedback composer={composer} canRetry={canRetry} actions={actions} />
         {actions.history && (
           <button type="button" onClick={actions.history} aria-pressed={view === "history"}>
-            History
+            {view === "history" ? "Back" : "History"}
           </button>
         )}
         {actions.leave && (
@@ -80,12 +83,10 @@ export function ConversationReply({
 }
 
 function ComposerFeedback({
-  actorName,
   composer,
   canRetry,
   actions,
 }: {
-  actorName: string;
   composer: ConversationComposer;
   canRetry: boolean;
   actions: { retry: () => void; recover?: (() => void) | undefined };
@@ -118,9 +119,11 @@ function ComposerFeedback({
         )}
       </div>
     );
+  // The transcript already shows thinking and streaming; only the send itself is reported here.
+  if (composer.status === "waiting") return <span className="astra-conversation-status" />;
   return (
     <p className="astra-conversation-status" role="status">
-      {composer.status === "sending" ? "Sending…" : `Waiting for ${actorName}…`}
+      Sending…
     </p>
   );
 }

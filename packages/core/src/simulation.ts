@@ -12,6 +12,7 @@ import {
   migrateDistrictPosition,
   MOVEMENT,
   positionIsWalkable,
+  RESIDENT_HOMES,
   SCENE_IDS,
   SCENE_POSITIONS,
   STUNT,
@@ -78,6 +79,20 @@ export function migrateWorldSnapshot(input: unknown): WorldSnapshot {
       goal: definition.goal,
     };
   });
+  // A person removed from the seed leaves the city; players and their vehicles stay.
+  const retired = new Set(
+    entities
+      .filter(
+        (entity) =>
+          isActor(entity) &&
+          entity.kind !== "player" &&
+          !seed.entities.some((entry) => entry.id === entity.id),
+      )
+      .map((entity) => entity.id),
+  );
+  const remaining = entities.filter((entity) => !retired.has(entity.id));
+  entities.length = 0;
+  entities.push(...remaining);
   const known = new Set(entities.map((entity) => entity.id));
   entities.push(...seed.entities.filter((entity) => !known.has(entity.id)));
   const activeIds = entities
@@ -181,7 +196,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     ...(resident.job === "Police officer"
       ? { kind: "police" as const, assignment: null }
       : { kind: "person" as const, role: "resident" as const }),
-    position: crowdPosition(index),
+    position: RESIDENT_HOMES.get(resident.name) ?? crowdPosition(index),
     money: 100,
     health: 100,
     goal: resident.goal,
@@ -265,6 +280,32 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
       health: 100,
       goal: "Help newcomers find work, explain guesthouse access, and keep the square peaceful",
       job: "Square steward",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.museumGuardLeft,
+      ...initialActorPose,
+      name: "Oleg Vasiliev · museum guard",
+      kind: "person",
+      role: "resident",
+      position: SCENE_POSITIONS.museumGuardLeft,
+      money: 80,
+      health: 100,
+      goal: "Keep the museum doorway orderly and point visitors toward Red Square",
+      job: "Museum guard",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.museumGuardRight,
+      ...initialActorPose,
+      name: "Vera Kuzmina · museum guard",
+      kind: "person",
+      role: "resident",
+      position: SCENE_POSITIONS.museumGuardRight,
+      money: 80,
+      health: 100,
+      goal: "Check that visitors leave through the doorway and tell them what is on the square",
+      job: "Museum guard",
       behavior: { type: "idle" },
     },
     {

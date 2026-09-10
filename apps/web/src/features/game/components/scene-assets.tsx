@@ -163,7 +163,7 @@ function SceneAssetFailure({ reset }: ErrorComponentProps) {
           <meshStandardMaterial color={building.color} />
         </mesh>
       ))}
-      <Html fullscreen style={{ pointerEvents: "none" }}>
+      <Html fullscreen zIndexRange={[8, 0]} style={{ pointerEvents: "none" }}>
         <div className="disconnect-alert" role="alert" style={{ pointerEvents: "auto" }}>
           Scene assets could not load. Temporary geometry remains playable.
           <button

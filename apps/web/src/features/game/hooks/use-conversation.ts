@@ -27,7 +27,6 @@ export type ConversationCharacter = {
   job: string;
   story: string;
   desire: string;
-  aiDriven: boolean;
   talks: number;
 };
 
@@ -157,7 +156,6 @@ export function useConversation({
       job: actor.job,
       story: profile.story,
       desire: profile.desire,
-      aiDriven: available,
       talks: (query.data ?? []).filter((turn) => turn.playerId === playerId).length,
     };
   }

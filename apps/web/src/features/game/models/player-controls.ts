@@ -1,5 +1,6 @@
-import type { PlayerCommand, PlayerControl, PlayerControlResult } from "@gpta/core/gameplay-v2";
+import type { PlayerCommand } from "@gpta/core/gameplay-v2";
 import type { EntityId } from "@gpta/core/world";
+import type { Control } from "./player-movement";
 
 export type PlayerKey =
   | "forward"
@@ -13,7 +14,7 @@ export type PlayerKey =
 
 /** The connection owns command acknowledgement and accepted movement results. */
 export type PlayerActions = {
-  control: (input: PlayerControl) => Promise<PlayerControlResult | null>;
+  control: Control;
   command: (command: PlayerCommand) => Promise<void>;
   interact: (targetId: EntityId | null) => void;
   vehicle: (targetId: EntityId | null) => void;

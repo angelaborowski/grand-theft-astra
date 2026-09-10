@@ -4,6 +4,7 @@ import type {
   ConversationHistory,
 } from "../models/conversation-view";
 import type { ConversationCharacter } from "../hooks/use-conversation";
+import { CharacterCard } from "./character-card";
 import { ConversationTranscript } from "./conversation-transcript";
 import { ConversationResponse } from "./conversation-response";
 import { ConversationReply } from "./conversation-reply";
@@ -38,25 +39,26 @@ export function ConversationPanel({
     recover?: (() => void) | undefined;
   };
 }) {
+  const speaker = actorName.split(" · ")[0] ?? actorName;
   return (
-    <section className="astra-conversation" aria-label={`Conversation with ${actorName}`}>
+    <section
+      className="astra-conversation"
+      data-card={character !== null}
+      aria-label={`Conversation with ${actorName}`}
+    >
+      {character && <CharacterCard character={character} />}
       <div className="astra-conversation-speech">
-        <strong className="astra-conversation-speaker">{actorName}</strong>
+        <strong className="astra-conversation-speaker">{speaker}</strong>
         {mission && (
           <button type="button" disabled={!mission.enabled} onClick={mission.start}>
             Start Last Flight · ₽250
           </button>
         )}
         {view === "history" ? (
-          <ConversationTranscript
-            actorName={actorName}
-            character={character}
-            history={history}
-            reload={actions.reload}
-          />
+          <ConversationTranscript actorName={speaker} history={history} reload={actions.reload} />
         ) : (
           <>
-            {speech !== null && <ConversationResponse actorName={actorName} response={speech} />}
+            {speech !== null && <ConversationResponse actorName={speaker} response={speech} />}
             {history.status === "pending" && speech === null && (
               <p role="status">Loading conversation…</p>
             )}
@@ -72,7 +74,7 @@ export function ConversationPanel({
         )}
       </div>
       <ConversationReply
-        actorName={actorName}
+        actorName={speaker}
         composer={composer}
         canRetry={canRetry}
         view={view}

@@ -48,7 +48,8 @@
   --astra-screen-gutter: clamp(1.25rem, 4vw, 4.25rem);
   --astra-control-height: 2.25rem;
   --astra-panel-space: 1rem;
-  --astra-focus: 1px solid var(--astra-text);
+  /* The game shows no focus rings; keyboard focus is visible through hover-equivalent states. */
+  --astra-focus: 0;
   --astra-space-xs: 0.25rem;
   --astra-space-sm: 0.5rem;
   --astra-space-md: 1rem;

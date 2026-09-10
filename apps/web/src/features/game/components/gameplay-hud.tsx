@@ -1,4 +1,5 @@
-import type { Entity } from "@gpta/core/world";
+import type { Entity, Player } from "@gpta/core/world";
+import { VehicleHints } from "./vehicle-hints";
 import { actionErrorMessage } from "../../../lib/world-connection";
 import type { ReadyWorld } from "./game-session";
 import { useGameAudio } from "../hooks/use-game-audio";
@@ -9,10 +10,14 @@ export function GameplayHud({
   target,
   active,
   command,
+  player,
+  vehicle,
 }: {
   target: Entity | null;
   active: boolean;
   command: ReadyWorld["command"];
+  player: Player;
+  vehicle: Extract<Entity, { kind: "vehicle" }> | null;
 }) {
   const { subtitle } = useGameAudio();
   if (!active) return null;
@@ -22,7 +27,8 @@ export function GameplayHud({
         +
       </span>
       <div className="gameplay-prompt" role="status">
-        {target && (
+        {vehicle && <VehicleHints vehicle={vehicle} player={player} />}
+        {!vehicle && target && (
           <span>
             <kbd>{target.kind === "vehicle" ? "F" : "E"}</kbd> {targetAction(target)} ·{" "}
             {target.name}

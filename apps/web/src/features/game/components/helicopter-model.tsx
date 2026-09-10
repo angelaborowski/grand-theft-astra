@@ -53,7 +53,7 @@ function AnimatedHelicopter({ motion }: { motion: HelicopterMotion }) {
 }
 function HelicopterFailure() {
   return (
-    <Html position={[0, 3, 0]} center>
+    <Html position={[0, 3, 0]} center zIndexRange={[8, 0]}>
       <span className="route-label" role="status">
         Helicopter asset unavailable
       </span>

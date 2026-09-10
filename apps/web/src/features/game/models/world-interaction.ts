@@ -6,6 +6,7 @@ import { distance, isActor, type Entity, type Player } from "@gpta/core/world";
 export function nearbyInteraction(player: Player, entity: Entity | undefined): Entity | null {
   if (
     !entity ||
+    player.behavior.type === "driving" ||
     entity.id === player.id ||
     sceneSpace(player.position) !== sceneSpace(entity.position)
   )

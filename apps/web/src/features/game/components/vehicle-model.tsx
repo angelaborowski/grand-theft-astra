@@ -30,7 +30,7 @@ function VehicleAssetFailure() {
   return (
     <group>
       <VehiclePlaceholder />
-      <Html position={[0, 1.7, 0]} center>
+      <Html position={[0, 1.7, 0]} center zIndexRange={[8, 0]}>
         <span className="entity-label" role="status">
           Vehicle asset unavailable
         </span>

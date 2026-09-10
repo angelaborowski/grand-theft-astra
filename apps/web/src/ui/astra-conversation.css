@@ -2,8 +2,8 @@
   position: fixed;
   inset: auto 0 var(--astra-screen-gutter);
   isolation: isolate;
-  width: min(720px, calc(100% - 2 * var(--astra-screen-gutter)));
-  max-height: min(240px, 32dvh);
+  width: min(880px, calc(100% - 2 * var(--astra-screen-gutter)));
+  max-height: min(260px, 36dvh);
   margin: 0 auto;
   padding: 0;
   border: 0;
@@ -20,22 +20,120 @@
   position: fixed;
   z-index: -1;
   inset: auto 0 0;
-  height: min(320px, 40dvh);
-  background: linear-gradient(0deg, rgb(0 0 0 / 72%), transparent);
+  height: min(360px, 44dvh);
+  background: linear-gradient(0deg, rgb(0 0 0 / 70%), transparent);
   content: "";
   pointer-events: none;
 }
 
+/* One glass slab: character on the left, speech and reply on the right. */
 .astra-conversation {
+  position: relative;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  gap: 8px;
-  max-height: min(240px, 32dvh);
+  gap: 8px 20px;
+  max-height: min(260px, 36dvh);
+  padding: 14px 16px 12px;
+  border: 1px solid rgb(218 178 124 / 22%);
+  border-top: 2px solid var(--astra-gold);
+  background: linear-gradient(180deg, rgb(14 16 20 / 78%), rgb(8 9 11 / 86%));
+  backdrop-filter: blur(14px) saturate(120%);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 45%);
   color: var(--astra-text);
-  font: var(--astra-weight-normal) var(--astra-text-body)/20px var(--astra-font-ui);
-  text-shadow: var(--astra-text-shadow);
+  font: var(--astra-weight-normal) var(--astra-text-body) / 20px var(--astra-font-ui);
 }
 
+.astra-conversation[data-card="true"] {
+  grid-template-columns: 220px minmax(0, 1fr);
+}
+
+.astra-conversation[data-card="true"] .astra-character {
+  grid-row: 1 / span 2;
+}
+
+/* Character card */
+.astra-character {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: 6px 10px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 16px;
+  border-right: 1px solid rgb(218 178 124 / 18%);
+  font-size: var(--astra-text-small);
+  line-height: 16px;
+}
+
+.astra-character-medallion {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--astra-gold);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3a2f22, #14110c 70%);
+  color: var(--astra-gold);
+  font: var(--astra-weight-bold) 1rem / 1 var(--astra-font-ui);
+  letter-spacing: 0.04em;
+}
+
+.astra-character-identity {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.astra-character-identity strong {
+  overflow: hidden;
+  color: var(--astra-text);
+  font: var(--astra-weight-bold) 1.05rem / 20px var(--astra-font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.astra-character-job {
+  color: var(--astra-gold);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.astra-character-story {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--astra-muted);
+}
+
+.astra-character-facts {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 8px;
+  margin: 0;
+}
+
+.astra-character-facts dt {
+  color: var(--astra-gold);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.astra-character-facts dd {
+  margin: 0;
+  color: var(--astra-muted);
+}
+
+.astra-character-facts dd[data-known="true"] {
+  color: var(--astra-text);
+}
+
+/* Speech */
 .astra-conversation-speech {
   display: flex;
   flex-direction: column;
@@ -47,26 +145,32 @@
 
 .astra-conversation-speaker {
   flex-shrink: 0;
-  font-weight: var(--astra-weight-bold);
+  color: var(--astra-gold);
+  font: var(--astra-weight-bold) 0.75rem / 16px var(--astra-font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .astra-conversation-subtitles {
   display: flex;
   flex-direction: column-reverse;
-  max-height: 84px;
+  max-height: 96px;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  font: var(--astra-weight-normal) var(--astra-text-heading)/28px var(--astra-font-ui);
+  font: var(--astra-weight-normal) var(--astra-text-heading) / 30px var(--astra-font-ui);
+  text-shadow: var(--astra-text-shadow);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
 .astra-conversation-subtitles > p {
   flex-shrink: 0;
+  margin: 0;
 }
 
+/* Reply line: one pill, one icon */
 .astra-conversation-compose {
   display: grid;
   gap: 4px;
@@ -76,26 +180,38 @@
 .astra-conversation-compose form {
   display: flex;
   align-items: end;
-  gap: 8px;
-  border-bottom: 1px solid var(--astra-line);
-  background: rgb(0 0 0 / 38%);
+  gap: 4px;
+  padding: 2px 2px 2px 12px;
+  border: 1px solid rgb(245 243 238 / 22%);
+  border-radius: 999px;
+  background: rgb(0 0 0 / 42%);
+  transition: border-color 120ms ease;
+}
+
+.astra-conversation-compose form:focus-within {
+  border-color: var(--astra-gold);
+}
+
+.astra-conversation-compose form[data-state="waiting"],
+.astra-conversation-compose form[data-state="sending"] {
+  border-style: dashed;
 }
 
 .astra-conversation-compose textarea {
   flex: 1;
   field-sizing: content;
   min-width: 0;
-  min-height: 36px;
+  min-height: 34px;
   max-height: 76px;
   margin: 0;
-  padding: 8px;
+  padding: 7px 0;
   border: 0;
   border-radius: 0;
   resize: none;
   overflow-y: auto;
   background: transparent;
   color: var(--astra-text);
-  font: var(--astra-weight-normal) var(--astra-text-body)/20px var(--astra-font-ui);
+  font: var(--astra-weight-normal) var(--astra-text-body) / 20px var(--astra-font-ui);
 }
 
 .astra-conversation-compose textarea::placeholder {
@@ -108,6 +224,28 @@
   opacity: 1;
 }
 
+.astra-conversation .astra-conversation-send {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--astra-gold);
+  color: var(--astra-ink);
+  text-shadow: none;
+}
+
+.astra-conversation .astra-conversation-send:disabled {
+  background: rgb(245 243 238 / 14%);
+  color: var(--astra-muted);
+}
+
+.astra-conversation .astra-conversation-send:hover:not(:disabled) {
+  background: var(--astra-text);
+  color: var(--astra-ink);
+}
+
 .astra-conversation button,
 .astra-conversation-recovery button {
   flex-shrink: 0;
@@ -117,20 +255,19 @@
   border-radius: 0;
   background: transparent;
   color: var(--astra-text);
-  font: var(--astra-weight-normal) var(--astra-text-small)/16px var(--astra-font-ui);
+  font: var(--astra-weight-normal) var(--astra-text-small) / 16px var(--astra-font-ui);
   text-shadow: var(--astra-text-shadow);
 }
 
-.astra-conversation-compose form > button {
-  min-height: 36px;
-}
-
 .astra-conversation button:hover:not(:disabled),
-.astra-conversation button[aria-pressed="true"],
 .astra-conversation-recovery button:hover:not(:disabled) {
   color: var(--astra-ink);
   background: var(--astra-text);
   text-shadow: none;
+}
+
+.astra-conversation button[aria-pressed="true"] {
+  color: var(--astra-gold);
 }
 
 .astra-conversation button .astra-control-hint {
@@ -138,17 +275,11 @@
   font-weight: var(--astra-weight-normal);
 }
 
-.astra-conversation :is(button, textarea, [tabindex]):focus-visible,
-.astra-conversation-recovery button:focus-visible {
-  outline: var(--astra-focus);
-  outline-offset: 2px;
-}
-
 .astra-conversation-toolbar {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 28px;
+  min-height: 24px;
 }
 
 .astra-conversation-toolbar > :first-child {
@@ -158,7 +289,7 @@
 .astra-conversation-feedback,
 .astra-conversation-status {
   color: var(--astra-muted);
-  font: var(--astra-weight-normal) var(--astra-text-small)/16px var(--astra-font-ui);
+  font: var(--astra-weight-normal) var(--astra-text-small) / 16px var(--astra-font-ui);
 }
 
 .astra-conversation-feedback {
@@ -172,60 +303,41 @@
   color: var(--astra-text);
 }
 
+/* History */
 .astra-conversation-history {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  font: var(--astra-weight-normal) var(--astra-text-body)/20px var(--astra-font-ui);
-}
-
-.astra-conversation-character {
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--astra-line);
-  color: var(--astra-muted);
-}
-
-.astra-conversation-character p {
-  margin: 0 0 4px;
-}
-
-.astra-conversation-character-kicker {
-  display: flex;
-  gap: 10px;
-  color: var(--astra-gold);
-  font-size: var(--astra-text-small);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.astra-conversation-character-ai {
-  color: var(--astra-text);
-}
-
-.astra-conversation-character-meta {
-  font-size: var(--astra-text-small);
+  font: var(--astra-weight-normal) var(--astra-text-body) / 20px var(--astra-font-ui);
 }
 
 .astra-conversation-history ol {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .astra-conversation-history strong {
-  font-weight: var(--astra-weight-bold);
+  color: var(--astra-gold);
+  font: var(--astra-weight-bold) 0.7rem / 16px var(--astra-font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .astra-conversation-question {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: var(--astra-muted);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.astra-conversation-question p,
+.astra-conversation-history li > .astra-conversation-subtitles p {
+  margin: 0;
 }
 
 .astra-conversation-history .astra-conversation-subtitles {
@@ -233,6 +345,7 @@
   max-height: none;
   overflow: visible;
   font: inherit;
+  text-shadow: none;
 }
 
 .astra-conversation-recovery {
@@ -250,10 +363,16 @@
   border-top: 2px solid var(--astra-accent);
   background: var(--astra-panel);
   color: var(--astra-text);
-  font: var(--astra-weight-normal) var(--astra-text-small)/16px var(--astra-font-ui);
+  font: var(--astra-weight-normal) var(--astra-text-small) / 16px var(--astra-font-ui);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
+  .astra-conversation[data-card="true"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .astra-conversation[data-card="true"] .astra-character {
+    display: none;
+  }
   .astra-conversation-toolbar {
     gap: 4px;
   }

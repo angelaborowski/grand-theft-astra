@@ -3,7 +3,7 @@ import type { PlayerCommand } from "@gpta/core/gameplay-v2";
 import type { ConversationTurn } from "@gpta/core/conversations";
 import type { MethodParams } from "@gpta/core/protocol";
 import type { EntityId, Player, WorldSnapshot } from "@gpta/core/world";
-import { sceneSpace } from "@gpta/core/scene";
+import { movementContext } from "../models/player-context";
 import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
@@ -157,9 +157,4 @@ export function useWorld() {
     sendConversation: conversation.mutateAsync,
     conversationHistory,
   } as const;
-}
-
-function movementContext(player: Player): string {
-  const mode = player.behavior.type === "driving" ? player.behavior.vehicleId : "walking";
-  return `${sceneSpace(player.position)}:${mode}`;
 }

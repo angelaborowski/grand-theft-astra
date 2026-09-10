@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { ActionContext, ActionResult } from "./actions";
 import { recordIncident } from "./actions";
-import { isInsideGuesthouse, MOVEMENT, PROTECTED_CHARACTER_IDS, STUNT } from "./scene";
+import { isInsideGuesthouse, MOVEMENT, PROTECTED_CHARACTER_IDS } from "./scene";
 import {
   distance,
   EntityIdSchema,
@@ -36,7 +36,7 @@ export const PISTOL = {
 } as const;
 /** The unarmed attack uses the same authoritative obstruction query as the pistol. */
 export const PUNCH = { range: 1.8, intervalMs: 450, damage: 20 } as const;
-/** The arcade helicopter stays inside the district and exits only at its pad. */
+/** The arcade helicopter stays inside the district and exits after landing. */
 export const HELICOPTER = {
   maxHorizontalSpeed: MOVEMENT.helicopterSpeed,
   maxVerticalSpeed: 5,
@@ -263,10 +263,7 @@ export function applyGameplayCommand(
       if (vehicle?.kind !== "vehicle") return reject("This vehicle is unavailable.");
       if (
         vehicle.vehicleType === "helicopter" &&
-        (!command.grounded ||
-          command.speed >= 1 ||
-          vehicle.elevation > 0.2 ||
-          distance(vehicle.position, STUNT.pickup) > HELICOPTER.padRadius)
+        (!command.grounded || command.speed >= 1 || vehicle.elevation > 0.2)
       )
         return reject("Land before exiting.");
       if (

@@ -32,7 +32,6 @@ export function useHelicopterController({
   const [spawn] = useState(actor);
   const controller = useRef<ReturnType<typeof world.createCharacterController> | null>(null);
   const heading = useRef(actor.heading);
-  const sequence = useRef(0);
   const lastSent = useRef(0);
   const generation = useRef(0);
   const pending = useRef(false);
@@ -170,13 +169,11 @@ export function useHelicopterController({
     pending.current = true;
     const submitted = {
       generation: generation.current,
-      sequence: sequence.current++,
       position,
       heading: heading.current,
     };
     void actions
       .control({
-        sequence: submitted.sequence,
         forward: keys.forward,
         right: keys.right,
         cameraYaw: heading.current,
@@ -191,7 +188,7 @@ export function useHelicopterController({
           const current = body.current;
           if (submitted.generation !== generation.current) return;
           if (!keys.active && transmission.current === "stopping") transmission.current = "idle";
-          if (!result || !current || result.sequence !== submitted.sequence) return;
+          if (!result || !current) return;
           const accepted = result.player;
           const error = {
             x: accepted.position.x - submitted.position.x,
@@ -199,7 +196,6 @@ export function useHelicopterController({
             z: accepted.position.z - submitted.position.z,
           };
           const large = Math.hypot(error.x, error.y, error.z) > 3;
-          if (large) input.release();
           const currentPosition = current.translation();
           const corrected = large
             ? { x: accepted.position.x, y: accepted.elevation + bodyCenter, z: accepted.position.z }
@@ -214,7 +210,6 @@ export function useHelicopterController({
         },
         () => {
           if (submitted.generation === generation.current) {
-            input.release();
             stop();
             transmission.current = "idle";
           }

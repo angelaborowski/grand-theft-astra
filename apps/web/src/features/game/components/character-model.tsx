@@ -122,7 +122,7 @@ function CharacterAssetFailure() {
   return (
     <group>
       <Person color="#b99362" />
-      <Html position={[0, 2.1, 0]} center distanceFactor={12}>
+      <Html position={[0, 2.1, 0]} center distanceFactor={12} zIndexRange={[8, 0]}>
         <span className="entity-label" role="status">
           Character asset unavailable
         </span>

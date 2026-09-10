@@ -1,4 +1,11 @@
-import { crowdPosition, GUESTHOUSE, positionIsWalkable, SCENE_IDS, SCENE_POSITIONS } from "./scene";
+import {
+  crowdPosition,
+  GUESTHOUSE,
+  positionIsWalkable,
+  RESIDENT_HOMES,
+  SCENE_IDS,
+  SCENE_POSITIONS,
+} from "./scene";
 import { distance, isActor, type Actor, type Position, type WorldSnapshot } from "./world";
 
 const WALK_PERIOD_SECONDS = 12;
@@ -18,7 +25,7 @@ const namedHomes: ReadonlyMap<string, Position> = new Map<string, Position>([
 
 /** Each person walks around a home spot, so quest-givers stay where the map marker says. */
 function home(actor: Actor): Position | undefined {
-  const named = namedHomes.get(actor.id);
+  const named = namedHomes.get(actor.id) ?? RESIDENT_HOMES.get(actor.name);
   if (named) return named;
   const match = /^person-(\d+)$/.exec(actor.id);
   return match ? crowdPosition(Number(match[1])) : undefined;

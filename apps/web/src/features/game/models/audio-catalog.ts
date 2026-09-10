@@ -7,7 +7,8 @@ export type AudioAsset = Readonly<{
 
 /** Cues play once when a current action occurs; missed cues are never queued. */
 export const soundCues = {
-  "first-start": { path: "/assets/audio/first-start.mp3", gain: 1, channel: "interface" },
+  // The voice line is quiet in the file; the gain node may exceed 1.
+  "first-start": { path: "/assets/audio/first-start.mp3", gain: 2.5, channel: "interface" },
   "footstep-1": { path: "/assets/audio/review-v1/footstep-1.mp3", gain: 0.2, channel: "world" },
   "footstep-2": { path: "/assets/audio/review-v1/footstep-2.mp3", gain: 0.2, channel: "world" },
   "footstep-3": { path: "/assets/audio/review-v1/footstep-3.mp3", gain: 0.2, channel: "world" },

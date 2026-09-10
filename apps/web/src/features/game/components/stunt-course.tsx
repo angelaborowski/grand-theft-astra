@@ -44,7 +44,7 @@ export function StuntCourse({
             </mesh>
           ))}
           {index === next && (
-            <Html position={[0, 4, 0]} center distanceFactor={25}>
+            <Html position={[0, 4, 0]} center distanceFactor={25} zIndexRange={[8, 0]}>
               <span className="route-label">
                 {index + 1} / 4 · {gate.label}
               </span>
@@ -57,7 +57,7 @@ export function StuntCourse({
           <ringGeometry args={[6.4, 6.7, 48]} />
           <meshBasicMaterial color="#f1c479" />
         </mesh>
-        <Html position={[0, 1.5, 0]} center distanceFactor={22}>
+        <Html position={[0, 1.5, 0]} center distanceFactor={22} zIndexRange={[8, 0]}>
           <span className="route-label">HELICOPTER PICKUP</span>
         </Html>
         {helicopterVisible && (

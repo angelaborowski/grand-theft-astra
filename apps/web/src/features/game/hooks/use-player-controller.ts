@@ -54,7 +54,6 @@ export function usePlayerController({
   }
   const motion = useRef<CharacterMotion>({ speed: 0 });
   const generation = useRef(0);
-  const sequence = useRef(0);
   const lastSent = useRef(0);
   const transmission = useRef<"idle" | "active" | "stopping">("idle");
   const halfHeight = useRef(capsuleHalfHeight(actor.posture));
@@ -167,7 +166,6 @@ export function usePlayerController({
   });
   useEffect(() => {
     generation.current += 1;
-    sequence.current = 0;
     return () => {
       generation.current += 1;
     };
@@ -210,7 +208,6 @@ export function usePlayerController({
     if (distance <= 3 && !replay) return;
     generation.current += 1;
     transmission.current = "idle";
-    input.release();
     restore();
     const height = actor.elevation + bodyCenter(actor.posture);
     void camera.current?.setLookAt(
@@ -245,7 +242,6 @@ export function usePlayerController({
     if (!keys.active) stopController(character);
     const position = character.body.translation();
     if (position.y < -2) {
-      input.release();
       restore();
       return;
     }
@@ -295,10 +291,8 @@ export function usePlayerController({
     lastSent.current = clock.elapsedTime;
     const submittedGeneration = generation.current;
     const sampled = { x: position.x, z: position.z, elevation: position.y - bodyCenter(posture) };
-    const submittedSequence = sequence.current++;
     void actions
       .control({
-        sequence: submittedSequence,
         forward: keys.forward,
         right: keys.right,
         cameraYaw: keys.yaw,
@@ -310,12 +304,7 @@ export function usePlayerController({
       })
       .then(
         (result) => {
-          if (
-            !result ||
-            submittedGeneration !== generation.current ||
-            result.sequence !== submittedSequence
-          )
-            return;
+          if (!result || submittedGeneration !== generation.current) return;
           const accepted = result.player;
           if (!keys.active && !input.read().active) transmission.current = "idle";
           const body = controller.current?.body;
@@ -328,7 +317,6 @@ export function usePlayerController({
           };
           const errorLength = Math.hypot(error.x, error.y, error.z);
           if (errorLength > 2) {
-            input.release();
             visualCorrection.current.set(0, 0, 0);
             restoreBody(controller.current, accepted);
           } else if (errorLength > 0.08) {
@@ -350,7 +338,6 @@ export function usePlayerController({
         () => {
           if (submittedGeneration !== generation.current) return;
           transmission.current = "idle";
-          input.release();
           stopController(controller.current);
         },
       );
