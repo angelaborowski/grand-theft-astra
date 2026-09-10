@@ -82,7 +82,14 @@ export function museumDetail(model: THREE.Object3D) {
   const group = new THREE.Group(),
     byMaterial = new Map<THREE.Material, THREE.BufferGeometry[]>();
   const stone = material("#b59d7d"),
-    glass = new THREE.MeshStandardMaterial({ color: "#293a42", metalness: 0.3, roughness: 0.3 });
+    reveal = material("#302b28"),
+    frame = material("#514839", 0.6),
+    glass = new THREE.MeshStandardMaterial({
+      color: "#43535d",
+      metalness: 0,
+      roughness: 0.18,
+      envMapIntensity: 1.4,
+    });
   function b(w: number, h: number, d: number, m: THREE.Material, x: number, y: number, z: number) {
     const g = new RoundedBoxGeometry(w, h, d, 1, 0.035);
     g.translate(x, y, z);
@@ -106,10 +113,16 @@ export function museumDetail(model: THREE.Object3D) {
         right = front(x + 0.85, y);
       if (left === null || right === null || Math.abs(left - z) > 1 || Math.abs(right - z) > 1)
         continue;
-      b(1.2, 2.7, 0.09, glass, x, y, z);
+      b(1.44, 2.9, 0.08, reveal, x, y, z);
+      b(1.2, 2.7, 0.06, glass, x, y, z + 0.06);
       for (const xx of [x - 0.74, x + 0.74]) b(0.2, 3, 0.35, stone, xx, y, z + 0.2);
       for (const yy of [y - 1.5, y + 1.5]) b(1.7, 0.2, 0.4, stone, x, yy, z + 0.23);
-      b(0.07, 2.65, 0.12, stone, x, y, z + 0.15);
+      b(0.07, 2.65, 0.12, frame, x, y, z + 0.15);
+      for (const yy of [y - 0.5, y + 0.65]) b(1.2, 0.065, 0.12, frame, x, yy, z + 0.15);
+      // Stepped sill and drip lip give the opening a legible shadow at street distance.
+      b(1.85, 0.14, 0.58, stone, x, y - 1.48, z + 0.29);
+      b(1.62, 0.13, 0.32, stone, x, y - 1.63, z + 0.18);
+      b(1.83, 0.12, 0.45, stone, x, y + 1.63, z + 0.24);
     }
   }
   for (const [m, gs] of byMaterial) {
@@ -131,6 +144,7 @@ export function extendGum(original: THREE.Object3D) {
       if (o instanceof THREE.Mesh) {
         const clone = (m: THREE.Material) => {
           const result = m.clone();
+          result.clipShadows = true;
           result.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 0, 1), 116),
             new THREE.Plane(new THREE.Vector3(0, 0, -1), 151),

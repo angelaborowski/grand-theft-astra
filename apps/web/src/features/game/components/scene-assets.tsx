@@ -66,7 +66,7 @@ function LoadedScene() {
             m.map = bricks.map;
             m.normalMap = bricks.normalMap;
             m.roughnessMap = bricks.roughnessMap;
-            m.normalScale = new Vector2(0.5, 0.5);
+            m.normalScale = new Vector2(0.35, 0.35);
             m.roughness = 1;
             const pos = object.geometry.getAttribute("position"),
               norm = object.geometry.getAttribute("normal");
@@ -74,12 +74,20 @@ function LoadedScene() {
               const uv = new Float32Array(pos.count * 2);
               for (let i = 0; i < pos.count; i++) {
                 uv[i * 2] =
-                  (Math.abs(norm.getX(i)) > Math.abs(norm.getZ(i)) ? pos.getZ(i) : pos.getX(i)) /
-                  2.24;
-                uv[i * 2 + 1] = pos.getY(i) / 1.44;
+                  (Math.abs(norm.getY(i)) <= 0.7 && Math.abs(norm.getX(i)) > Math.abs(norm.getZ(i))
+                    ? pos.getZ(i)
+                    : pos.getX(i)) / 2.24;
+                uv[i * 2 + 1] =
+                  Math.abs(norm.getY(i)) > 0.7 ? pos.getZ(i) / 1.44 : pos.getY(i) / 1.44;
               }
               object.geometry.setAttribute("uv", new BufferAttribute(uv, 2));
             }
+          }
+          if (m instanceof MeshStandardMaterial && /recessed glazing/.test(m.name)) {
+            m.color.set("#52636b");
+            m.metalness = 0;
+            m.roughness = 0.16;
+            m.envMapIntensity = 1.4;
           }
           return m;
         };
@@ -126,7 +134,7 @@ function Paving() {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[1600, 1600]} />
-      <meshStandardMaterial {...textures} roughness={1} />
+      <meshStandardMaterial {...textures} color="#c4c1b9" roughness={1} normalScale={[0.6, 0.6]} />
     </mesh>
   );
 }

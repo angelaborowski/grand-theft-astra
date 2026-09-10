@@ -55,7 +55,7 @@ export function GameScene({
         shadows={{ type: PCFShadowMap }}
         dpr={[1, 1.5]}
         camera={{ position: [0, 3.8, 6.5], fov: 58, far: 1600 }}
-        gl={{ antialias: true, localClippingEnabled: true, toneMappingExposure: 1.05 }}
+        gl={{ antialias: true, localClippingEnabled: true, toneMappingExposure: 0.9 }}
       >
         <color attach="background" args={["#bacbd0"]} />
         <fog attach="fog" args={["#bacbd0", 400, 900]} />
