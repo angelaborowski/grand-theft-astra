@@ -1,0 +1,423 @@
+import { z } from "zod";
+import {
+  crowdPosition,
+  GUESTHOUSE,
+  isInsideGuesthouse,
+  migrateDistrictPosition,
+  MOVEMENT,
+  positionIsWalkable,
+  SCENE_IDS,
+  SCENE_POSITIONS,
+} from "./scene";
+import {
+  distance,
+  EntityIdSchema,
+  isActor,
+  EntitySchema,
+  PlayerSchema,
+  MISSION_TERMS,
+  WorldSnapshotSchema,
+  type Actor,
+  type EntityId,
+  type Position,
+  type WorldSnapshot,
+} from "./world";
+
+const savedWorldSchema = WorldSnapshotSchema.omit({ version: true, entities: true }).extend({
+  version: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+  entities: z.array(
+    z.union([
+      EntitySchema,
+      PlayerSchema.omit({ mission: true, reputation: true, shelter: true }).transform((player) => ({
+        ...player,
+        mission: { stage: "available" as const },
+        reputation: 0,
+        shelter: "none" as const,
+      })),
+    ]),
+  ),
+});
+
+/** Upgrade owned saved JSON without resetting sessions, balances, or event history. */
+export function migrateWorldSnapshot(input: unknown): WorldSnapshot {
+  const saved = savedWorldSchema.parse(input);
+  const seed = createInitialWorld(saved.time, saved.ai.status === "ready");
+  const migratePosition =
+    saved.version === 3 ? (position: Position) => position : migrateDistrictPosition;
+  const entities = saved.entities.map((entity) => {
+    const definition = seed.entities.find((entry) => entry.id === entity.id);
+    const position =
+      saved.version !== 3 &&
+      definition &&
+      (entity.kind === "location" || entity.kind === "business")
+        ? definition.position
+        : migratePosition(entity.position);
+    if (!isActor(entity)) return { ...entity, position };
+    const behavior =
+      entity.behavior.type === "walking"
+        ? { ...entity.behavior, destination: migratePosition(entity.behavior.destination) }
+        : entity.behavior;
+    if (!definition || !isActor(definition) || entity.kind === "player")
+      return { ...entity, position, behavior };
+    return {
+      ...entity,
+      position,
+      behavior,
+      name: definition.name,
+      job: definition.job,
+      goal: definition.goal,
+    };
+  });
+  const known = new Set(entities.map((entity) => entity.id));
+  entities.push(...seed.entities.filter((entity) => !known.has(entity.id)));
+  const activeIds = entities
+    .filter((entity) => isActor(entity) && entity.kind !== "player")
+    .map((entity) => entity.id);
+  const incidents = saved.incidents.map((incident) => ({
+    ...incident,
+    position: migratePosition(incident.position),
+  }));
+  return {
+    ...saved,
+    version: 3,
+    entities,
+    incidents,
+    population: { total: activeIds.length, activeIds },
+  };
+}
+
+/** The simulation uses Angela's scene coordinates and runs without a model key. */
+export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
+  const names = [
+    "Alina",
+    "Boris",
+    "Daria",
+    "Elena",
+    "Fyodor",
+    "Galina",
+    "Igor",
+    "Kira",
+    "Luka",
+    "Marina",
+    "Oleg",
+    "Vera",
+  ];
+  const residents = [
+    {
+      surname: "Belov",
+      job: "Baker",
+      goal: "Find customers for fresh bread and return to the square",
+    },
+    { surname: "Volkov", job: "Tram driver", goal: "Finish a break and keep the streets clear" },
+    { surname: "Sokolov", job: "Student", goal: "Find a quiet place to read near Lev's bookshop" },
+    {
+      surname: "Morozov",
+      job: "Street musician",
+      goal: "Find listeners and earn enough for dinner",
+    },
+    {
+      surname: "Petrov",
+      job: "Repair worker",
+      goal: "Inspect the square and report damaged street fixtures",
+    },
+    {
+      surname: "Orlov",
+      job: "Photographer",
+      goal: "Find an interesting scene without disturbing residents",
+    },
+    { surname: "Smirnov", job: "Office clerk", goal: "Buy a book and get home before dark" },
+    {
+      surname: "Kozlov",
+      job: "Market trader",
+      goal: "Meet neighbors and hear what they need to buy",
+    },
+  ]
+    .flatMap((resident) =>
+      names.map((name) => ({ ...resident, name: `${name} ${resident.surname}` })),
+    )
+    .slice(0, 92);
+  const people: Actor[] = residents.map((resident, index) => ({
+    id: EntityIdSchema.parse(`person-${index}`),
+    name: resident.name,
+    kind: "person",
+    role: "resident",
+    position: crowdPosition(index),
+    money: 100,
+    health: 100,
+    goal: resident.goal,
+    job: resident.job,
+    behavior: { type: "idle" },
+  }));
+  const named: Actor[] = [
+    {
+      id: SCENE_IDS.witness,
+      name: "Mila · courier",
+      kind: "person",
+      role: "resident",
+      position: SCENE_POSITIONS.mila,
+      money: 150,
+      health: 100,
+      goal: "Find a reliable courier to deliver Lev's sealed parcel; the direct fee is ₽80 and Niko pays ₽60",
+      job: "Courier",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.merchant,
+      name: "Lev · bookseller",
+      kind: "person",
+      role: "merchant",
+      position: SCENE_POSITIONS.lev,
+      money: 300,
+      health: 100,
+      goal: "Receive Mila's sealed parcel and pay the agreed ₽80 delivery fee",
+      job: "Bookseller",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.niko,
+      name: "Niko · rival courier",
+      kind: "person",
+      role: "resident",
+      position: SCENE_POSITIONS.niko,
+      money: 240,
+      health: 100,
+      goal: "Offer to finish Mila's delivery for the player and pay them ₽60",
+      job: "Courier",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.irina,
+      name: "Irina · guesthouse host",
+      kind: "person",
+      role: "merchant",
+      position: GUESTHOUSE.host,
+      money: 200,
+      health: 100,
+      goal: "Rent one guesthouse bed for ₽60 and welcome respectful guests",
+      job: "Guesthouse host",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.sasha,
+      name: "Sasha · gardener",
+      kind: "person",
+      role: "resident",
+      position: SCENE_POSITIONS.sasha,
+      money: 90,
+      health: 100,
+      goal: "Care for the square and direct a newcomer to Mila for paid work",
+      job: "Gardener",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.alexei,
+      name: "Alexei · square steward",
+      kind: "person",
+      role: "resident",
+      position: SCENE_POSITIONS.alexei,
+      money: 120,
+      health: 100,
+      goal: "Help newcomers find work, explain guesthouse access, and keep the square peaceful",
+      job: "Square steward",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.dispatcher,
+      name: "Police dispatcher",
+      kind: "person",
+      role: "dispatcher",
+      position: SCENE_POSITIONS.dispatcher,
+      money: 0,
+      health: 100,
+      goal: "Send police to reported incidents",
+      job: "Dispatcher",
+      behavior: { type: "idle" },
+    },
+    {
+      id: SCENE_IDS.police,
+      name: "Officer Pavel",
+      kind: "police",
+      position: SCENE_POSITIONS.police,
+      money: 100,
+      health: 100,
+      goal: "Respond to reported crime",
+      job: "Police officer",
+      behavior: { type: "idle" },
+      assignment: null,
+    },
+  ];
+  return {
+    version: 3,
+    revision: 0,
+    time: now,
+    entities: [
+      ...named,
+      ...people,
+      {
+        id: SCENE_IDS.vehicle,
+        kind: "vehicle",
+        name: "Blue sedan",
+        position: SCENE_POSITIONS.vehicle,
+        ownerId: SCENE_IDS.witness,
+        color: "#478ed0",
+      },
+      {
+        id: SCENE_IDS.shop,
+        kind: "business",
+        name: "Square kiosk",
+        position: SCENE_POSITIONS.shop,
+        ownerId: SCENE_IDS.merchant,
+        balance: 500,
+        price: 20,
+      },
+      {
+        id: SCENE_IDS.headquarters,
+        kind: "location",
+        name: "Police post",
+        category: "police",
+        position: SCENE_POSITIONS.dispatcher,
+      },
+      {
+        id: SCENE_IDS.guesthouse,
+        kind: "location",
+        name: "Irina's guesthouse",
+        category: "guesthouse",
+        position: GUESTHOUSE.entrance,
+      },
+      {
+        id: SCENE_IDS.guesthouseBed,
+        kind: "location",
+        name: "Guesthouse bed",
+        category: "landmark",
+        position: GUESTHOUSE.bed,
+      },
+      {
+        id: SCENE_IDS.guesthouseDesk,
+        kind: "location",
+        name: "Guesthouse reception",
+        category: "landmark",
+        position: GUESTHOUSE.host,
+      },
+      {
+        id: SCENE_IDS.square,
+        kind: "location",
+        name: "Red Square",
+        category: "square",
+        position: SCENE_POSITIONS.square,
+      },
+    ],
+    events: [],
+    incidents: [],
+    reports: [],
+    observations: [],
+    dialogue: [],
+    decisions: [],
+    relationships: [{ from: SCENE_IDS.merchant, to: SCENE_IDS.shop, kind: "employed_by" }],
+    population: {
+      total: named.length + people.length,
+      activeIds: [...named, ...people].map((person) => person.id),
+    },
+    ai: { status: aiEnabled ? "ready" : "disabled", model: "gpt-6-astra" },
+  };
+}
+
+/** A session owns its player; reconnecting preserves that player's state. */
+export function addPlayer(world: WorldSnapshot, playerId: EntityId): WorldSnapshot {
+  if (world.entities.some((entity) => entity.id === playerId)) return world;
+  return {
+    ...world,
+    revision: world.revision + 1,
+    entities: [
+      ...world.entities,
+      {
+        id: playerId,
+        kind: "player",
+        name: "You",
+        position: SCENE_POSITIONS.player,
+        money: MISSION_TERMS.startingMoney,
+        health: 100,
+        mission: { stage: "available" },
+        reputation: 0,
+        shelter: "none",
+        goal: "Find work and rent a bed",
+        job: "Visitor",
+        behavior: { type: "idle" },
+      },
+    ],
+  };
+}
+
+/** The server supplies a distance budget from elapsed time; the client cannot choose it. */
+export function movePlayer(
+  world: WorldSnapshot,
+  playerId: EntityId,
+  position: Position,
+  maxDistance: number,
+): WorldSnapshot | null {
+  const player = world.entities.find((entity) => entity.id === playerId);
+  if (player?.kind !== "player" || !Number.isFinite(position.x) || !Number.isFinite(position.z))
+    return null;
+  if (distance(player.position, position) > maxDistance || !positionIsWalkable(position))
+    return null;
+  if (isInsideGuesthouse(player.position) !== isInsideGuesthouse(position)) return null;
+  const steps = Math.max(1, Math.ceil(distance(player.position, position) / MOVEMENT.actorRadius));
+  for (let step = 1; step < steps; step += 1) {
+    const ratio = step / steps;
+    if (
+      !positionIsWalkable({
+        x: player.position.x + (position.x - player.position.x) * ratio,
+        z: player.position.z + (position.z - player.position.z) * ratio,
+      })
+    )
+      return null;
+  }
+  return {
+    ...world,
+    revision: world.revision + 1,
+    entities: world.entities.map((entity) => {
+      if (entity.id === playerId) return { ...entity, position };
+      if (player.behavior.type === "driving" && entity.id === player.behavior.vehicleId)
+        return { ...entity, position };
+      return entity;
+    }),
+  };
+}
+
+/** Movement stays in memory between periodic position checkpoints. */
+export function advanceMovement(world: WorldSnapshot, seconds: number): WorldSnapshot {
+  const active = new Set(world.population.activeIds);
+  const entities = world.entities.map((entity) => {
+    if (
+      !isActor(entity) ||
+      entity.health <= 0 ||
+      !active.has(entity.id) ||
+      entity.behavior.type !== "walking"
+    )
+      return entity;
+    const destination = entity.behavior.destination;
+    const remaining = distance(entity.position, destination);
+    if (remaining < 0.2) return { ...entity, behavior: { type: "idle" as const } };
+    const ratio = Math.min(1, (seconds * 2.5) / remaining);
+    const position = {
+      x: entity.position.x + (destination.x - entity.position.x) * ratio,
+      z: entity.position.z + (destination.z - entity.position.z) * ratio,
+    };
+    return positionIsWalkable(position)
+      ? { ...entity, position }
+      : { ...entity, behavior: { type: "idle" as const } };
+  });
+  return { ...world, revision: world.revision + 1, entities };
+}
+
+/** The clock updates active people; only accepted Astra tools choose their destinations. */
+export function advanceRoutines(world: WorldSnapshot, now: number): WorldSnapshot {
+  const activeIds = world.entities
+    .filter((entity) => isActor(entity) && entity.kind !== "player")
+    .map((entity) => entity.id);
+  return {
+    ...world,
+    revision: world.revision + 1,
+    time: now,
+    population: { total: activeIds.length, activeIds },
+  };
+}

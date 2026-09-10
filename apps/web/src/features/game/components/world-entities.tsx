@@ -1,0 +1,124 @@
+import { SCENE_IDS } from "@gpta/core/scene";
+import type { Entity, EntityId, WorldSnapshot } from "@gpta/core/world";
+import { Html } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { useRef, useState } from "react";
+import { Group } from "three";
+import { CHARACTER_ASSETS, PLAYER_ASSET } from "../models/scene-assets";
+import { CharacterModel, type CharacterMotion } from "./character-model";
+import { Person, Vehicle } from "./primitive-entities";
+
+const namedEntities = new Set<EntityId>(Object.values(SCENE_IDS));
+
+/** Every rendered person has a canonical identity and persistent memory. */
+export function WorldEntities({
+  snapshot,
+  playerId,
+  selectedId,
+  select,
+}: {
+  snapshot: WorldSnapshot;
+  playerId: EntityId;
+  selectedId: EntityId | null;
+  select: (id: EntityId) => void;
+}) {
+  return (
+    <>
+      {snapshot.entities
+        .filter(
+          (entity) =>
+            entity.id !== playerId &&
+            (entity.kind !== "location" || entity.category === "guesthouse"),
+        )
+        .map((entity) => (
+          <WorldEntity
+            key={entity.id}
+            entity={entity}
+            selected={entity.id === selectedId}
+            select={select}
+          />
+        ))}
+    </>
+  );
+}
+
+function WorldEntity({
+  entity,
+  selected,
+  select,
+}: {
+  entity: Entity;
+  selected: boolean;
+  select: (id: EntityId) => void;
+}) {
+  const group = useRef<Group>(null);
+  const motion = useRef<CharacterMotion>({ speed: 0 });
+  const [initialPosition] = useState(() => entity.position);
+  const asset = entity.kind === "player" ? PLAYER_ASSET : CHARACTER_ASSETS.get(entity.id);
+  useFrame((_, delta) => {
+    if (!group.current || delta <= 0) return;
+    const alpha = 1 - Math.exp(-delta * 10);
+    const dx = (entity.position.x - group.current.position.x) * alpha;
+    const dz = (entity.position.z - group.current.position.z) * alpha;
+    group.current.position.x += dx;
+    group.current.position.z += dz;
+    motion.current.speed = Math.hypot(dx, dz) / delta;
+    if (motion.current.speed > 0.05) group.current.rotation.y = Math.atan2(dx, dz);
+  });
+  return (
+    <group
+      ref={group}
+      position={[initialPosition.x, 0, initialPosition.z]}
+      onClick={(event) => {
+        event.stopPropagation();
+        select(entity.id);
+      }}
+    >
+      {asset ? <CharacterModel asset={asset} motion={motion} /> : <EntityBody entity={entity} />}
+      {(selected || namedEntities.has(entity.id)) && (
+        <Html
+          position={[0, entity.kind === "business" ? 4 : 2.5, 0]}
+          center
+          distanceFactor={18}
+          zIndexRange={[8, 0]}
+        >
+          <button className="entity-label" onClick={() => select(entity.id)}>
+            {entity.name}
+          </button>
+        </Html>
+      )}
+      {selected && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.045, 0]}>
+          <ringGeometry args={[1.3, 1.55, 32]} />
+          <meshBasicMaterial color="#d5ff78" />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+function EntityBody({ entity }: { entity: Entity }) {
+  if (entity.kind === "vehicle") return <Vehicle color={entity.color} />;
+  if (entity.kind === "location")
+    return (
+      <group>
+        <mesh position={[0, 1.7, 0]}>
+          <boxGeometry args={[2.5, 3.4, 0.6]} />
+          <meshStandardMaterial color="#86967b" />
+        </mesh>
+        <mesh position={[0, 1.4, 0.32]}>
+          <planeGeometry args={[1.5, 2.8]} />
+          <meshStandardMaterial color="#544c3e" />
+        </mesh>
+      </group>
+    );
+  // Angela's world-detail GLB already contains the book stall at this entity's coordinates.
+  if (entity.kind === "business")
+    return (
+      <mesh position={[0, 1.5, 0]}>
+        <boxGeometry args={[4.6, 3, 3]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+    );
+  return <Person color={entity.kind === "police" ? "#4b71b5" : "#cb9872"} />;
+}

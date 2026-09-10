@@ -1,0 +1,29 @@
+{
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "ignorePatterns": [
+    "tools/oxlint/anti-slop/**",
+    ".agents/**",
+    ".codex/**",
+    ".claude/**",
+    "public/**",
+    "source/**",
+    "test/**",
+    "server.mjs",
+    "world.mjs",
+    "README.md",
+    "VALIDATION.md",
+    "THIRD-PARTY-LICENSES.txt",
+    "docs/visual-development/**",
+    "docs/ci/**",
+    "package-lock.json",
+    "**/worker-configuration.d.ts",
+    "**/routeTree.gen.ts",
+    "pnpm-lock.yaml",
+    "**/dist/**",
+    "**/storybook-static/**",
+    ".wrangler/**",
+    "**/.wrangler/**"
+  ]
+}

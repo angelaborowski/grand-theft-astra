@@ -1,0 +1,23 @@
+{
+  "name": "@gpta/core",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./world": "./src/world.ts",
+    "./actions": "./src/actions.ts",
+    "./protocol": "./src/protocol.ts",
+    "./scene": "./src/scene.ts",
+    "./simulation": "./src/simulation.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "gpta-world",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "dev": { "port": 8787 },
+  "durable_objects": {
+    "bindings": [
+      { "name": "WORLD", "class_name": "World" },
+      { "name": "PERSON", "class_name": "Person" },
+    ],
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["World"] },
+    { "tag": "v2", "new_sqlite_classes": ["Person"] },
+  ],
+  "workflows": [{ "name": "gpta-decision", "binding": "DECISIONS", "class_name": "AstraDecision" }],
+  "vars": { "OPENAI_MODEL": "gpt-6-astra", "WORLD_NAME": "red-square" },
+  "observability": { "enabled": true },
+}

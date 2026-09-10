@@ -11,3 +11,15 @@ data/
 *.blend1
 LOCAL-PLAY.md
 NOTION-CHECKPOINT.html
+dist/
+.output/
+.wrangler/
+.tanstack/
+storybook-static/
+coverage/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.playwright-cli/
+test-results/
+playwright-report/
