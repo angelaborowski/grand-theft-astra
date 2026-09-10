@@ -1,0 +1,34 @@
+# Validation — 10 September 2026
+
+## Automated checks
+
+`npm test`: 7 tests passed.
+
+- Real HTTP session creation and two concurrent WebSocket clients see the same world.
+- Remote reward claims and out-of-range movement are rejected.
+- Save survives an actual server process shutdown/restart using SQLite; identity, quest and position restore.
+- Two simultaneous buyers cannot both acquire the single shared book stall; only one balance is debited.
+- Null WebSocket messages do not crash the server.
+- Direct-delivery reward is paid once; repeat collection/delivery and repeat property interaction do not duplicate money.
+- Insufficient funds and invalid/out-of-bounds/blocked positions are rejected.
+- Passive income is bounded to eight offline hours and cannot be reclaimed for the same interval.
+- Niko's alternate delivery branch removes the parcel, pays the lower reward and records reputation/memory.
+- Room rental grants a key, debits money, allows server-authorized interior entry and return.
+- Helping the garden pays once; subsequent dialogue remembers the interaction.
+
+## Browser playtest
+
+Used a separate server/data directory on port 4174, preserving the user's initial world on 4173.
+
+Visually inspected the entry screen, rendered Red Square scene, mission HUD and accessible interior. Performed the following through visible controls:
+
+1. Joined as Playtest with ₽25.
+2. Used Walk to marker and Talk to Mila to accept the mission.
+3. Walked to and collected the parcel; inventory displayed Sealed book parcel.
+4. Walked to Lev and delivered it; balance became ₽105, reputation became 2, parcel was removed.
+5. Walked to Irina and rented a bed; balance became ₽85 and Guesthouse key appeared.
+6. Reloaded the browser and rejoined; money, reputation and key remained saved.
+7. Spoke to Irina again; she greeted the saved player by name and remembered the prior interaction. Entered the room, saw the bed/interior, then used the return interaction.
+8. Walked to the book stall and purchased it for ₽50; verified ownership and passive-income status.
+
+Mouse-look, keyboard movement handlers and assisted movement share the same bounded movement loop; full mouse-lock behavior depends on browser support and was not claimed as universally validated. The alternate delivery branch was tested at the server/game-rule level, not repeated in the browser. No mobile usability, public internet deployment, production authentication, live AI conversation or frame-rate benchmark is claimed.

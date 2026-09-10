@@ -1,0 +1,46 @@
+{
+  "blender_version": "4.5.3 LTS",
+  "mesh_objects": 4106,
+  "glb_mesh_objects": 13,
+  "evaluated_vertices": 135614,
+  "evaluated_polygons": 106185,
+  "evaluated_triangles": 214292,
+  "materials": 22,
+  "bitmap_textures": [],
+  "units": "metres",
+  "cameras": [
+    {
+      "name": "01 | Cathedral and Spasskaya",
+      "location": [
+        39.0,
+        -75.0,
+        1.7000000476837158
+      ],
+      "lens_mm": 29.0
+    },
+    {
+      "name": "02 | Cathedral near view",
+      "location": [
+        28.0,
+        -160.0,
+        1.7000000476837158
+      ],
+      "lens_mm": 32.0
+    },
+    {
+      "name": "03 | Site aerial",
+      "location": [
+        480.0,
+        410.0,
+        370.0
+      ],
+      "lens_mm": 42.0
+    }
+  ],
+  "limitations": [
+    "Architectural details and some roofs are approximated.",
+    "Procedural brick and paving are not baked to the GLB; flat PBR base colors export.",
+    "No collisions, LODs, lightmaps, navmesh, interiors, or gameplay.",
+    "Map-derived geometry is not survey validated."
+  ]
+}
