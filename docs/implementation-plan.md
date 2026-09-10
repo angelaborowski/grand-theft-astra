@@ -1,7 +1,7 @@
 # GPT8 — v3 integration plan
 
-Status: integration complete. The combined repository passes its final checks and preserves Angela's assets and original prototype.
-The final working directory is `/Users/az/projects/gpt8-red-square`.
+Status: integration and manual deployment are complete. The game is live at **https://grandtheftastra.com**.
+The combined repository passes local checks. A full browser mission and restart check remain open.
 
 ## Goal and scope
 
@@ -14,8 +14,9 @@ Astra chooses NPC speech and actions. The game validates actions and owns money,
 4. Retain 100 individual Person Durable Objects, World SQLite, and asynchronous Astra Workflows.
 5. Validate the integrated game and push the changes without replacing concurrent remote work.
 
-This pass excludes new asset production, full GTA combat, traffic simulation, broad economy systems, and public hosting.
-Angela owns visual development. The engineering work connects her assets to the game systems.
+This pass excludes new asset production, full GTA combat, traffic simulation, and broad economy systems.
+Angela owns assets and visual React work. Alexander owns game systems, shared contracts, CI, and deployment.
+Both work in `apps/web/`; coordinate shared files before editing. `AGENTS.md` defines the Git and verification workflow.
 
 ## Run and repository ownership
 
@@ -28,16 +29,36 @@ The new game uses **http://localhost:3000** and a Cloudflare backend on port **8
 `pnpm start` preserves the original prototype on **http://localhost:4173**.
 These games use separate saved data and mission rules. The original prototype does not acquire Astra support through this port.
 
-| Path                                              | Responsibility                                                             |
-| ------------------------------------------------- | -------------------------------------------------------------------------- |
-| `apps/web/`                                       | React, R3F, Rapier, controls, camera, interface, and asset integration     |
-| `apps/server/`                                    | Worker, World and Person Durable Objects, SQLite, and Astra Workflows      |
-| `packages/core/`                                  | Shared schemas, JSON-RPC methods, game rules, coordinates, and collisions  |
-| `public/assets/`, `source/blender/`               | Angela's runtime assets, editable sources, export scripts, and attribution |
-| `public/*.js`, `server.mjs`, `world.mjs`, `test/` | Original prototype and its verification                                    |
+| Path                                                      | Responsibility                                                             |
+| --------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `apps/web/`                                               | React, R3F, Rapier, controls, camera, interface, and asset integration     |
+| `apps/server/`                                            | Worker, World and Person Durable Objects, SQLite, and Astra Workflows      |
+| `packages/core/`                                          | Shared schemas, JSON-RPC methods, game rules, coordinates, and collisions  |
+| `public/assets/`, `source/blender/`, `source/characters/` | Angela's runtime assets, editable sources, export scripts, and attribution |
+| `public/*.js`, `server.mjs`, `world.mjs`, `test/`         | Original prototype and its verification                                    |
 
 The default pnpm catalog owns new game dependencies. The named `legacy` catalog preserves the original prototype's dependency versions.
 Applications import shared packages; applications do not import each other. Root `AGENTS.md` applies to all contributing agents.
+
+## Deployment
+
+The `gpta-world` Cloudflare Worker serves **https://grandtheftastra.com**.
+The web build produces static, prerendered HTML. The same Worker handles `/api/*`, including sessions and the game WebSocket.
+Browser API requests use the same origin as the page.
+
+Run manual deployment from the repository root:
+
+```sh
+pnpm deploy
+```
+
+The command builds the web app and deploys the Worker with its static assets.
+`OPENAI_API_KEY` is configured as a Cloudflare secret and in ignored `apps/server/.dev.vars` for local development.
+Keep secret values and local saves out of Git.
+
+Alexander will connect the Git repository to Cloudflare. Use the repository root as the build directory.
+Set the build command to `pnpm check` and the deploy command to `pnpm --filter @gpta/server deploy`.
+This configuration checks the combined code and builds the web assets before deployment.
 
 ## Asset integration
 
@@ -126,10 +147,11 @@ Its accepted state contains **₽40 remaining, reputation 1, completed direct de
 A live Astra call produced speech, received a rejected tool result, and continued its decision.
 These results verify the earlier game systems. They do not verify the integrated scene.
 
-The final combined repository passes `pnpm check`: lint, formatting, all package types, five core tests, ten original tests, and production builds.
+The combined repository passes `pnpm check`: lint, formatting, all package types, five core tests, ten original tests, and production builds.
 The asset Storybook build also passes. An independent agent review finds no remaining integration blocker.
-Original asset and prototype files remain unchanged. Angela's concurrent character-reference commit is included.
-Local API configuration and the previous World and Person saves are copied into the final repository and remain ignored by Git.
+The integration preserves Angela's assets and the original prototype.
+
+The live HTTPS start page and `/api/health` respond successfully. These checks do not verify a complete game session.
 
 The integrated scene has not received a browser playtest. A full mission and restart check in the integrated scene remains for joint iteration.
 V1 still uses simplified car physics and complete world snapshots. This pass does not establish large-world capacity or production readiness.
