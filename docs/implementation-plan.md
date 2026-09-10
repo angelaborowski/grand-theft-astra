@@ -244,3 +244,7 @@ Sky integration retains the camera and direct mission launch fixes from the mast
 Winter weather follow-up: brighter photographic sky and environment fill, pale distance haze, and 1,000 soft snow particles in one draw call. Snow is outdoor-only and masked under approximate building roof volumes; no surface accumulation. Existing mission physics and state unchanged.
 
 User-requested blue-sky revision: visible background is now an animated procedural cloud dome with blue openings and wind-driven layers, while the licensed photographic HDR remains the static material-lighting probe. The two are an artistic approximation rather than a matching dynamic lighting simulation. Snow continues outdoors.
+
+### End-to-end mission simulation — 10 September 2026
+
+An isolated Worker on port 8788 validated direct launch, ordered gates, early-handoff rejection, reward idempotency and reconnect persistence without touching the user's save. A second run fed actual Rapier car/ramp positions at 200 ms intervals through the same WebSocket API. This caught a ramp entrance lip: starting from z=110 could stop the car at z=75. Lowered ramp centres from 1.15 m to 1.0 m so the entry edge is below paving. The rerun cleared both ramps (body-centre peaks 3.45/3.42 m), passed four gates, braked at z=-89.88, delivered, received ₽250/+2, and restored completion on reconnect. This is physics-plus-server simulation, not a complete browser keyboard playthrough.

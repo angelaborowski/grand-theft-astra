@@ -10,7 +10,7 @@ export function StuntCourse({ player }: { player: Player }) {
   return (
     <>
       {STUNT.ramps.map((ramp) => (
-        <group key={ramp.z} position={[ramp.x, 1.15, ramp.z]} rotation={[0.24, 0, 0]}>
+        <group key={ramp.z} position={[ramp.x, 1.0, ramp.z]} rotation={[0.24, 0, 0]}>
           <RigidBody type="fixed" colliders={false}>
             <CuboidCollider args={[4, 0.13, 5]} />
             <mesh receiveShadow castShadow>
