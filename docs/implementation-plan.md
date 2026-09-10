@@ -204,3 +204,7 @@ An opt-in `?perf=1` overlay reports three-second average FPS and p95 frame time.
 Overview flicker fix: the city GLB contains `00 | Paved site`, which the old Ground/Terrain filter missed. Its top is only 8.5 cm below the replacement floor. Hide that complete node before mesh traversal and use a 0.3 m camera near plane to reduce distant depth fighting; physics ground remains unchanged.
 
 The Ferrari now carries user-requested ivory `ASTRA MOBILE` lettering on both doors. Lettering is part of the runtime GLB; no gameplay or entity-name changes are included.
+
+## Museum facade asset pass — 10 September 2026
+
+An isolated building task adds an editable museum replacement in `source/blender/museum-detail/` and `public/assets/museum-detail.glb`. It retains the original mapped shell and collision coordinates, adds photo-informed arched facade geometry and roof materials, and supplies Blender/WebGL comparisons. Parent owns the loader integration: hide the complete old museum group, disable `museumDetail`, load the replacement at the shared scene offset. See `docs/building-accuracy.md` for evidence, validation and unresolved accuracy work.

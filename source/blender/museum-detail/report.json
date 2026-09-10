@@ -1,0 +1,284 @@
+{
+  "triangles": 58560,
+  "draw_meshes": 11,
+  "windows": [
+    {
+      "name": "Lower facade arch",
+      "x": -10.4,
+      "base_z": 4,
+      "width": 1.5,
+      "height": 4.1,
+      "surface_y": 149.8392
+    },
+    {
+      "name": "Lower facade arch",
+      "x": -5.6,
+      "base_z": 2.3,
+      "width": 1.75,
+      "height": 3.7,
+      "surface_y": 145.1643
+    },
+    {
+      "name": "Lower facade arch",
+      "x": -0.6,
+      "base_z": 4,
+      "width": 1.8,
+      "height": 4.4,
+      "surface_y": 145.692
+    },
+    {
+      "name": "Lower facade arch",
+      "x": 4.8,
+      "base_z": 5,
+      "width": 1.8,
+      "height": 5.1,
+      "surface_y": 144.5954
+    },
+    {
+      "name": "Lower facade arch",
+      "x": 21.1,
+      "base_z": 5,
+      "width": 1.8,
+      "height": 5.1,
+      "surface_y": 144.0713
+    },
+    {
+      "name": "Lower facade arch",
+      "x": 26.2,
+      "base_z": 4,
+      "width": 1.8,
+      "height": 4.4,
+      "surface_y": 144.5152
+    },
+    {
+      "name": "Lower facade arch",
+      "x": 30.7,
+      "base_z": 2.3,
+      "width": 1.75,
+      "height": 3.7,
+      "surface_y": 143.6532
+    },
+    {
+      "name": "Lower facade arch",
+      "x": 36.5,
+      "base_z": 4,
+      "width": 1.5,
+      "height": 4.1,
+      "surface_y": 147.7257
+    },
+    {
+      "name": "Lower facade arch",
+      "x": 11.8,
+      "base_z": 12.1,
+      "width": 0.9,
+      "height": 2.5,
+      "surface_y": 145.1595
+    },
+    {
+      "name": "Lower facade arch",
+      "x": 14.1,
+      "base_z": 12.1,
+      "width": 0.9,
+      "height": 2.5,
+      "surface_y": 145.0816
+    },
+    {
+      "name": "Main tower | tall arched window",
+      "x": -0.55,
+      "base_z": 18.3,
+      "width": 2.6,
+      "height": 6.0,
+      "surface_y": 150.4003
+    },
+    {
+      "name": "Main tower | triple upper window",
+      "x": -1.8,
+      "base_z": 29,
+      "width": 0.85,
+      "height": 2.6,
+      "surface_y": 150.4918
+    },
+    {
+      "name": "Main tower | triple upper window",
+      "x": -0.55,
+      "base_z": 29,
+      "width": 0.85,
+      "height": 2.6,
+      "surface_y": 150.438
+    },
+    {
+      "name": "Main tower | triple upper window",
+      "x": 0.7,
+      "base_z": 29,
+      "width": 0.85,
+      "height": 2.6,
+      "surface_y": 150.3842
+    },
+    {
+      "name": "Main tower | tall arched window",
+      "x": 27.3,
+      "base_z": 18.3,
+      "width": 2.6,
+      "height": 6.0,
+      "surface_y": 149.2114
+    },
+    {
+      "name": "Main tower | triple upper window",
+      "x": 26.05,
+      "base_z": 29,
+      "width": 0.85,
+      "height": 2.6,
+      "surface_y": 149.3015
+    },
+    {
+      "name": "Main tower | triple upper window",
+      "x": 27.3,
+      "base_z": 29,
+      "width": 0.85,
+      "height": 2.6,
+      "surface_y": 149.2485
+    },
+    {
+      "name": "Main tower | triple upper window",
+      "x": 28.55,
+      "base_z": 29,
+      "width": 0.85,
+      "height": 2.6,
+      "surface_y": 149.1955
+    },
+    {
+      "name": "Central hall | tall arched window",
+      "x": 9.0,
+      "base_z": 18.2,
+      "width": 1.7,
+      "height": 5.8,
+      "surface_y": 149.166
+    },
+    {
+      "name": "Central hall | tall arched window",
+      "x": 13.2,
+      "base_z": 18.2,
+      "width": 2.35,
+      "height": 6.3,
+      "surface_y": 148.9952
+    },
+    {
+      "name": "Central hall | tall arched window",
+      "x": 17.4,
+      "base_z": 18.2,
+      "width": 1.7,
+      "height": 5.8,
+      "surface_y": 148.849
+    },
+    {
+      "name": "Central upper arcade",
+      "x": 9,
+      "base_z": 28.6,
+      "width": 0.9,
+      "height": 2.8,
+      "surface_y": 149.1811
+    },
+    {
+      "name": "Central upper arcade",
+      "x": 12.3,
+      "base_z": 28.6,
+      "width": 0.9,
+      "height": 2.8,
+      "surface_y": 149.0565
+    },
+    {
+      "name": "Central upper arcade",
+      "x": 14.1,
+      "base_z": 28.6,
+      "width": 0.9,
+      "height": 2.8,
+      "surface_y": 148.9886
+    },
+    {
+      "name": "Central upper arcade",
+      "x": 17.5,
+      "base_z": 28.6,
+      "width": 0.9,
+      "height": 2.8,
+      "surface_y": 148.8603
+    },
+    {
+      "name": "Side turret | arched opening",
+      "x": -8.6,
+      "base_z": 18,
+      "width": 1.65,
+      "height": 5.1,
+      "surface_y": 151.2208
+    },
+    {
+      "name": "Side turret | arched opening",
+      "x": 35.5,
+      "base_z": 18,
+      "width": 1.65,
+      "height": 5.1,
+      "surface_y": 149.3092
+    },
+    {
+      "name": "Lantern | narrow opening",
+      "x": -1.45,
+      "base_z": 38.0,
+      "width": 0.48,
+      "height": 2.5,
+      "surface_y": 152.4243
+    },
+    {
+      "name": "Lantern | narrow opening",
+      "x": -0.5,
+      "base_z": 38.0,
+      "width": 0.48,
+      "height": 2.5,
+      "surface_y": 152.3911
+    },
+    {
+      "name": "Lantern | narrow opening",
+      "x": 0.44999999999999996,
+      "base_z": 38.0,
+      "width": 0.48,
+      "height": 2.5,
+      "surface_y": 152.3747
+    },
+    {
+      "name": "Lantern | narrow opening",
+      "x": 26.400000000000002,
+      "base_z": 38.0,
+      "width": 0.48,
+      "height": 2.5,
+      "surface_y": 151.0449
+    },
+    {
+      "name": "Lantern | narrow opening",
+      "x": 27.35,
+      "base_z": 38.0,
+      "width": 0.48,
+      "height": 2.5,
+      "surface_y": 151.0117
+    },
+    {
+      "name": "Lantern | narrow opening",
+      "x": 28.3,
+      "base_z": 38.0,
+      "width": 0.48,
+      "height": 2.5,
+      "surface_y": 150.9953
+    }
+  ],
+  "window_count": 33,
+  "source_shell_vertices": 2083,
+  "source_shell_objects": 148,
+  "units": "metres",
+  "transform": "Blender XYZ -> glTF X,Z,-Y; no additional translation/rotation/scale",
+  "replaces_city_node": "Mapped | Historical Museum",
+  "source_collection": "Mapped | Historical Museum",
+  "limitations": [
+    "Reference-informed proportions, not a measured elevation.",
+    "Roof profiles and overall heights remain community mapped approximations.",
+    "Side/rear elevations and rooftop finial sculpture remain unfinished.",
+    "Doors/windows are shallow facade geometry; existing collisions remain.",
+    "Generic procedural roughness is not a scanned monument surface."
+  ]
+}
