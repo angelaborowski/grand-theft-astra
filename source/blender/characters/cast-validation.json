@@ -1,0 +1,74 @@
+[
+  {
+    "name": "mila",
+    "bytes": 874180,
+    "sha256": "1ad215744aa81b3c1ce47b6fc99015731e928bf2810bbb4bf0cc54d7054f5632",
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "finiteFloatAccessors": true
+  },
+  {
+    "name": "lev",
+    "bytes": 972896,
+    "sha256": "1415220e3c11572e657dc29032f91b2e0cf71c687d5968d4504e983ac1c85179",
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "finiteFloatAccessors": true
+  },
+  {
+    "name": "niko",
+    "bytes": 1147556,
+    "sha256": "33ec737a90e6c0016151ef1f71b1cec6034ad60232e78aa9999dff4598cd0ca6",
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "finiteFloatAccessors": true
+  },
+  {
+    "name": "irina",
+    "bytes": 960656,
+    "sha256": "a36121105aa5ec4a0b1b7230c37959915e28f03ad46f7da336e4d3172fd4e436",
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "finiteFloatAccessors": true
+  },
+  {
+    "name": "sasha",
+    "bytes": 936224,
+    "sha256": "4a503f0abad913a7c45f1514d7549dc1a218ff546c312789ef91f1cf8bfec397",
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "finiteFloatAccessors": true
+  },
+  {
+    "name": "alexei",
+    "bytes": 920524,
+    "sha256": "8f1f126f505d6151030419fdcce6942652a20e696f96f0948e366579dd454bea",
+    "bones": 13,
+    "clips": [
+      "Greet",
+      "Idle",
+      "Walk"
+    ],
+    "finiteFloatAccessors": true
+  }
+]
