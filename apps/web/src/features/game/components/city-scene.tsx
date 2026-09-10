@@ -1,5 +1,6 @@
 import { BUILDINGS, DISTRICT_BOUNDS } from "@gpta/core/scene";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
+import { ParkedMilaScooter } from "./vehicle-model";
 import { SceneAssets } from "./scene-assets";
 
 /** Asset geometry stays separate from the shared movement collision contract. */
@@ -37,6 +38,7 @@ export function CityScene() {
         />
       </RigidBody>
       <SceneAssets />
+      <ParkedMilaScooter />
     </>
   );
 }

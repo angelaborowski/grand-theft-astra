@@ -1,0 +1,63 @@
+[
+  {
+    "asset": "sedan",
+    "triangles": 18336,
+    "meshes": 108,
+    "wheel_pivots": [
+      "WheelFrontL",
+      "WheelRearL",
+      "WheelFrontR",
+      "WheelRearR"
+    ],
+    "dimensions_blender_xyz": [
+      2.3540000915527344,
+      4.289200305938721,
+      1.7099999921394442
+    ],
+    "bytes": 1120828,
+    "sha256": "10b18024c91eb9ebb72d88d613167781902582e63de2233c61d63577aedae0e7",
+    "reimported": true,
+    "finite_coordinates": true,
+    "uvs": true
+  },
+  {
+    "asset": "mila-scooter",
+    "triangles": 12936,
+    "meshes": 100,
+    "wheel_pivots": [
+      "WheelFront",
+      "WheelRear"
+    ],
+    "dimensions_blender_xyz": [
+      0.949999988079071,
+      2.049999952316284,
+      1.5400000015441613
+    ],
+    "bytes": 807656,
+    "sha256": "89551955f5eadfe359cc630661f3b9fda50e61c7bbdc80e8419d1c23b9ec2ccf",
+    "reimported": true,
+    "finite_coordinates": true,
+    "uvs": true
+  },
+  {
+    "asset": "ferrari-12cilindri",
+    "triangles": 28636,
+    "meshes": 138,
+    "wheel_pivots": [
+      "WheelFrontL",
+      "WheelRearL",
+      "WheelFrontR",
+      "WheelRearR"
+    ],
+    "dimensions_blender_xyz": [
+      2.1659998893737793,
+      4.440000057220459,
+      1.3299999959807423
+    ],
+    "bytes": 1327940,
+    "sha256": "e5242077c06ebd00142b174ce69c661fd4d705bb03f819a52f5edadc21748ee1",
+    "reimported": true,
+    "finite_coordinates": true,
+    "uvs": true
+  }
+]
