@@ -1,9 +1,11 @@
 import type { PlayerAction } from "@gpta/core/actions";
+import type { PlayerCommand } from "@gpta/core/gameplay-v2";
 import type { ConversationTurn } from "@gpta/core/conversations";
 import type { MethodParams } from "@gpta/core/protocol";
-import type { EntityId, Player, Position, WorldSnapshot } from "@gpta/core/world";
+import type { EntityId, Player, WorldSnapshot } from "@gpta/core/world";
+import { isInsideGuesthouse } from "@gpta/core/scene";
 import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   actionErrorMessage,
   ConnectionError,
@@ -13,6 +15,7 @@ import {
 import { sessionQuery, worldQueryKey } from "../queries/world-queries";
 import { conversationQueryKey } from "../queries/conversation-queries";
 import { mergeConversationTurns } from "../models/conversation-view";
+import { PlayerMovement } from "../models/player-movement";
 
 /** The hook exposes one screen state and owns the lifetime of its only WebSocket. */
 export function useWorld() {
@@ -26,12 +29,27 @@ export function useWorld() {
   });
   const [connection, setConnection] = useState<ConnectionState>({ status: "connecting" });
   const transport = useRef<WorldConnection | null>(null);
+  const [movement] = useState(
+    () => new PlayerMovement((snapshot) => queryClient.setQueryData(worldQueryKey, snapshot)),
+  );
+  const movementState = useSyncExternalStore(
+    movement.subscribe,
+    movement.getSnapshot,
+    movement.getSnapshot,
+  );
   useEffect(() => {
     if (session.status !== "success") return;
     const url = new URL("/api/world", location.href);
     url.protocol = location.protocol === "https:" ? "wss:" : "ws:";
     const client = new WorldConnection(url.href, {
-      snapshot: (snapshot) => queryClient.setQueryData(worldQueryKey, snapshot),
+      snapshot: (snapshot) => {
+        const player = snapshot.entities.find(
+          (entity): entity is Player =>
+            entity.kind === "player" && entity.id === session.data.playerId,
+        );
+        if (player) movement.observeContext(movementContext(player));
+        queryClient.setQueryData(worldQueryKey, snapshot);
+      },
       conversation: (turn) =>
         queryClient.setQueryData<ConversationTurn[]>(
           conversationQueryKey(session.data.playerId, turn.actorId),
@@ -39,24 +57,31 @@ export function useWorld() {
         ),
       state: (state) => {
         setConnection(state);
-        if (state.status === "connected")
+        if (state.status === "connected") {
+          const snapshot = queryClient.getQueryData<WorldSnapshot>(worldQueryKey);
+          const player = snapshot?.entities.find(
+            (entity): entity is Player =>
+              entity.kind === "player" && entity.id === session.data.playerId,
+          );
+          if (player) movement.connect(client, player.id, movementContext(player));
           void queryClient.invalidateQueries({ queryKey: ["conversation"] });
+        } else movement.disconnect();
       },
     });
     transport.current = client;
     return () => {
+      movement.disconnect();
       client.close();
       transport.current = null;
     };
-  }, [session.status, session.data?.playerId, queryClient]);
-  const move = useCallback(async (position: Position) => {
-    if (!transport.current) throw new ConnectionError("The world is disconnected.");
-    await transport.current.move(position);
-  }, []);
+  }, [session.status, session.data?.playerId, queryClient, movement]);
   const action = useMutation({
     mutationFn: async (input: PlayerAction) => {
       if (!transport.current || connection.status !== "connected")
         throw new ConnectionError("The world is disconnected.");
+      const state = movement.getSnapshot();
+      if (state.status === "restoring" || state.status === "failed")
+        throw new ConnectionError("Restore your position before taking an action.");
       await transport.current.act(input);
     },
   });
@@ -64,10 +89,25 @@ export function useWorld() {
     if (!transport.current) throw new ConnectionError("The world is disconnected.");
     return transport.current.inspect(actorId);
   }, []);
-  const sendConversation = useCallback(async (params: MethodParams<"conversation.send">) => {
-    if (!transport.current) throw new ConnectionError("The world is disconnected.");
-    return transport.current.sendConversation(params);
-  }, []);
+  const command = useMutation({
+    mutationFn: async (input: PlayerCommand) => {
+      if (!transport.current || connection.status !== "connected")
+        throw new ConnectionError("The world is disconnected.");
+      const state = movement.getSnapshot();
+      if (state.status === "restoring" || state.status === "failed")
+        throw new ConnectionError("Restore your position before taking an action.");
+      await transport.current.command(input);
+    },
+  });
+  const conversation = useMutation({
+    mutationFn: async (params: MethodParams<"conversation.send">) => {
+      if (!transport.current) throw new ConnectionError("The world is disconnected.");
+      const state = movement.getSnapshot();
+      if (state.status === "restoring" || state.status === "failed")
+        throw new ConnectionError("Restore your position before taking an action.");
+      return transport.current.sendConversation(params);
+    },
+  });
   const conversationHistory = useCallback(async (actorId: EntityId) => {
     if (!transport.current) throw new ConnectionError("The world is disconnected.");
     return transport.current.conversationHistory(actorId);
@@ -104,10 +144,22 @@ export function useWorld() {
     snapshot: world.data,
     player,
     connection,
-    move,
+    move: movement.move,
+    control: movement.control,
+    command,
+    movement: {
+      state: movementState,
+      actions: { move: movement.move, restore: movement.restore },
+    },
     action,
     inspect,
-    sendConversation,
+    conversation,
+    sendConversation: conversation.mutateAsync,
     conversationHistory,
   } as const;
+}
+
+function movementContext(player: Player): string {
+  const mode = player.behavior.type === "driving" ? player.behavior.vehicleId : "walking";
+  return `${isInsideGuesthouse(player.position) ? "guesthouse" : "district"}:${mode}`;
 }

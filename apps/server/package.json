@@ -12,6 +12,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@dimforge/rapier3d": "catalog:",
     "@gpta/core": "workspace:*",
     "cookie": "catalog:",
     "openai": "catalog:",

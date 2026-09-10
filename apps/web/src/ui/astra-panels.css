@@ -1,0 +1,242 @@
+:root {
+  --font-sans: var(--astra-font-ui);
+  --font-mono: var(--astra-font-ui);
+  --color-base: var(--astra-ink);
+  --color-panel: var(--astra-panel);
+  --color-line: var(--astra-line);
+  --color-text: var(--astra-text);
+  --color-muted: var(--astra-muted);
+  --color-accent: var(--astra-text);
+  --color-danger: var(--astra-danger);
+  --radius-panel: 0;
+  font-family: var(--astra-font-ui);
+  font-weight: var(--astra-weight-normal);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--astra-font-ui);
+  font-size: var(--astra-text-body);
+  font-weight: var(--astra-weight-normal);
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: var(--astra-focus);
+  outline-offset: 2px;
+}
+
+kbd {
+  font: var(--astra-weight-normal) var(--astra-text-small) var(--astra-font-ui);
+}
+
+:where(.panel, .astra-dialog) button,
+:where(.panel, .astra-dialog) input,
+:where(.panel, .astra-dialog) select {
+  min-height: var(--astra-control-height);
+  border-radius: 0;
+  font-size: var(--astra-text-body);
+}
+
+:where(.panel, .astra-dialog) button {
+  background: var(--astra-ink);
+  color: var(--astra-text);
+}
+
+:where(.panel, .astra-dialog) button:hover:not(:disabled),
+:where(.panel, .astra-dialog) button:focus-visible {
+  background: var(--astra-text);
+  color: var(--astra-ink);
+}
+
+:where(.panel, .astra-dialog) .primary-button {
+  background: var(--astra-text);
+  border-color: var(--astra-text);
+  color: var(--astra-ink);
+}
+
+.panel {
+  border-radius: 0;
+  background: var(--astra-panel);
+  font: var(--astra-weight-normal) var(--astra-text-body) var(--astra-font-ui);
+}
+
+.panel-heading h2,
+.mission-panel h2,
+.interaction-heading strong {
+  font: var(--astra-weight-bold) var(--astra-text-heading) var(--astra-font-ui);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  font: var(--astra-weight-normal) var(--astra-text-small) var(--astra-font-ui);
+  letter-spacing: 0.12em;
+}
+
+.panel :is(.empty-copy, .interaction-goal, .action-error, .action-result),
+.mission-panel > p,
+.mission-panel > button,
+.mission-panel > .inventory-line,
+.decision,
+.event-list p,
+.dialogue-panel p {
+  font-size: var(--astra-text-body);
+  line-height: 1.6;
+}
+
+.panel :is(.event-list h3, .event-meta, .decision-state, .panel-footnote),
+.status-bar,
+.status-bar small,
+.player-progress,
+.player-progress dd,
+.actor-memory,
+.entity-inspector {
+  font-size: var(--astra-text-small);
+}
+
+.decision strong,
+.event-list h3,
+.actor-memory strong {
+  font-weight: var(--astra-weight-bold);
+}
+
+.intelligence-mode {
+  border-radius: 0;
+  font-size: var(--astra-text-small);
+}
+
+.live-dot {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.event-marker {
+  border-radius: 0;
+  background: var(--astra-muted);
+}
+.event-marker.player {
+  background: var(--astra-text);
+}
+.event-marker.astra {
+  background: var(--astra-accent);
+}
+
+.interaction-panel {
+  padding: 1.25rem;
+  background: var(--astra-panel-strong);
+}
+.interaction-heading {
+  gap: 1rem;
+}
+.interaction-heading strong {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: var(--astra-text-menu);
+}
+.interaction-heading > span {
+  padding-top: 0.3rem;
+  white-space: nowrap;
+  font: var(--astra-weight-normal) var(--astra-text-small) var(--astra-font-ui);
+}
+.interaction-buttons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+.interaction-buttons button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-left: 3px solid var(--astra-accent);
+}
+.target-select {
+  align-items: start;
+  flex-direction: column;
+  font-size: var(--astra-text-small);
+}
+.target-select select {
+  width: 100%;
+  min-height: var(--astra-control-height);
+  border-radius: 0;
+  font-size: var(--astra-text-small);
+}
+.conversation-heading,
+.conversation-transcript {
+  font-size: var(--astra-text-body);
+}
+.conversation-transcript strong,
+.conversation-status {
+  font-size: var(--astra-text-small);
+}
+.conversation-transcript strong {
+  color: var(--astra-text);
+  font-weight: var(--astra-weight-bold);
+}
+.entity-inspector {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--astra-line);
+}
+.entity-inspector summary {
+  min-height: 2rem;
+}
+.entity-inspector pre,
+.astra-debug pre {
+  font: var(--astra-weight-normal) var(--astra-text-small) var(--astra-font-debug);
+}
+.entity-label {
+  border-radius: 0;
+  border-color: var(--astra-line);
+  color: var(--astra-text);
+  background: var(--astra-panel-strong);
+  font: var(--astra-weight-normal) var(--astra-text-small) var(--astra-font-ui);
+}
+.dialogue-panel {
+  background: var(--astra-panel-strong);
+  border-left: 3px solid var(--astra-accent);
+}
+.dialogue-panel strong {
+  font: var(--astra-weight-bold) var(--astra-text-small) var(--astra-font-ui);
+}
+.minimap {
+  border-radius: 0;
+  border-color: var(--astra-line);
+  background: var(--astra-panel);
+}
+.minimap circle:last-child {
+  fill: var(--astra-map-player);
+}
+.minimap p {
+  font: var(--astra-weight-normal) var(--astra-text-small) var(--astra-font-ui);
+}
+.astra-pause-content > :is(.mission-panel, .activity-panel) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.astra-pause-content .player-progress {
+  flex-wrap: wrap;
+  justify-content: start;
+  gap: 2rem;
+}
+
+@media (max-width: 700px) {
+  .interaction-panel {
+    padding: 1rem;
+  }
+  .conversation-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .talk-form {
+    flex-wrap: wrap;
+  }
+  .talk-form input {
+    flex: 1 1 12rem;
+  }
+}

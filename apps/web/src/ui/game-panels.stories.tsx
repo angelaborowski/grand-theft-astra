@@ -1,9 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ActivityPanel, DialoguePanel, StatusBar } from "./game-panels";
 
-const meta = { title: "Game/Activity", component: ActivityPanel } satisfies Meta<
-  typeof ActivityPanel
->;
+const meta = {
+  title: "Game/Activity",
+  component: ActivityPanel,
+  decorators: [
+    (Story) => (
+      <div style={{ maxWidth: "40rem" }}>
+        <Story />
+      </div>
+    ),
+  ],
+} satisfies Meta<typeof ActivityPanel>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

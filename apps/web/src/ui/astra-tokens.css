@@ -1,0 +1,58 @@
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/interface/fonts/roboto-condensed-regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/interface/fonts/roboto-condensed-bold.ttf") format("truetype");
+}
+
+:root {
+  --astra-ink: #08090b;
+  --astra-panel: rgb(9 11 15 / 86%);
+  --astra-panel-strong: rgb(9 11 15 / 96%);
+  --astra-text: #f5f3ee;
+  --astra-muted: #bebdb9;
+  --astra-accent: #a73532;
+  --astra-danger: #ffb1a2;
+  --astra-gold: #dab27c;
+  --astra-line: rgb(245 243 238 / 24%);
+  --astra-map-ground: #25282b;
+  --astra-map-building: #595a58;
+  --astra-map-person: #d1cec4;
+  --astra-map-police: #9dbdd3;
+  --astra-map-player: var(--astra-text);
+  --astra-map-halo: rgb(245 243 238 / 16%);
+  --astra-font-ui: "Roboto Condensed", "Arial Narrow", sans-serif;
+  --astra-font-debug: "SFMono-Regular", Consolas, monospace;
+  --astra-font-body: var(--astra-font-ui);
+  --astra-font-display: var(--astra-font-ui);
+  --astra-font-mono: var(--astra-font-ui);
+  --astra-text-small: 0.75rem;
+  --astra-text-body: 1rem;
+  --astra-text-menu: var(--astra-text-body);
+  --astra-text-heading: 1.5rem;
+  --astra-weight-normal: 400;
+  --astra-weight-bold: 700;
+  --astra-screen-gutter: clamp(1.25rem, 4vw, 4.25rem);
+  --astra-control-height: 2.25rem;
+  --astra-panel-space: 1rem;
+  --astra-focus: 1px solid var(--astra-text);
+  --astra-space-xs: 0.25rem;
+  --astra-space-sm: 0.5rem;
+  --astra-space-md: 1rem;
+  --astra-space-lg: 1.5rem;
+  --astra-radar-width: min(13.75rem, 18vw);
+  --astra-radar-height: 8.75rem;
+  --astra-notice-duration: 4s;
+  --astra-objective-duration: 6s;
+  --astra-text-shadow: 0 2px 5px #000;
+  --astra-layer-overlay: 20;
+}

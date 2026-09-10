@@ -1,153 +1,92 @@
-import { DISTRICT_BOUNDS, MOVEMENT, isInsideGuesthouse } from "@gpta/core/scene";
-import type { Actor, Position } from "@gpta/core/world";
-import { CameraControls, useKeyboardControls } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { Ecctrl, type EcctrlHandle } from "ecctrl";
-import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { BUILDINGS, GUESTHOUSE_COLLIDERS, isInsideGuesthouse } from "@gpta/core/scene";
+import { PHYSICS } from "@gpta/core/gameplay-v2";
+import type { Player as PlayerState } from "@gpta/core/world";
+import { CameraControls, CameraControlsImpl } from "@react-three/drei";
+import { Ecctrl } from "ecctrl";
+import { bodyCenter, capsuleHalfHeight, usePlayerController } from "../hooks/use-player-controller";
+import type { PlayerActions } from "../models/player-controls";
 import { PLAYER_ASSET } from "../models/scene-assets";
-import { CharacterModel, type CharacterMotion } from "./character-model";
-import { Vehicle } from "./primitive-entities";
+import { CharacterModel } from "./character-model";
+import { SceneCameraColliders } from "./scene-camera-colliders";
+import { PlayerAudio } from "./player-audio";
 
-/** Ecctrl owns character movement; the server accepts or corrects sampled positions. */
+/** The character predicts controls while the server owns its physical state and actions. */
 export function Player({
   actor,
   enabled,
+  inputEnabled,
   overview,
-  move,
+  actions,
 }: {
-  actor: Actor;
+  actor: PlayerState;
   enabled: boolean;
+  inputEnabled: boolean;
   overview: boolean;
-  move: (position: Position) => Promise<void>;
+  actions: PlayerActions;
 }) {
-  const controller = useRef<EcctrlHandle>(null);
-  const [spawn] = useState(() => actor.position);
-  const camera = useRef<CameraControls>(null);
-  const orbiting = useRef(false);
-  const [, getKeys] = useKeyboardControls<
-    "forward" | "backward" | "leftward" | "rightward" | "run"
-  >();
-  const movement = useRef({ lastSent: 0, pending: false });
-  const motion = useRef<CharacterMotion>({ speed: 0 });
-  const driving = actor.behavior.type === "driving";
+  const {
+    controller,
+    camera,
+    spawn,
+    motion,
+    posture,
+    actions: controllerActions,
+  } = usePlayerController({
+    actor,
+    enabled,
+    inputEnabled,
+    overview,
+    actions,
+  });
   const inside = isInsideGuesthouse(actor.position);
-  const cameraDistance = inside ? 3.5 : 6.5;
-  useEffect(() => {
-    if (camera.current)
-      void camera.current.setLookAt(spawn.x, 3.8, spawn.z + 6.5, spawn.x, 1.2, spawn.z, false);
-  }, [spawn.x, spawn.z]);
-  useEffect(() => {
-    if (overview && camera.current) {
-      const x = (DISTRICT_BOUNDS.minX + DISTRICT_BOUNDS.maxX) / 2;
-      const z = (DISTRICT_BOUNDS.minZ + DISTRICT_BOUNDS.maxZ) / 2;
-      void camera.current.setLookAt(x, 335, z + 110, x, 0, z, true);
-    }
-    if (!overview && camera.current && controller.current?.body) {
-      const position = controller.current.body.translation();
-      void camera.current.setLookAt(
-        position.x,
-        position.y + 2.6,
-        position.z + cameraDistance,
-        position.x,
-        position.y,
-        position.z,
-        true,
-      );
-    }
-  }, [overview, cameraDistance]);
-  const restorePosition = useEffectEvent(() => {
-    controller.current?.body?.setTranslation(
-      { x: actor.position.x, y: 1.3, z: actor.position.z },
-      true,
-    );
-  });
-  useEffect(() => {
-    restorePosition();
-  }, [driving, enabled, inside]);
-  useFrame(({ clock }, delta) => {
-    const character = controller.current;
-    if (!character?.body) return;
-    const focus = document.activeElement;
-    const typing =
-      focus instanceof HTMLElement &&
-      (focus.matches("input,textarea,select") || focus.isContentEditable);
-    const controlsEnabled = enabled && !typing && !overview && document.hasFocus();
-    character.setMovement(
-      controlsEnabled
-        ? getKeys()
-        : { forward: false, backward: false, leftward: false, rightward: false, run: false },
-    );
-    const position = character.body.translation();
-    const velocity = character.body.linvel();
-    motion.current.speed = Math.hypot(velocity.x, velocity.z);
-    if (camera.current && !overview) {
-      void camera.current.moveTo(position.x, position.y, position.z, true);
-      if (character.isMoving && getKeys().forward && !orbiting.current) {
-        const direction = character.movingDirection;
-        void camera.current.setLookAt(
-          position.x - direction.x * cameraDistance,
-          position.y + 2.6,
-          position.z - direction.z * cameraDistance,
-          position.x,
-          position.y,
-          position.z,
-          true,
-        );
-      }
-    }
-    if (
-      !enabled ||
-      movement.current.pending ||
-      clock.elapsedTime - movement.current.lastSent < 0.2 ||
-      delta > 0.3
-    )
-      return;
-    movement.current.lastSent = clock.elapsedTime;
-    if (Math.hypot(position.x - actor.position.x, position.z - actor.position.z) < 0.06) return;
-    movement.current.pending = true;
-    void move({ x: position.x, z: position.z })
-      .catch(() => {
-        character.body.setTranslation({ x: actor.position.x, y: 1.3, z: actor.position.z }, true);
-        character.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
-      })
-      .finally(() => {
-        movement.current.pending = false;
-      });
-  });
   return (
     <>
+      <PlayerAudio motion={motion} enabled={enabled && inputEnabled && !overview} />
       <Ecctrl
         ref={controller}
-        position={[spawn.x, 1.3, spawn.z]}
-        capsuleRadius={MOVEMENT.actorRadius}
-        capsuleHalfHeight={0.45}
-        floatHeight={0.05}
-        maxWalkVel={driving ? MOVEMENT.driveSpeed * 0.85 : MOVEMENT.walkSpeed * 0.8}
-        maxRunVel={driving ? MOVEMENT.driveSpeed : MOVEMENT.walkSpeed}
-        jumpVel={0}
+        position={[spawn.position.x, spawn.elevation + bodyCenter(spawn.posture), spawn.position.z]}
+        capsuleRadius={PHYSICS.actorRadius}
+        capsuleHalfHeight={capsuleHalfHeight(posture)}
+        rayOriginOffest={-capsuleHalfHeight(posture)}
+        floatHeight={PHYSICS.floatHeight}
+        maxWalkVel={posture === "crouched" ? PHYSICS.crouchSpeed : PHYSICS.walkSpeed}
+        maxRunVel={PHYSICS.runSpeed}
+        useCustomForward
+        enableToggleRun={false}
+        jumpVel={PHYSICS.jumpSpeed}
+        jumpDuration={1 / 60}
+        fallingGravityScale={1}
+        rayHitForgiveness={0.03}
       >
-        <group position={[0, -0.95, 0]}>
-          {driving ? (
-            <Vehicle color="#d5ff78" />
-          ) : (
-            <CharacterModel asset={PLAYER_ASSET} motion={motion} color="#d5ff78" />
-          )}
+        <group position={[0, -bodyCenter(posture), 0]} userData={{ localCharacter: true }}>
+          <CharacterModel
+            asset={PLAYER_ASSET}
+            motion={motion}
+            color="#d5ff78"
+            armed={actor.equipment.pistol?.equipped === true}
+          />
         </group>
       </Ecctrl>
       <CameraControls
         ref={camera}
+        enabled={enabled && inputEnabled}
         makeDefault
-        minDistance={3}
+        minDistance={1.5}
         maxDistance={500}
-        maxPolarAngle={Math.PI / 2.15}
+        maxPolarAngle={Math.PI - 0.2}
         minPolarAngle={0.2}
         smoothTime={0.18}
-        onControlStart={() => {
-          orbiting.current = true;
+        mouseButtons={{
+          left: CameraControlsImpl.ACTION.ROTATE,
+          right: CameraControlsImpl.ACTION.ROTATE,
+          middle: CameraControlsImpl.ACTION.NONE,
+          wheel: CameraControlsImpl.ACTION.DOLLY,
         }}
-        onControlEnd={() => {
-          orbiting.current = false;
-        }}
+      />
+      <SceneCameraColliders
+        attach={controllerActions.attachCameraColliders}
+        boxes={inside ? GUESTHOUSE_COLLIDERS : BUILDINGS}
+        disabled={overview}
       />
     </>
   );

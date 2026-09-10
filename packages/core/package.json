@@ -5,6 +5,7 @@
   "exports": {
     "./world": "./src/world.ts",
     "./actions": "./src/actions.ts",
+    "./gameplay-v2": "./src/gameplay-v2.ts",
     "./characters": "./src/characters.ts",
     "./conversations": "./src/conversations.ts",
     "./protocol": "./src/protocol.ts",

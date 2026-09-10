@@ -1,0 +1,226 @@
+{
+  "flow_id": "NK78dmxCwdR3ALPkfo9h",
+  "flow_name": "GPT8 City Audio Review 2026-09-10",
+  "session_ids": [
+    "1dbZTWOondovxgPkBJD3",
+    "lNICYz8VJLoigWzvNPeI",
+    "4KXu8HgZXi3ysYfSWrJf",
+    "co8eCbOlCEmGald35NcV",
+    "1opzrdKF517GaQNGaClL",
+    "u9uvRCMuRN0szzhpk30R"
+  ],
+  "generation_ids": [
+    "2AVYBqwGCsa6xlmYt3U2",
+    "WOSfuLnidFSDkqXQT87I",
+    "fZYtprH0MLmj1KMKLk1v",
+    "wIg2y74p0Qd6Ro3qBcdd",
+    "t0xGJlVEdRg1fSXPUX53",
+    "cQeMAEI8KKQSNRmfn0WE"
+  ],
+  "candidates": [
+    {
+      "basename": "car-idle.mp3",
+      "requested_duration_seconds": 8,
+      "loop": true,
+      "prompt": "Real compact petrol car engine idling steadily at a quiet curb. Close exterior engine perspective, low mechanical hum with subtle natural vibration. Constant RPM and stable distance for a seamless loop. No acceleration, driving, passing vehicles, horns, speech, music, sirens, or abrupt events.",
+      "requested_model": "eleven_text_to_sound_v2",
+      "actual_model": "eleven_text_to_sound_v2",
+      "actual_duration_seconds": 8,
+      "prompt_influence": 0.3,
+      "credits": 79.9968,
+      "original_asset_id": "unknown",
+      "original_basename": "content.mp3",
+      "status": "completed",
+      "node_id": "UzvOytqjhNivPCioW7Zr",
+      "session_id": "1dbZTWOondovxgPkBJD3",
+      "generation_id": "2AVYBqwGCsa6xlmYt3U2",
+      "cost": {
+        "credits": 79.9968,
+        "price_cents": 0.9599999999999999,
+        "cost_fiat_currency": "usd"
+      },
+      "provider_status": "completed",
+      "file_bytes": 146029,
+      "file_duration_seconds": 8.0,
+      "audio_format": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      },
+      "validation": {
+        "decode": "passed",
+        "listening": "pending"
+      }
+    },
+    {
+      "basename": "car-drive.mp3",
+      "requested_duration_seconds": 10,
+      "loop": true,
+      "prompt": "Real compact petrol car driving at a steady moderate speed. Stable restrained engine load with quiet road and tire texture from beside the car. Consistent RPM and distance for a seamless loop. No acceleration, gear changes, pass-by, horn, speech, music, sirens, or abrupt events.",
+      "requested_model": "eleven_text_to_sound_v2",
+      "actual_model": "eleven_text_to_sound_v2",
+      "actual_duration_seconds": 10,
+      "prompt_influence": 0.3,
+      "credits": 99.99599999999998,
+      "original_asset_id": "unknown",
+      "original_basename": "content.mp3",
+      "status": "completed",
+      "node_id": "UETOQyb1yDiyEcduWAzb",
+      "session_id": "lNICYz8VJLoigWzvNPeI",
+      "generation_id": "WOSfuLnidFSDkqXQT87I",
+      "cost": {
+        "credits": 99.99599999999998,
+        "price_cents": 1.1999999999999997,
+        "cost_fiat_currency": "usd"
+      },
+      "provider_status": "completed",
+      "file_bytes": 177794,
+      "file_duration_seconds": 10.0,
+      "audio_format": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      },
+      "validation": {
+        "decode": "passed",
+        "listening": "pending"
+      }
+    },
+    {
+      "basename": "helicopter.mp3",
+      "requested_duration_seconds": 12,
+      "loop": true,
+      "prompt": "A distant civilian helicopter above a city, steady rotor thrum and soft air texture. Stable distant position and constant rotor speed for a seamless loop. Subdued urban perspective. No approach, departure, gunfire, explosions, speech, radio, music, sirens, or sudden foreground sound.",
+      "requested_model": "eleven_text_to_sound_v2",
+      "actual_model": "eleven_text_to_sound_v2",
+      "actual_duration_seconds": 12,
+      "prompt_influence": 0.3,
+      "credits": 119.9952,
+      "original_asset_id": "unknown",
+      "original_basename": "content.mp3",
+      "status": "completed",
+      "node_id": "6te9BnsUod6ClIzufISe",
+      "session_id": "4KXu8HgZXi3ysYfSWrJf",
+      "generation_id": "fZYtprH0MLmj1KMKLk1v",
+      "cost": {
+        "credits": 119.9952,
+        "price_cents": 1.44,
+        "cost_fiat_currency": "usd"
+      },
+      "provider_status": "completed",
+      "file_bytes": 209977,
+      "file_duration_seconds": 12.0,
+      "audio_format": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      },
+      "validation": {
+        "decode": "passed",
+        "listening": "pending"
+      }
+    },
+    {
+      "basename": "crowd.mp3",
+      "requested_duration_seconds": 20,
+      "loop": true,
+      "prompt": "A small group of pedestrians in an open stone city plaza. Soft nonverbal human crowd murmur and indistinct conversation texture, a few natural gentle footsteps. Calm everyday public space, stable subdued texture for a seamless loop. No intelligible words, identifiable voices, music, sirens, horns, shouting, or sudden foreground events.",
+      "requested_model": "eleven_text_to_sound_v2",
+      "actual_model": "eleven_text_to_sound_v2",
+      "actual_duration_seconds": 20,
+      "prompt_influence": 0.3,
+      "credits": 199.99199999999996,
+      "original_asset_id": "unknown",
+      "original_basename": "content.mp3",
+      "status": "completed",
+      "node_id": "X03QNhpWsVkvl7xLSNRf",
+      "session_id": "co8eCbOlCEmGald35NcV",
+      "generation_id": "wIg2y74p0Qd6Ro3qBcdd",
+      "cost": {
+        "credits": 199.99199999999996,
+        "price_cents": 2.3999999999999995,
+        "cost_fiat_currency": "usd"
+      },
+      "provider_status": "completed",
+      "file_bytes": 337872,
+      "file_duration_seconds": 20.0,
+      "audio_format": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      },
+      "validation": {
+        "decode": "passed",
+        "listening": "pending"
+      }
+    },
+    {
+      "basename": "traffic-horn.mp3",
+      "requested_duration_seconds": 1,
+      "loop": false,
+      "prompt": "One brief realistic car horn beep outdoors with a short natural distant tail. Restrained ordinary compact car horn, isolated effect. No other traffic, engine, speech, music, sirens, repetition, or abrupt cut.",
+      "requested_model": "eleven_text_to_sound_v2",
+      "actual_model": "eleven_text_to_sound_v2",
+      "actual_duration_seconds": 1,
+      "prompt_influence": 0.3,
+      "credits": 9.9996,
+      "original_asset_id": "unknown",
+      "original_basename": "content.mp3",
+      "status": "completed",
+      "node_id": "dudR2sSiauKZwB5rmI2y",
+      "session_id": "1opzrdKF517GaQNGaClL",
+      "generation_id": "t0xGJlVEdRg1fSXPUX53",
+      "cost": {
+        "credits": 9.9996,
+        "price_cents": 0.11999999999999998,
+        "cost_fiat_currency": "usd"
+      },
+      "provider_status": "completed",
+      "file_bytes": 34016,
+      "file_duration_seconds": 1.0,
+      "audio_format": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      },
+      "validation": {
+        "decode": "passed",
+        "listening": "pending"
+      }
+    },
+    {
+      "basename": "police-radio.mp3",
+      "requested_duration_seconds": 2,
+      "loop": false,
+      "prompt": "A short analogue portable radio squelch and static chatter texture, then click off. Pure nonverbal radio noise suggesting a handheld police radio, but absolutely no intelligible words or claimed dispatch. No speech, music, sirens, engine, or other background sounds.",
+      "requested_model": "eleven_text_to_sound_v2",
+      "actual_model": "eleven_text_to_sound_v2",
+      "actual_duration_seconds": 2,
+      "prompt_influence": 0.3,
+      "credits": 19.9992,
+      "original_asset_id": "unknown",
+      "original_basename": "content.mp3",
+      "status": "completed",
+      "node_id": "lwthZLkcvYfZ2yYj5abF",
+      "session_id": "u9uvRCMuRN0szzhpk30R",
+      "generation_id": "cQeMAEI8KKQSNRmfn0WE",
+      "cost": {
+        "credits": 19.9992,
+        "price_cents": 0.23999999999999996,
+        "cost_fiat_currency": "usd"
+      },
+      "provider_status": "completed",
+      "file_bytes": 49898,
+      "file_duration_seconds": 2.0,
+      "audio_format": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      },
+      "validation": {
+        "decode": "passed",
+        "listening": "pending"
+      }
+    }
+  ]
+}

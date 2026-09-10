@@ -1,6 +1,6 @@
 import type { PlayerAction } from "@gpta/core/actions";
-import { SCENE_IDS } from "@gpta/core/scene";
 import { isActor, type Entity, type Player } from "@gpta/core/world";
+import { SCENE_IDS } from "@gpta/core/scene";
 import { LeaveGuesthouse } from "./mission-actions";
 
 /** Physical actions remain explicit controls while NPC conversations use free text. */
@@ -19,26 +19,6 @@ export function InteractionControls({
 }) {
   return (
     <div className="interaction-buttons">
-      {entity.id === SCENE_IDS.mila &&
-        player.stunt?.stage !== "running" &&
-        player.stunt?.stage !== "completed" && (
-          <button
-            className="primary-button"
-            disabled={!canAct}
-            onClick={() => act({ type: "start_stunt", targetId: entity.id })}
-          >
-            Start Last Flight · ₽250
-          </button>
-        )}
-      {entity.id === SCENE_IDS.helipad && player.stunt?.stage === "running" && (
-        <button
-          className="primary-button"
-          disabled={!canAct || player.behavior.type === "driving" || player.stunt.checkpoint < 4}
-          onClick={() => act({ type: "finish_stunt", targetId: entity.id })}
-        >
-          Hand over film
-        </button>
-      )}
       <LeaveGuesthouse player={player} enabled={enabled} act={act} />
       {player.behavior.type === "driving" && (
         <button
@@ -52,10 +32,10 @@ export function InteractionControls({
           Exit vehicle
         </button>
       )}
-      {entity.kind === "vehicle" && player.behavior.type !== "driving" && (
+      {entity.kind === "vehicle" && (
         <button
           className="primary-button"
-          disabled={!canAct}
+          disabled={!canAct || player.behavior.type === "driving"}
           onClick={() => act({ type: "take_vehicle", targetId: entity.id })}
         >
           Take vehicle
@@ -63,17 +43,17 @@ export function InteractionControls({
       )}
       {isActor(entity) && (
         <button disabled={!canAct} onClick={() => act({ type: "hit", targetId: entity.id })}>
-          Hit NPC
+          Hit
         </button>
       )}
-      {(entity.kind === "business" || entity.kind === "location") && (
+      {entity.id === SCENE_IDS.guesthouse && (
         <button disabled={!canAct} onClick={() => act({ type: "enter", targetId: entity.id })}>
-          Enter location
+          Enter guesthouse
         </button>
       )}
       {entity.kind === "business" && (
         <button disabled={!canAct} onClick={() => act({ type: "rob", targetId: entity.id })}>
-          Rob location
+          Rob
         </button>
       )}
     </div>

@@ -8,13 +8,13 @@ import {
   type ToolAction,
 } from "@gpta/core/actions";
 import { RequestSchema, type Request as WorldRequest } from "@gpta/core/protocol";
-import { MOVEMENT, isInsideGuesthouse } from "@gpta/core/scene";
+import { isInsideGuesthouse } from "@gpta/core/scene";
 import {
   addPlayer,
   advanceMovement,
   advanceRoutines,
   createInitialWorld,
-  movePlayer,
+  repairWorldPositions,
 } from "@gpta/core/simulation";
 import {
   EntityIdSchema,
@@ -30,12 +30,14 @@ import type { Person } from "./person";
 import { characterProfile } from "@gpta/core/characters";
 import type { ConversationAction, ConversationTurn, TurnId } from "@gpta/core/conversations";
 import { Conversations } from "./conversations";
+import { PlayerMovement } from "./player-movement";
+import { PhysicsRuntime } from "./physics-runtime";
 
 const attachmentSchema = z.object({
   playerId: EntityIdSchema,
+  connectionId: z.string().default(() => crypto.randomUUID()),
   window: z.number(),
   messages: z.number(),
-  lastMove: z.number(),
 });
 const toolResultSchema = z.discriminatedUnion("accepted", [
   z.object({ accepted: z.literal(true), revision: z.number(), eventIds: z.array(z.string()) }),
@@ -49,6 +51,8 @@ const toolResultSchema = z.discriminatedUnion("accepted", [
 export class World extends DurableObject<Env> {
   private readonly store: WorldStore;
   private world: WorldSnapshot;
+  private readonly movement: PlayerMovement;
+  private readonly physics: PhysicsRuntime;
   private movementTimer: ReturnType<typeof setInterval> | undefined;
   private peopleInitialized = false;
   private nextWorkflowInspection = 0;
@@ -57,11 +61,15 @@ export class World extends DurableObject<Env> {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.store = new WorldStore(ctx.storage);
-    this.world = this.store.load() ?? createInitialWorld(Date.now(), Boolean(env.OPENAI_API_KEY));
+    this.world = repairWorldPositions(
+      this.store.load() ?? createInitialWorld(Date.now(), Boolean(env.OPENAI_API_KEY)),
+    );
     this.world = {
       ...this.world,
       ai: { status: env.OPENAI_API_KEY ? "ready" : "disabled", model: env.OPENAI_MODEL },
     };
+    this.movement = new PlayerMovement(this.world, Date.now());
+    this.physics = new PhysicsRuntime(this.world, Date.now());
     this.conversations = new Conversations({
       storage: ctx.storage,
       worldStore: this.store,
@@ -115,11 +123,12 @@ export class World extends DurableObject<Env> {
     if (this.ctx.getWebSockets().length >= 20) return problem(429, "This world is full.");
     const pair = new WebSocketPair();
     this.ctx.acceptWebSocket(pair[1]);
+    this.movement.connect(identity.data, Date.now());
     pair[1].serializeAttachment({
       playerId: identity.data,
+      connectionId: crypto.randomUUID(),
       window: Date.now(),
       messages: 0,
-      lastMove: Date.now(),
     });
     this.startMovement();
     return new Response(null, {
@@ -207,25 +216,33 @@ export class World extends DurableObject<Env> {
         socket.send(JSON.stringify({ jsonrpc: "2.0", id: request.id, result }));
         return;
       }
+      if (request.method === "player.control") {
+        const result = this.physics.control(
+          this.world,
+          attachment.playerId,
+          request.params,
+          attachment.connectionId,
+          now,
+        );
+        if (!result.accepted) {
+          this.sendError(socket, request.id, -32000, result.error.message);
+          return;
+        }
+        this.world = result.world;
+        socket.send(JSON.stringify({ jsonrpc: "2.0", id: request.id, result: result.result }));
+        return;
+      }
       if (request.method === "player.move") {
-        const player = this.world.entities.find((entity) => entity.id === attachment.playerId);
-        const speed =
-          player && isActor(player) && player.behavior.type === "driving"
-            ? MOVEMENT.driveSpeed
-            : MOVEMENT.walkSpeed;
-        const maxDistance = Math.min(0.5, (now - attachment.lastMove) / 1000) * speed + 0.2;
-        const result = movePlayer(
+        if (this.physics.controlsPosition(this.world, attachment.playerId)) {
+          this.sendError(socket, request.id, -32000, "Use movement controls for this player.");
+          return;
+        }
+        const result = this.movement.move(
           this.world,
           attachment.playerId,
           request.params.position,
-          maxDistance,
+          now,
         );
-        socket.serializeAttachment({
-          ...attachment,
-          window: messages === 1 ? now : attachment.window,
-          messages,
-          lastMove: now,
-        });
         if (!result) {
           this.sendError(socket, request.id, -32000, "Movement exceeds speed or collision limits.");
           return;
@@ -252,16 +269,31 @@ export class World extends DurableObject<Env> {
         );
         return;
       }
-      const result = applyPlayerAction(this.world, attachment.playerId, request.params.action, {
-        id: crypto.randomUUID(),
-        now,
-      });
+      this.world = this.physics.advance(this.world, now);
+      if (request.method === "player.act") {
+        const error = this.physics.validateAction(
+          this.world,
+          attachment.playerId,
+          request.params.action,
+        );
+        if (error) {
+          this.sendError(socket, request.id, -32000, error.message);
+          return;
+        }
+      }
+      const context = { id: crypto.randomUUID(), now };
+      const result =
+        request.method === "player.command"
+          ? this.physics.command(this.world, attachment.playerId, request.params.command, context)
+          : applyPlayerAction(this.world, attachment.playerId, request.params.action, context);
       if (!result.accepted) {
         this.sendError(socket, request.id, -32000, result.error.message);
         return;
       }
       const receipt = { revision: result.world.revision, eventIds: result.eventIds };
       this.store.save(result.world, { id: key, result: receipt });
+      this.movement.settleTransition(this.world, result.world, attachment.playerId, now);
+      this.physics.afterAction(this.world, result.world, attachment.playerId);
       this.world = result.world;
       socket.send(JSON.stringify({ jsonrpc: "2.0", id: request.id, result: receipt }));
       this.broadcast();
@@ -274,6 +306,8 @@ export class World extends DurableObject<Env> {
 
   /** Close the connection and checkpoint; city routines still run through alarms. */
   override webSocketClose(socket: WebSocket, code: number): void {
+    const attachment = attachmentSchema.parse(socket.deserializeAttachment());
+    this.physics.disconnect(attachment.connectionId);
     socket.close(code === 1005 || code === 1006 ? 1000 : code, "Connection closed.");
     this.store.save(this.world);
     if (
@@ -285,6 +319,8 @@ export class World extends DurableObject<Env> {
 
   /** Transport errors end only the affected connection. */
   override webSocketError(socket: WebSocket): void {
+    const attachment = attachmentSchema.parse(socket.deserializeAttachment());
+    this.physics.disconnect(attachment.connectionId);
     socket.close(1011, "Connection failed.");
     this.store.save(this.world);
   }
@@ -309,9 +345,9 @@ export class World extends DurableObject<Env> {
   private startMovement(): void {
     if (this.movementTimer || this.ctx.getWebSockets().length === 0) return;
     this.movementTimer = setInterval(() => {
-      this.world = advanceMovement(this.world, 0.2);
+      this.world = this.physics.advance(advanceMovement(this.world, 0.05), Date.now());
       this.broadcast();
-    }, 200);
+    }, 50);
   }
 
   private stopMovement(): void {

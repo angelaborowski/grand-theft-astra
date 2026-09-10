@@ -1,0 +1,241 @@
+.astra-dialog.astra-conversation-dialog {
+  position: fixed;
+  inset: auto 0 var(--astra-screen-gutter);
+  isolation: isolate;
+  width: min(720px, calc(100% - 2 * var(--astra-screen-gutter)));
+  max-height: min(240px, 32dvh);
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.astra-conversation-dialog::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.astra-conversation-dialog::before {
+  position: fixed;
+  z-index: -1;
+  inset: auto 0 0;
+  height: min(320px, 40dvh);
+  background: linear-gradient(0deg, rgb(0 0 0 / 72%), transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.astra-conversation {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 8px;
+  max-height: min(240px, 32dvh);
+  color: var(--astra-text);
+  font: var(--astra-weight-normal) var(--astra-text-body)/20px var(--astra-font-ui);
+  text-shadow: var(--astra-text-shadow);
+}
+
+.astra-conversation-speech {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.astra-conversation-speaker {
+  flex-shrink: 0;
+  font-weight: var(--astra-weight-bold);
+}
+
+.astra-conversation-subtitles {
+  display: flex;
+  flex-direction: column-reverse;
+  max-height: 84px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  font: var(--astra-weight-normal) var(--astra-text-heading)/28px var(--astra-font-ui);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.astra-conversation-subtitles > p {
+  flex-shrink: 0;
+}
+
+.astra-conversation-compose {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.astra-conversation-compose form {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  border-bottom: 1px solid var(--astra-line);
+  background: rgb(0 0 0 / 38%);
+}
+
+.astra-conversation-compose textarea {
+  flex: 1;
+  field-sizing: content;
+  min-width: 0;
+  min-height: 36px;
+  max-height: 76px;
+  margin: 0;
+  padding: 8px;
+  border: 0;
+  border-radius: 0;
+  resize: none;
+  overflow-y: auto;
+  background: transparent;
+  color: var(--astra-text);
+  font: var(--astra-weight-normal) var(--astra-text-body)/20px var(--astra-font-ui);
+}
+
+.astra-conversation-compose textarea::placeholder {
+  color: var(--astra-muted);
+  opacity: 1;
+}
+
+.astra-conversation-compose textarea:disabled {
+  color: var(--astra-muted);
+  opacity: 1;
+}
+
+.astra-conversation button,
+.astra-conversation-recovery button {
+  flex-shrink: 0;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--astra-text);
+  font: var(--astra-weight-normal) var(--astra-text-small)/16px var(--astra-font-ui);
+  text-shadow: var(--astra-text-shadow);
+}
+
+.astra-conversation-compose form > button {
+  min-height: 36px;
+}
+
+.astra-conversation button:hover:not(:disabled),
+.astra-conversation button[aria-pressed="true"],
+.astra-conversation-recovery button:hover:not(:disabled) {
+  color: var(--astra-ink);
+  background: var(--astra-text);
+  text-shadow: none;
+}
+
+.astra-conversation button .astra-control-hint {
+  color: inherit;
+  font-weight: var(--astra-weight-normal);
+}
+
+.astra-conversation :is(button, textarea, [tabindex]):focus-visible,
+.astra-conversation-recovery button:focus-visible {
+  outline: var(--astra-focus);
+  outline-offset: 2px;
+}
+
+.astra-conversation-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.astra-conversation-toolbar > :first-child {
+  flex: 1;
+}
+
+.astra-conversation-feedback,
+.astra-conversation-status {
+  color: var(--astra-muted);
+  font: var(--astra-weight-normal) var(--astra-text-small)/16px var(--astra-font-ui);
+}
+
+.astra-conversation-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+.astra-conversation-feedback[role="alert"] {
+  color: var(--astra-text);
+}
+
+.astra-conversation-history {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  font: var(--astra-weight-normal) var(--astra-text-body)/20px var(--astra-font-ui);
+}
+
+.astra-conversation-history ol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.astra-conversation-history strong {
+  font-weight: var(--astra-weight-bold);
+}
+
+.astra-conversation-question {
+  margin-bottom: 8px;
+  color: var(--astra-muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.astra-conversation-history .astra-conversation-subtitles {
+  display: block;
+  max-height: none;
+  overflow: visible;
+  font: inherit;
+}
+
+.astra-conversation-recovery {
+  position: absolute;
+  z-index: var(--astra-layer-overlay);
+  bottom: var(--astra-screen-gutter);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100% - 2 * var(--astra-screen-gutter));
+  padding: 8px 12px;
+  border-top: 2px solid var(--astra-accent);
+  background: var(--astra-panel);
+  color: var(--astra-text);
+  font: var(--astra-weight-normal) var(--astra-text-small)/16px var(--astra-font-ui);
+}
+
+@media (max-width: 600px) {
+  .astra-conversation-toolbar {
+    gap: 4px;
+  }
+  .astra-conversation-toolbar > :first-child {
+    min-width: 0;
+  }
+  .astra-conversation button {
+    padding-inline: 4px;
+  }
+  .astra-conversation-recovery {
+    flex-wrap: wrap;
+  }
+}

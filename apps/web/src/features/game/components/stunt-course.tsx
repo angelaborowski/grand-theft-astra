@@ -5,7 +5,13 @@ import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { HelicopterModel } from "./helicopter-model";
 
 /** Fictional movie-set props. The server checks route order, deadline, and handoff. */
-export function StuntCourse({ player }: { player: Player }) {
+export function StuntCourse({
+  player,
+  helicopterVisible = true,
+}: {
+  player: Player;
+  helicopterVisible?: boolean;
+}) {
   const next = player.stunt?.stage === "running" ? player.stunt.checkpoint : -1;
   return (
     <>
@@ -54,9 +60,14 @@ export function StuntCourse({ player }: { player: Player }) {
         <Html position={[0, 1.5, 0]} center distanceFactor={22}>
           <span className="route-label">HELICOPTER PICKUP</span>
         </Html>
-        <HelicopterModel
-          departing={player.stunt?.stage === "completed" || player.stunt?.stage === "failed"}
-        />
+        {helicopterVisible && (
+          <HelicopterModel
+            motion={{
+              mode: "departure",
+              departing: player.stunt?.stage === "completed" || player.stunt?.stage === "failed",
+            }}
+          />
+        )}
       </group>
     </>
   );

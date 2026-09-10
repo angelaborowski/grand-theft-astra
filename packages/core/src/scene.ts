@@ -11,6 +11,11 @@ export const SCENE_IDS = {
   shop: EntityIdSchema.parse("business-kiosk"),
   headquarters: EntityIdSchema.parse("location-police"),
   helipad: EntityIdSchema.parse("location-helipad"),
+  helicopter: EntityIdSchema.parse("vehicle-helicopter"),
+  pistolPickup: EntityIdSchema.parse("pickup-pistol"),
+  ammoPickup: EntityIdSchema.parse("pickup-ammo-1"),
+  secondAmmoPickup: EntityIdSchema.parse("pickup-ammo-2"),
+  practiceTarget: EntityIdSchema.parse("target-practice"),
   square: EntityIdSchema.parse("location-square"),
   mila: EntityIdSchema.parse("person-witness"),
   lev: EntityIdSchema.parse("person-merchant"),
@@ -24,11 +29,33 @@ export const SCENE_IDS = {
 } as const;
 /** Shared rules prevent client and server movement from diverging. */
 export const MOVEMENT = {
-  walkSpeed: 7,
+  crouchSpeed: 2.5,
+  walkSpeed: 5.6,
+  runSpeed: 7,
   driveSpeed: 16,
+  helicopterSpeed: 20,
   interactionRange: 7,
   actorRadius: 0.45,
 } as const;
+/** The shelter journey requires these characters to remain alive. */
+export const PROTECTED_CHARACTER_IDS = [
+  SCENE_IDS.mila,
+  SCENE_IDS.lev,
+  SCENE_IDS.niko,
+  SCENE_IDS.irina,
+  SCENE_IDS.sasha,
+  SCENE_IDS.alexei,
+] as const;
+/** Boxes start at the gameplay floor; their vertical center is half their height. */
+export type CollisionBox = Readonly<{
+  x: number;
+  z: number;
+  width: number;
+  depth: number;
+  height: number;
+}>;
+/** Allow small solver penetration without adding any movement distance. */
+export const CONTACT_TOLERANCE = 0.01;
 /** Angela's GLB uses native meters; its paving surface sits 0.12 meters above the gameplay floor. */
 export const RED_SQUARE_SCENE = { asset: "/assets/red-square.glb", offsetY: -0.12 } as const;
 /** These limits match the playable area in Angela's original world.mjs. */
@@ -46,6 +73,10 @@ export const SCENE_POSITIONS = {
   vehicle: { x: 43, z: 86 },
   shop: { x: 56, z: 82 },
   square: { x: 25, z: 100 },
+  pistolPickup: { x: 40, z: 78 },
+  ammoPickup: { x: 44, z: 78 },
+  secondAmmoPickup: { x: 23, z: -88 },
+  practiceTarget: { x: 30, z: 72 },
 } as const;
 /** The guesthouse uses a separate physical room; only explicit door actions cross between spaces. */
 export const GUESTHOUSE = {
@@ -55,6 +86,55 @@ export const GUESTHOUSE = {
   bed: { x: 99, z: -3 },
   bounds: { minX: 90, maxX: 102, minZ: -6, maxZ: 6 },
 } as const;
+const guesthouseWallThickness = 0.3;
+const roomWidth = GUESTHOUSE.bounds.maxX - GUESTHOUSE.bounds.minX;
+const roomDepth = GUESTHOUSE.bounds.maxZ - GUESTHOUSE.bounds.minZ;
+const roomCenterX = (GUESTHOUSE.bounds.minX + GUESTHOUSE.bounds.maxX) / 2;
+const roomCenterZ = (GUESTHOUSE.bounds.minZ + GUESTHOUSE.bounds.maxZ) / 2;
+/** Room wall boxes retain the existing wall centers and physical height. */
+export const GUESTHOUSE_WALLS = [
+  {
+    id: "west-wall",
+    x: GUESTHOUSE.bounds.minX,
+    z: roomCenterZ,
+    width: guesthouseWallThickness,
+    depth: roomDepth,
+    height: 4,
+  },
+  {
+    id: "east-wall",
+    x: GUESTHOUSE.bounds.maxX,
+    z: roomCenterZ,
+    width: guesthouseWallThickness,
+    depth: roomDepth,
+    height: 4,
+  },
+  {
+    id: "north-wall",
+    x: roomCenterX,
+    z: GUESTHOUSE.bounds.minZ,
+    width: roomWidth,
+    depth: guesthouseWallThickness,
+    height: 4,
+  },
+  {
+    id: "south-wall",
+    x: roomCenterX,
+    z: GUESTHOUSE.bounds.maxZ,
+    width: roomWidth,
+    depth: guesthouseWallThickness,
+    height: 4,
+  },
+] as const satisfies readonly (CollisionBox & { readonly id: string })[];
+/** Conservative furniture boxes include furnishRoom's 0.6 horizontal scale and -0.145 vertical offset. */
+export const GUESTHOUSE_FURNITURE = [
+  { id: "bed", x: 99, z: -3.0345, width: 1.26, depth: 1.599, height: 1.055 },
+  { id: "bedside-table", x: 98.01, z: -3.48, width: 0.39, depth: 0.33, height: 1.085 },
+  { id: "desk", x: 91.92, z: -3, width: 1.02, depth: 0.48, height: 0.81 },
+  { id: "chair", x: 91.92, z: -2.28, width: 0.318, depth: 0.33, height: 1.055 },
+] as const satisfies readonly (CollisionBox & { readonly id: string })[];
+/** The server, Rapier, and camera consume the same room boxes. */
+export const GUESTHOUSE_COLLIDERS = [...GUESTHOUSE_WALLS, ...GUESTHOUSE_FURNITURE] as const;
 /** Position is the canonical fact that determines which space the player occupies. */
 export function isInsideGuesthouse(position: Position): boolean {
   const bounds = GUESTHOUSE.bounds;
@@ -165,14 +245,16 @@ export function migrateDistrictPosition(position: Position): Position {
 }
 /** Both physics setup and server checks use these same footprints. */
 export function positionIsWalkable(position: Position): boolean {
-  const r = MOVEMENT.actorRadius;
+  if (!Number.isFinite(position.x) || !Number.isFinite(position.z)) return false;
+  const r = MOVEMENT.actorRadius - CONTACT_TOLERANCE;
   if (isInsideGuesthouse(position)) {
     const bounds = GUESTHOUSE.bounds;
     return (
       position.x >= bounds.minX + r &&
       position.x <= bounds.maxX - r &&
       position.z >= bounds.minZ + r &&
-      position.z <= bounds.maxZ - r
+      position.z <= bounds.maxZ - r &&
+      !GUESTHOUSE_COLLIDERS.some((box) => circleOverlapsBox(position, box, r))
     );
   }
   if (
@@ -182,11 +264,13 @@ export function positionIsWalkable(position: Position): boolean {
     position.z > DISTRICT_BOUNDS.maxZ - r
   )
     return false;
-  return !BUILDINGS.some(
-    (building) =>
-      Math.abs(position.x - building.x) < building.width / 2 + r &&
-      Math.abs(position.z - building.z) < building.depth / 2 + r,
-  );
+  return !BUILDINGS.some((building) => circleOverlapsBox(position, building, r));
+}
+
+function circleOverlapsBox(position: Position, box: CollisionBox, radius: number): boolean {
+  const dx = Math.max(Math.abs(position.x - box.x) - box.width / 2, 0);
+  const dz = Math.max(Math.abs(position.z - box.z) - box.depth / 2, 0);
+  return dx * dx + dz * dz < radius * radius;
 }
 
 /** Fictional film-stunt course in the clear central corridor; all coordinates are shared. */

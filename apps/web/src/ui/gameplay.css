@@ -1,0 +1,47 @@
+.gameplay-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  text-shadow: var(--astra-text-shadow);
+}
+
+.gameplay-reticle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--astra-text);
+  font-size: var(--astra-text-heading);
+  line-height: 1;
+}
+
+.gameplay-equipment {
+  position: absolute;
+  right: var(--astra-screen-gutter);
+  top: calc(var(--astra-screen-gutter) + 5rem);
+  display: grid;
+  gap: 0.4rem;
+  text-align: right;
+  font-size: var(--astra-text-body);
+}
+
+.gameplay-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  max-width: 70%;
+  text-align: center;
+}
+
+.gameplay-prompt > span,
+.gameplay-prompt > p {
+  padding: 0.5rem 0.8rem;
+  background: var(--astra-panel);
+  color: var(--astra-text);
+  font-size: var(--astra-text-body);
+}

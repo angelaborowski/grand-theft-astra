@@ -15,9 +15,9 @@ export function InteractionTarget({
 }) {
   return (
     <label className="target-select">
-      Target
+      Select
       <select
-        aria-label="Interaction target"
+        aria-label="Person or place"
         value={entity.id}
         onChange={(event) => {
           const target = entities.find((entry) => entry.id === event.target.value);
@@ -29,6 +29,9 @@ export function InteractionTarget({
             (entry) =>
               entry.id !== player.id &&
               isInsideGuesthouse(entry.position) === isInsideGuesthouse(player.position),
+          )
+          .toSorted(
+            (a, b) => distance(player.position, a.position) - distance(player.position, b.position),
           )
           .map((entry) => (
             <option key={entry.id} value={entry.id}>
