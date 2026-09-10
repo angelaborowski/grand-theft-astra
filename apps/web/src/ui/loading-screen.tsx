@@ -6,7 +6,7 @@ export type LoadingScreenState =
   | { status: "pending"; message: string }
   | { status: "failed"; message: string; actions: { retry: () => void; label: string } };
 
-/** Decorative artwork never controls readiness or delays entry to the city. */
+/** Artwork cycles while the game prepares the scene and waits for its minimum display time. */
 export function LoadingScreen({
   state,
   overlay = false,
@@ -27,7 +27,7 @@ export function LoadingScreen({
             className="astra-loading-artwork"
             src={artwork.src}
             alt=""
-            style={{ objectPosition: artwork.position, animationDelay: `${index * 8 - 1.2}s` }}
+            style={{ objectPosition: artwork.position, animationDelay: `${index * 2 - 0.3}s` }}
             fetchPriority={index === 0 ? "high" : "low"}
           />
         ))}

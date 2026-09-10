@@ -743,3 +743,9 @@ Browser samples initially showed roughly15FPS outdoors and106–120FPS in the mu
 Cherry-picked Alexander’s CI commit `a1d8750` and gameplay commit `077c8a3` onto the existing local work. The combined version uses his server-authoritative movement, helicopter controls, audio and menus while retaining the museum opening, character assets, expanded cast, sky, snow and direct mission launch. Museum floor and wall colliders are shared between browser and server; crossing its exit resets movement and places the player in the square. Existing saves and mission progress are preserved.
 
 Integration verification passed: `pnpm check` (37 browser-model, 54 core and 35 server tests), 10 original prototype tests, and the Storybook build. This includes authoritative museum traversal and saved floor-height repair. The Museum Opening story is available through `pnpm storybook` at http://localhost:6006/?path=/story/game-grand-theft-astra-game-shell--museum-opening. Browser and performance verification remain separate from automated checks; this integration does not establish a constant frame rate or exact photographic character likeness.
+
+## Complete teammate sync
+
+Included all four remote commits through `77899da`: CI, physics/audio/interface, WASD pointer-lock fix, and `a31c308` loading/Storybook cleanup. Removed the local museum and resident Storybook previews too, because their Storybook dependency is intentionally gone; their actual game components and assets remain. Earlier Storybook verification notes are historical; interface verification now uses the running game.
+
+Compared against local `46d5060`: existing runtime assets, Blender sources, character sources and original prototype files are unchanged; remote audio and interface assets are additions. Museum server traversal, saved progress, direct mission launch, crowd rendering limits and weather remain integrated with the new controls.

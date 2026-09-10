@@ -111,25 +111,37 @@ async function prepare(server: TestHarness) {
     return found;
   };
   const place = async (position: Position = GUESTHOUSE.entrance) => {
-    const env = await worker.getEnv();
-    const world = env.WORLD.getByName(env.WORLD_NAME);
-    const sql = await worker.getDurableObjectStorage("WORLD", { name: env.WORLD_NAME });
-    const current: WorldSnapshot = await world.snapshot();
-    const entities = current.entities.map((entity) => {
-      if (entity.kind === "player") return { ...entity, position };
+    // An active simulation tick can save between the fixture SQL write and reload.
+    // Verify setup before exercising movement; never retry the gameplay assertions.
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const env = await worker.getEnv();
+      const world = env.WORLD.getByName(env.WORLD_NAME);
+      const sql = await worker.getDurableObjectStorage("WORLD", { name: env.WORLD_NAME });
+      const current: WorldSnapshot = await world.snapshot();
+      const entities = current.entities.map((entity) => {
+        if (entity.kind === "player") return { ...entity, position };
+        if (
+          entity.id === SCENE_IDS.mila ||
+          entity.id === SCENE_IDS.lev ||
+          entity.id === SCENE_IDS.niko
+        )
+          return { ...entity, position: { x: 56, z: 64 }, behavior: { type: "idle" as const } };
+        return entity;
+      });
+      await sql.exec(
+        "UPDATE world SET snapshot = ? WHERE id = 1",
+        JSON.stringify({ ...current, entities }),
+      );
+      await server.update((options) => options);
+      const restored = await (await worker.getEnv()).WORLD.getByName(env.WORLD_NAME).snapshot();
       if (
-        entity.id === SCENE_IDS.mila ||
-        entity.id === SCENE_IDS.lev ||
-        entity.id === SCENE_IDS.niko
+        restored.entities
+          .filter((entity) => entity.kind === "player")
+          .every((entity) => entity.position.x === position.x && entity.position.z === position.z)
       )
-        return { ...entity, position: { x: 56, z: 64 }, behavior: { type: "idle" as const } };
-      return entity;
-    });
-    await sql.exec(
-      "UPDATE world SET snapshot = ? WHERE id = 1",
-      JSON.stringify({ ...current, entities }),
-    );
-    await server.update((options) => options);
+        return;
+    }
+    throw new Error("Could not establish the requested physics fixture position.");
   };
   await place();
   const sockets: WebSocket[] = [];

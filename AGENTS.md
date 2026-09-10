@@ -22,7 +22,6 @@ Use pnpm for all JavaScript and TypeScript work. Read package scripts and use th
 - `pnpm dev`: new game on port 3000; Cloudflare backend on port 8787.
 - `pnpm start`: original prototype on port 4173.
 - `pnpm check`: required checks for the new game and the original prototype tests.
-- `pnpm storybook`: interface stories. Update the relevant story when changing the interface.
 - `pnpm cf-typegen`: regenerate binding types after Cloudflare configuration changes.
 
 The pnpm catalog owns dependency versions. Use `catalog:` in package manifests.
@@ -74,7 +73,13 @@ Keep secrets in ignored local files such as `apps/server/.dev.vars`; never print
 Keep `.wrangler/`, `data/`, dependencies, and generated build output out of Git. Preserve local saves during migration.
 Use one independent agent review for substantial changes. Fix its relevant findings without expanding scope.
 Report the visible result, commit when created, checks, and remaining blockers. Report browser verification separately from automated checks.
-Include the Storybook URL for interface changes. Deployment commands and the live domain belong in `docs/implementation-plan.md`.
+Deployment commands and the live domain belong in `docs/implementation-plan.md`.
+
+## Interface verification
+
+Do not create, maintain, run, or use Storybook stories in this project.
+Use the actual game for interface work. Alexander checks loading screens and visual appearance himself.
+This project rule overrides Storybook requirements in personal rules, skills, and older project documents.
 
 ## Git and collaboration
 

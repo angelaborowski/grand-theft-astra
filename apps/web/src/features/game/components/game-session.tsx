@@ -15,6 +15,7 @@ import { PauseMenu } from "./pause-menu";
 import { MovementStatus } from "./movement-status";
 import { CommandFeedback, GameplayHud } from "./gameplay-hud";
 import { useRejectionSound, useSessionAudio } from "../hooks/use-session-audio";
+import { useSceneReady } from "../hooks/use-scene-ready";
 
 export type ReadyWorld = Extract<ReturnType<typeof useWorld>, { status: "ready" }>;
 
@@ -28,7 +29,7 @@ export function GameSession({
 }) {
   const [selectedId, setSelectedId] = useState<EntityId | null>(null);
   const [overview, setOverview] = useState(false);
-  const [sceneReady, setSceneReady] = useState(false);
+  const { ready: sceneReady, setAssetsReady } = useSceneReady();
   const [lookTargetId, setLookTargetId] = useState<EntityId | null>(null);
   const [recoveryActive, setRecoveryActive] = useState(false);
   const [tracking, setTracking] = useState<
@@ -149,7 +150,7 @@ export function GameSession({
             vehicle,
             target: setLookTargetId,
             select: interact,
-            ready: setSceneReady,
+            ready: setAssetsReady,
           }}
         />
       </section>
