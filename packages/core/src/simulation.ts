@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ambientMovement } from "./ambient-movement";
 import {
   crowdPosition,
   GUESTHOUSE,
@@ -449,8 +450,9 @@ export function advanceMovement(world: WorldSnapshot, seconds: number): WorldSna
   return { ...world, revision: world.revision + 1, entities };
 }
 
-/** The clock updates active people; only accepted Astra tools choose their destinations. */
+/** Astra owns destinations when enabled; offline demos use explicit ambient walks. */
 export function advanceRoutines(world: WorldSnapshot, now: number): WorldSnapshot {
+  world = ambientMovement(world, now);
   const activeIds = world.entities
     .filter((entity) => isActor(entity) && entity.kind !== "player")
     .map((entity) => entity.id);

@@ -28,6 +28,7 @@ export function WorldEntities({
         .filter(
           (entity) =>
             entity.id !== playerId &&
+            !(isActor(entity) && entity.behavior.type === "driving") &&
             (entity.kind !== "location" ||
               entity.category === "guesthouse" ||
               entity.id === SCENE_IDS.helipad),
@@ -70,8 +71,16 @@ function WorldEntity({
     const dz = (entity.position.z - group.current.position.z) * alpha;
     group.current.position.x += dx;
     group.current.position.z += dz;
-    motion.current.speed = Math.hypot(dx, dz) / delta;
-    if (motion.current.speed > 0.05) group.current.rotation.y = Math.atan2(dx, dz);
+    const speed = Math.hypot(dx, dz) / delta;
+    motion.current.speed += (speed - motion.current.speed) * (1 - Math.exp(-delta * 5));
+    if (speed > 0.05) {
+      const desired = Math.atan2(dx, dz);
+      const difference = Math.atan2(
+        Math.sin(desired - group.current.rotation.y),
+        Math.cos(desired - group.current.rotation.y),
+      );
+      group.current.rotation.y += Math.max(-delta * 4, Math.min(delta * 4, difference));
+    }
   });
   return (
     <group

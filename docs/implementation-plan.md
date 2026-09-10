@@ -216,3 +216,7 @@ Final integration incorporates Alexander’s persistent conversation commit 8e57
 ### City overview and tree context
 
 Added a separate editable Blender tree asset using a conservative subset of OSM natural=tree locations west of the playable square. Approximate crowns and heights; source attribution, tree positions and export counts are retained in `source/blender/city-landscape/`. A standalone Three.js coverage overview exposes the partial surrounding-city model. Principal square landmarks are present; a convincing city-wide aerial view still needs broader mapped building, street and terrain coverage. The GLB is integrated in the shared React scene using its existing -0.12m group offset. No collision or gameplay changes in this asset pass.
+
+### NPC motion and duplication pass
+
+Remote driving actors no longer render a standing body overlapping their canonical vehicle. Displayed heading turns at a bounded rate and gait speed is smoothed across network updates. With Astra explicitly disabled, healthy idle background person-N residents receive staggered short walks; named quest-givers and players are untouched, and paths are checked against building footprints. Nearby players delay new walks. Astra-enabled worlds retain model-owned destinations. This is scripted local-demo movement, not model reasoning. Saved disconnected player records remain intact; repeated visitor avatars are not automatically duplicate IDs. The hackathon mission expansion is owned by task 01a08ca7-587a-79a2-9f2d-af84c705454b in an isolated clone.
