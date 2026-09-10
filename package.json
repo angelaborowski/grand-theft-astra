@@ -15,7 +15,6 @@
     "format": "oxfmt .",
     "format:check": "git ls-files -z | xargs -0 oxfmt --check",
     "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm build",
-    "storybook": "pnpm --filter @gpta/web storybook",
     "cf-typegen": "pnpm --filter @gpta/server cf-typegen",
     "prepare": "husky"
   },

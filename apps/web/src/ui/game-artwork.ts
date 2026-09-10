@@ -4,7 +4,7 @@ type GameArtwork = {
   readonly position: string;
 };
 
-/** Replace artwork here so the title, loading screens, and stories stay aligned. */
+/** The title and loading screens share these asset definitions. */
 export const menuArtwork: GameArtwork = {
   src: "/assets/interface/menu-arrival.webp",
   title: "Red Square arrival",

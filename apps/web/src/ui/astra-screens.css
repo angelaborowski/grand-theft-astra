@@ -194,7 +194,7 @@
 
 .astra-loading-artwork {
   opacity: 0;
-  animation: astra-artwork-cycle 24s linear infinite;
+  animation: astra-artwork-cycle 6s linear infinite;
 }
 
 .astra-loading-artwork:first-child {
@@ -473,14 +473,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .astra-loading-artwork,
   .astra-loading-indicator {
     animation: none;
-  }
-  .astra-loading-artwork {
-    opacity: 0;
-  }
-  .astra-loading-artwork:first-child {
-    opacity: 1;
   }
 }
