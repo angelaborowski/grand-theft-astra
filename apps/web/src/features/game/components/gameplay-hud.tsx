@@ -27,7 +27,6 @@ export function GameplayHud({
         +
       </span>
       <div className="gameplay-prompt" role="status">
-        {vehicle && <VehicleHints vehicle={vehicle} player={player} />}
         {!vehicle && target && (
           <span>
             <kbd>{target.kind === "vehicle" ? "F" : "E"}</kbd> {targetAction(target)} ·{" "}
@@ -36,11 +35,14 @@ export function GameplayHud({
         )}
         <CommandFeedback command={command} />
       </div>
-      {subtitle && (
-        <p className="gameplay-subtitle" role="status">
-          {subtitle}
-        </p>
-      )}
+      <div className="gameplay-bottom">
+        {subtitle && (
+          <p className="gameplay-subtitle" role="status">
+            {subtitle}
+          </p>
+        )}
+        {vehicle && <VehicleHints vehicle={vehicle} player={player} />}
+      </div>
     </div>
   );
 }

@@ -45,16 +45,22 @@
   font-size: var(--astra-text-body);
 }
 
-.gameplay-subtitle {
+.gameplay-bottom {
   position: absolute;
   left: 50%;
-  bottom: calc(var(--astra-screen-gutter) + var(--astra-text-heading) + var(--astra-space-md));
+  bottom: var(--astra-screen-gutter);
   transform: translateX(-50%);
   width: max-content;
   max-width: min(
     40rem,
     calc(100% - 2 * (var(--astra-screen-gutter) + var(--astra-radar-width) + var(--astra-space-md)))
   );
+  display: grid;
+  justify-items: center;
+  gap: var(--astra-space-md);
+}
+
+.gameplay-subtitle {
   margin: 0;
   text-align: center;
   color: var(--astra-text);
@@ -70,6 +76,7 @@
   background: var(--astra-panel);
   color: var(--astra-text);
   font-size: var(--astra-text-body);
+  text-align: center;
 }
 
 .gameplay-vehicle-hints > div {

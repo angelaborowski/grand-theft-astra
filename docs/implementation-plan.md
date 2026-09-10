@@ -460,7 +460,7 @@ Start with maximum speeds of 20 m/s horizontally and 5 m/s vertically.
 Keep flight inside the district, below 80 meters. Show the boundary; buildings block flight.
 Use a simple body collider and collisions without damage.
 F enters an available seat. Exit requires ground contact, speed below 1 m/s, and a safe exit position.
-Flight hints show WASD movement, Q/E turning, Space ascent, and Shift descent below the screen center.
+Flight hints show WASD movement, Q/E turning, Space ascent, and Shift descent at the bottom center. Subtitles sit above them.
 Vehicle hints replace nearby interaction prompts while driving. F exits after landing and stopping.
 Reject airborne exit with “Land before exiting.”
 Menus, focus loss, and disconnect request hover. A server restart restores helicopter and pilot at the pad, retaining ownership and progress.
