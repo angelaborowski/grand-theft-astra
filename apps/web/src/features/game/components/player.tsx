@@ -42,7 +42,7 @@ export function Player({
       const z = (DISTRICT_BOUNDS.minZ + DISTRICT_BOUNDS.maxZ) / 2;
       void camera.current.setLookAt(x, 335, z + 110, x, 0, z, true);
     }
-    if (!overview && camera.current && controller.current) {
+    if (!overview && camera.current && controller.current?.body) {
       const position = controller.current.body.translation();
       void camera.current.setLookAt(
         position.x,
@@ -56,7 +56,7 @@ export function Player({
     }
   }, [overview, cameraDistance]);
   const restorePosition = useEffectEvent(() => {
-    controller.current?.body.setTranslation(
+    controller.current?.body?.setTranslation(
       { x: actor.position.x, y: 1.3, z: actor.position.z },
       true,
     );
@@ -66,7 +66,7 @@ export function Player({
   }, [driving, enabled, inside]);
   useFrame(({ clock }, delta) => {
     const character = controller.current;
-    if (!character) return;
+    if (!character?.body) return;
     const typing = document.activeElement instanceof HTMLInputElement;
     const controlsEnabled = enabled && !typing && !overview;
     character.setMovement(
