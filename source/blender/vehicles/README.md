@@ -26,3 +26,17 @@ Run Blender `--background --python source/blender/vehicles/build.py`, then `--ba
 `validation.json` records measured triangles, dimensions, bytes, SHA-256, expected wheel pivots, UVs and finite coordinates after Blender GLB reimport. Budgets: under 100,000 triangles and 8 MB each; width under 2.6m, length under 4.6m, height under 1.9m. The same Blender reimport pattern as existing repository validators is used. The optional game-dev CLI was unavailable.
 
 Validation completed: `pnpm check` (lint, format, strict types, core and legacy tests, production build); direct visual inspection of all three Blender renders; independent review and actual Three GLTFLoader import of all exports (four/four/two correctly matched wheel pivots). Review findings for Object3D pivot types and missing error boundaries were fixed and re-reviewed. The build reports its existing large-chunk warning. Full in-game GPU/playthrough inspection was not performed in this isolated clone; shared development servers were not modified or replaced.
+
+## Curved canopy and tyre pass
+
+The Ferrari now has a continuous curved windscreen/roof/rear-screen surface, with narrow roof rails following the same profile, instead of the separate rectangular roof slab. The canopy perimeter intersects the existing body to avoid a floating windscreen edge. A profiled tyre mesh replaces the torus silhouette; the four original wheel pivot names and translations are unchanged. Paint clearcoat is exported through glTF material parameters. The existing vehicle envelope and approximate body remain; this is not a new claim of manufacturer-accurate geometry.
+
+[Ferrari's 12Cilindri launch description](https://cdn.ferrari.com/cms/network/media/pdf/CS_Ferrari_12Cilindri_gbr.pdf) describes continuity between windscreen, dark roof and rear screen. That design relationship informs this pass; the current geometry is still an interpretation at the game's existing scale.
+
+`ferrari-before.png` and `ferrari-after.png` render the old and revised GLBs with identical camera and lights. `render-export.py` reproduces this check:
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python source/blender/vehicles/render-export.py -- public/assets/vehicles/ferrari-12cilindri.glb source/blender/vehicles/ferrari-after.png
+```
+
+The before image uses the GLB from parent commit `b51fd71`; retain that commit to reproduce it. Independent review checked the wheel pivots and identified the canopy gap fixed in this pass. GLB reimport validation passes. A separate Three.js GPU viewer verifies model import and wheel rotation; this is distinct from a driving playthrough in the parent game's current mission build.

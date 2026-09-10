@@ -20,15 +20,46 @@ body=loft('12Cilindri sculpted body',[(-2.12,.8,.24,.63),(-2.06,.93,.23,.7),(-1.
 # Actual wheel openings cut through the body, not black discs over solid fenders.
 for y in [-1.3,1.3]:
  bpy.ops.mesh.primitive_cylinder_add(vertices=64,radius=.46,depth=3,location=(0,y,.41),rotation=(0,math.pi/2,0));cut=bpy.context.object;bpy.context.view_layer.objects.active=body;mod=body.modifiers.new('Wheel arch','BOOLEAN');mod.operation='DIFFERENCE';mod.object=cut;bpy.ops.object.modifier_apply(modifier=mod.name);bpy.data.objects.remove(cut,do_unlink=True)
-shell('Cabin glazing',[(-.48,.73,.87,.91),(.02,.64,.89,1.28),(.7,.64,.9,1.29),(1.35,.73,.92,.98)],glass)
-box('Black roof',(0,.36,1.3),(1.3,.72,.06),black,.025)
+# A continuous curved canopy replaces the rectangular glazing and floating roof slab.
+canopy_sections=[(-.54,.73,.81,.885),(-.32,.70,.83,1.10),(-.12,.67,.84,1.23),(.08,.65,.84,1.31),(.35,.65,.85,1.34),(.65,.67,.88,1.33),(.90,.70,.90,1.24),(1.15,.73,.92,1.10),(1.35,.75,.93,.99)]
+N=32;verts=[]
+for y,w,base_z,top in canopy_sections:
+ for j in range(N+1):
+  a=-math.pi/2+j*math.pi/N;verts.append((w*math.sin(a),y,base_z+(top-base_z)*max(0,math.cos(a))**.38))
+faces=[(i*(N+1)+j,i*(N+1)+j+1,(i+1)*(N+1)+j+1,(i+1)*(N+1)+j) for i in range(len(canopy_sections)-1) for j in range(N)]
+me=bpy.data.meshes.new('Continuous canopy');me.from_pydata(verts,[],faces);me.update();canopy=bpy.data.objects.new('Curved windscreen roof and rear screen',me);bpy.context.collection.objects.link(canopy);me.materials.append(glass);me.materials.append(black)
+for f in me.polygons:
+ f.use_smooth=True;i=f.index//N;j=f.index%N
+ if 3<=i<=5 and 6<=j<=25:f.material_index=1
+# Sweeping roof rails and narrow pillars follow the same sampled canopy profile.
+for sign in [-1,1]:
+ for i in range(len(canopy_sections)-1):
+  y,w,lo,hi=canopy_sections[i];yy,ww,ll,hh=canopy_sections[i+1]
+  a=1.18
+  rod('Curved roof rail',(sign*w*math.sin(a),y,lo+(hi-lo)*math.cos(a)**.38),(sign*ww*math.sin(a),yy,ll+(hh-ll)*math.cos(a)**.38),.012,paint)
+# Clearcoat changes are exported PBR parameters, not Blender-only shader effects.
+paint.node_tree.nodes.get('Principled BSDF').inputs['Coat Weight'].default_value=.45
+paint.node_tree.nodes.get('Principled BSDF').inputs['Coat Roughness'].default_value=.20
 for x in [-1,1]:
- rod('A pillar',(x*.73,-.46,.92),(x*.64,.02,1.28),.019,paint);rod('Rear pillar',(x*.64,.7,1.29),(x*.73,1.35,.98),.025,paint)
  box('Side skirt',(x*.94,0,.24),(.095,1.75,.09),black)
  box('Mirror stem',(x*.86,-.19,1.02),(.19,.06,.045),black);box('Red mirror',(x*.97,-.19,1.06),(.22,.16,.11),paint,.05)
  box('Flush door handle',(x*.945,.63,.89),(.025,.16,.025),black,.008)
  for y in [-1.3,1.3]:
   root=wheel(('WheelFront' if y<0 else 'WheelRear')+('L' if x<0 else 'R'),x*.96,y,.41,.24)
+  # A profiled low-aspect tyre replaces the round inner-tube silhouette.
+  old_tire=next(o for o in root.children if '_tire' in o.name)
+  bpy.data.objects.remove(old_tire,do_unlink=True)
+  profile=[(-.115,.265),(-.127,.30),(-.124,.36),(-.106,.394),(-.077,.409),(.077,.409),(.106,.394),(.124,.36),(.127,.30),(.115,.265)]
+  vv=[];count=64
+  for xx,rr in profile:
+   for i in range(count):
+    t=i*math.tau/count;vv.append((x*.96+xx,y+math.sin(t)*rr,.41+math.cos(t)*rr))
+  ff=[(j*count+i,j*count+(i+1)%count,((j+1)%len(profile))*count+(i+1)%count,((j+1)%len(profile))*count+i) for j in range(len(profile)) for i in range(count)]
+  tire_mesh=bpy.data.meshes.new('Profiled tyre');tire_mesh.from_pydata(vv,[],ff);tire_mesh.update();tire=bpy.data.objects.new(root.name+'_tire',tire_mesh);bpy.context.collection.objects.link(tire);tire.data.materials.append(rubber);tire.parent=root;tire.matrix_parent_inverse=root.matrix_world.inverted()
+  for f in tire_mesh.polygons:f.use_smooth=True
+  for child in root.children:
+   if child.name.startswith('Torus'):
+    child.scale.x=child.scale.y=1.22
   # Replace generic spokes with five paired forged spokes.
   for o in list(root.children):
    if '_spoke' in o.name:bpy.data.objects.remove(o,do_unlink=True)
@@ -49,8 +80,10 @@ for x in [-.72,.72]:
  for xx in [x-.065,x+.065]:rod('Exhaust tip',(xx,1.93,.41),(xx,2.15,.41),.055,chrome)
 box('Rear diffuser',(0,2.05,.42),(1.52,.15,.16),black,.02)
 for x in [-.5,-.25,0,.25,.5]:box('Diffuser vane',(x,2.08,.34),(.025,.29,.19),black,.005)
+import bmesh
 for o in list(bpy.context.scene.objects):
  if o.type=='MESH':
+  bm=bmesh.new();bm.from_mesh(o.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(o.data);bm.free()
   if 'tire' in o.name:
    for face in o.data.polygons: face.use_smooth=True
   bpy.context.view_layer.objects.active=o;o.select_set(True);bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT');bpy.ops.uv.smart_project();bpy.ops.object.mode_set(mode='OBJECT');o.select_set(False)
