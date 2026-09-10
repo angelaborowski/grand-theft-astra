@@ -23,12 +23,13 @@ export function furnishRoom(room){
  for(const [m,gs]of groups){const mesh=new THREE.Mesh(mergeGeometries(gs),m);mesh.castShadow=mesh.receiveShadow=true;room.add(mesh);gs.forEach(g=>g.dispose());}
  const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.12,.2,.22,24),material('#e2cda8'));lamp.position.set(87.35,1.12,74.2);room.add(lamp);const light=new THREE.PointLight('#ffcc87',3,7,2);light.position.set(87.35,1.2,74.2);room.add(light);
 }
-export function museumDetail(){
+export function museumDetail(model){
  const group=new THREE.Group(),byMaterial=new Map();const stone=material('#b59d7d'),glass=new THREE.MeshStandardMaterial({color:'#293a42',metalness:.3,roughness:.3});
  function b(w,h,d,m,x,y,z){const g=new RoundedBoxGeometry(w,h,d,1,.035);g.translate(x,y,z);if(!byMaterial.has(m))byMaterial.set(m,[]);byMaterial.get(m).push(g);}
  // Reference-informed window rhythm on the square-facing museum elevation, not a measured facade.
- for(let x=-8;x<=40;x+=4){for(const y of[4.3,10.2,16.2]){b(1.2,2.7,.09,glass,x,y,-143.15);for(const xx of[x-.74,x+.74])b(.2,3,.35,stone,xx,y,-142.94);for(const yy of[y-1.5,y+1.5])b(1.7,.2,.4,stone,x,yy,-142.92);b(.07,2.65,.12,stone,x,y,-143);}}
- for(const y of[1,7.5,13.5,19])b(56,.18,.5,stone,16,y,-143);
+ const ray=new THREE.Raycaster();if(model)model.updateMatrixWorld(true);
+ function front(x,y){if(!model)return -143.15;ray.set(new THREE.Vector3(x,y,-120),new THREE.Vector3(0,0,-1));const hit=ray.intersectObject(model,true).find(h=>h.distance<70);return hit?hit.point.z+.08:null;}
+ for(let x=-8;x<=40;x+=4){for(const y of[4.3,10.2,16.2]){const z=front(x,y);if(z===null)continue;const left=front(x-.85,y),right=front(x+.85,y);if(left===null||right===null||Math.abs(left-z)>1||Math.abs(right-z)>1)continue;b(1.2,2.7,.09,glass,x,y,z);for(const xx of[x-.74,x+.74])b(.2,3,.35,stone,xx,y,z+.2);for(const yy of[y-1.5,y+1.5])b(1.7,.2,.4,stone,x,yy,z+.23);b(.07,2.65,.12,stone,x,y,z+.15);}}
  for(const [m,gs]of byMaterial){const mesh=new THREE.Mesh(mergeGeometries(gs),m);mesh.castShadow=mesh.receiveShadow=true;group.add(mesh);gs.forEach(g=>g.dispose());}group.name='Museum facade study';return group;
 }
 export function extendGum(original){
