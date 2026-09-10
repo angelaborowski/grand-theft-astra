@@ -1,0 +1,32 @@
+{
+  "characters": [
+    {
+      "id": "team-man",
+      "displayName": null,
+      "role": "player-avatar",
+      "status": "reference-ready-mesh-missing",
+      "reference": "team-man.png",
+      "referenceType": "ChatGPT image derived from supplied personal photo",
+      "sha256": "8cca30b01e7730eeb42818ecb869afe708cbcb6a921efac927f0c0df24a2d1d8",
+      "higgsfieldRefinementJob": "51f68f6f-615c-43a0-a059-24bf671029b1",
+      "appearance": "Short brown hair; cream T-shirt; pale linen trousers; grey trainers; black watch.",
+      "runtimeAsset": null,
+      "likenessApproved": false
+    },
+    {
+      "id": "team-woman",
+      "displayName": null,
+      "role": "player-avatar",
+      "status": "reference-ready-mesh-missing",
+      "reference": "team-woman.png",
+      "referenceType": "ChatGPT image derived from supplied personal photo",
+      "sha256": "bcdd7d59f6a1f83dfb35b0fd30a10c78b0872d0b693f95656368c7e1b83a12ee",
+      "higgsfieldRefinementJob": "3db79d02-6cee-45ff-80de-c2198fad0d63",
+      "appearance": "Long curly highlighted hair; cream short-sleeve shirt; dark buttoned vest; brown striped trousers; pointed brown shoes; bracelets.",
+      "runtimeAsset": null,
+      "likenessApproved": false
+    }
+  ],
+  "requirement": "Match supplied original photos for identity and approved concepts for costume. Do not substitute generic geometry or claim exact unseen views.",
+  "sourceTask": "01a08c3f-2fe3-7343-b5e4-75c04a708c45"
+}
