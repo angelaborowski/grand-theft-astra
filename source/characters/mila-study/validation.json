@@ -1,0 +1,11 @@
+{
+  "bytes": 4263892,
+  "sha256": "8fe253ac9095a53d324525982130a7c73adb8c4db35fc2785fe53054370cf976",
+  "triangles": 113016,
+  "bones": 13,
+  "clips": [
+    "Idle",
+    "Walk"
+  ],
+  "likenessAccepted": false
+}
