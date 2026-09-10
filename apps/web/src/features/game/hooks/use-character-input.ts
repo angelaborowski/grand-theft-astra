@@ -17,7 +17,7 @@ type InputActions = {
   stop: () => void;
 };
 
-/** Drei owns held keys; this boundary owns pointer capture and discrete gameplay commands. */
+/** Keys move whenever play is active; pointer capture only gates mouse look, aim, and fire. */
 export function useCharacterInput({
   enabled,
   camera,
@@ -38,7 +38,7 @@ export function useCharacterInput({
   const lastTarget = useRef<EntityId | null>(null);
   const targetCheckedAt = useRef(0);
   const active = () => enabled && !document.hidden && document.hasFocus() && !textEntryIsFocused();
-  const captured = () => document.pointerLockElement === gl.domElement;
+  const captured = () => pointerCaptured(gl.domElement);
   const readAim = () => {
     view.getWorldDirection(direction.current);
     return {
@@ -56,7 +56,7 @@ export function useCharacterInput({
   }, [getKeys]);
   const release = useCallback(() => {
     clear();
-    if (document.pointerLockElement === gl.domElement) camera.current?.unlockPointer();
+    if (pointerCaptured(gl.domElement)) camera.current?.unlockPointer();
   }, [camera, clear, gl]);
   const stop = useEffectEvent(() => {
     release();
@@ -83,7 +83,7 @@ export function useCharacterInput({
     return null;
   };
   const keydown = useEffectEvent((event: KeyboardEvent) => {
-    if (!active() || !captured() || event.repeat || event.metaKey || event.altKey) return;
+    if (!active() || event.repeat || event.metaKey || event.altKey) return;
     const key = PLAYER_KEYBOARD_MAP.find((entry) => entry.keys.includes(event.code))?.name;
     if (key) {
       blockedKeys.current.delete(key);
@@ -125,7 +125,7 @@ export function useCharacterInput({
     const onKey = (event: KeyboardEvent) => keydown(event);
     const onBlur = () => stop();
     const onLock = () => {
-      if (document.pointerLockElement !== gl.domElement) stop();
+      if (!pointerCaptured(gl.domElement)) stop();
     };
     const onVisibility = () => {
       if (document.hidden) stop();
@@ -134,7 +134,7 @@ export function useCharacterInput({
       if (enabled) event.stopPropagation();
     };
     const consumeContext = (event: MouseEvent) => {
-      if (enabled && document.pointerLockElement === gl.domElement) event.preventDefault();
+      if (enabled && pointerCaptured(gl.domElement)) event.preventDefault();
     };
     gl.domElement.addEventListener("pointerdown", onDown, true);
     gl.domElement.addEventListener("click", consumeClick, true);
@@ -164,7 +164,7 @@ export function useCharacterInput({
     }
     if (clock.elapsedTime - targetCheckedAt.current < 0.1) return;
     targetCheckedAt.current = clock.elapsedTime;
-    const next = active() && captured() ? target() : null;
+    const next = active() ? target() : null;
     if (next === lastTarget.current) return;
     lastTarget.current = next;
     actions.target(next);
@@ -176,7 +176,7 @@ export function useCharacterInput({
       for (const key of blockedKeys.current) {
         if (!keys[key]) blockedKeys.current.delete(key);
       }
-      const available = active() && captured();
+      const available = active();
       const key = (name: PlayerKey) =>
         available && !needsDirection.current && keys[name] && !blockedKeys.current.has(name);
       return {
@@ -184,11 +184,16 @@ export function useCharacterInput({
         forward: Number(key("forward")) - Number(key("backward")),
         right: Number(key("rightward")) - Number(key("leftward")),
         run: key("run"),
-        aim: available && aiming.current,
+        aim: available && captured() && aiming.current,
         ...readAim(),
       };
     },
   };
+}
+
+/** CameraControls locks the Fiber event root, which wraps the canvas rather than being it. */
+export function pointerCaptured(canvas: HTMLElement): boolean {
+  return document.pointerLockElement?.contains(canvas) === true;
 }
 
 function textEntryIsFocused(): boolean {

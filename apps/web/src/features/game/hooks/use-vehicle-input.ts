@@ -2,8 +2,9 @@ import { useKeyboardControls, type CameraControls } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useEffectEvent, useRef, type RefObject } from "react";
 import { PLAYER_KEYBOARD_MAP, type PlayerKey } from "../models/player-controls";
+import { pointerCaptured } from "./use-character-input";
 
-/** One vehicle owns pointer capture; Drei retains the shared keyboard mapping. */
+/** Keys drive whenever play is active; one vehicle owns pointer capture for mouse look. */
 export function useVehicleInput(
   enabled: boolean,
   camera: RefObject<CameraControls | null>,
@@ -16,14 +17,9 @@ export function useVehicleInput(
     const keys = getKeys();
     for (const entry of PLAYER_KEYBOARD_MAP)
       if (keys[entry.name]) blockedKeys.current.add(entry.name);
-    if (document.pointerLockElement === gl.domElement) camera.current?.unlockPointer();
+    if (pointerCaptured(gl.domElement)) camera.current?.unlockPointer();
   }, [camera, getKeys, gl]);
-  const active = () =>
-    enabled &&
-    !document.hidden &&
-    document.hasFocus() &&
-    !typing() &&
-    document.pointerLockElement === gl.domElement;
+  const active = () => enabled && !document.hidden && document.hasFocus() && !typing();
   const stop = useEffectEvent(() => {
     release();
     actions.stop();
@@ -41,7 +37,7 @@ export function useVehicleInput(
   const capture = useEffectEvent((event: PointerEvent) => {
     if (!enabled || typing() || document.hidden || !document.hasFocus() || event.button !== 0)
       return;
-    if (document.pointerLockElement === gl.domElement) return;
+    if (pointerCaptured(gl.domElement)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     camera.current?.lockPointer();
@@ -57,13 +53,13 @@ export function useVehicleInput(
       if (document.hidden) stop();
     };
     const onLock = () => {
-      if (document.pointerLockElement !== gl.domElement) stop();
+      if (!pointerCaptured(gl.domElement)) stop();
     };
     const onClick = (event: MouseEvent) => {
       if (enabled) event.stopPropagation();
     };
     const onContext = (event: MouseEvent) => {
-      if (enabled && document.pointerLockElement === gl.domElement) event.preventDefault();
+      if (enabled && pointerCaptured(gl.domElement)) event.preventDefault();
     };
     gl.domElement.addEventListener("pointerdown", onPointer, true);
     gl.domElement.addEventListener("click", onClick, true);
