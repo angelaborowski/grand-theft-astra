@@ -56,9 +56,11 @@ The command builds the web app and deploys the Worker with its static assets.
 `OPENAI_API_KEY` is configured as a Cloudflare secret and in ignored `apps/server/.dev.vars` for local development.
 Keep secret values and local saves out of Git.
 
-Alexander will connect the Git repository to Cloudflare. Use the repository root as the build directory.
-Set the build command to `pnpm check` and the deploy command to `pnpm --filter @gpta/server deploy`.
-This configuration checks the combined code and builds the web assets before deployment.
+`.github/workflows/ci.yaml` runs `pnpm check` for pull requests and pushes to `main`.
+Successful pushes to `main` deploy the checked build with `pnpm --filter @gpta/server deploy`.
+Manual workflow runs can deploy `main` too. Pull requests never deploy, and CI never runs paid conversation tests.
+GitHub Actions requires the repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+The existing `OPENAI_API_KEY` stays in Cloudflare; deployment does not need a copy in GitHub.
 
 ## Asset integration
 
