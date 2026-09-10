@@ -1,0 +1,14 @@
+{
+  "finite_vertices": true,
+  "bones": 13,
+  "mesh_count": 2,
+  "actions": [
+    "Idle",
+    "Walk"
+  ],
+  "glb_reimported": true,
+  "limitations": [
+    "Original shared prototype body, not the Higgsfield likeness.",
+    "Rigid per-part weights and basic loop animations."
+  ]
+}

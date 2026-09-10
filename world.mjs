@@ -13,7 +13,7 @@ export const SPAWN={x:39,z:83};
 export function normalize(p){p.inventory??=[];p.reputation??=0;p.memories??={};p.hasRoom??=false;p.interior??=false;p.gardenHelp??=false;return p;}
 export function validPosition(x,z,interior=false){
  if(!Number.isFinite(x)||!Number.isFinite(z))return false;
- if(interior)return x>=75.5&&x<=92.5&&z>=72&&z<=88.5&&!(x>87&&z<78);
+ if(interior)return x>=75.5&&x<=92.5&&z>=72&&z<=88.5&&!(x>87&&z<78)&&!(x>75.9&&x<78.5&&z>74.2&&z<76.9);
  if(x < -42||x > 62||z < -115||z > 222)return false;
  if(x < -8&&z > -5&&z < 37)return false;
  if(Math.hypot(x-36,z-188)<7.2)return false;

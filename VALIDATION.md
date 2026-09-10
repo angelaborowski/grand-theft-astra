@@ -56,3 +56,11 @@ Mouse-look, keyboard movement handlers and assisted movement share the same boun
 - JavaScript syntax check passed. Browser wall and bookstall views were visually inspected; browser logs reported no errors during those checks.
 - New brick texture downloads verified against API MD5 values; SHA-256 hashes recorded.
 - Existing gameplay rules are unchanged. This pass replaces scenery and material assignments, not world simulation.
+
+## Remaining-area prototype pass
+
+- Eight tests pass, including server-side collision checks for the desk and chair and the retained door approach.
+- Original character GLB: 13 bones, Idle and Walk clips, skinning and finite float accessors. Reimported into Blender. Character remains a stylized prototype and does not match the Higgsfield concepts.
+- Furniture/museum GLB exported from the procedural module and reopened/saved in Blender.
+- Character and hostel preview views inspected in the browser; character facing direction corrected. No browser errors reported during review. Local health endpoint reports OK after graceful server restart.
+- Extended GUM facade uses repeated modules; exact bay-by-bay accuracy remains unverified. No claim of a completed hyperrealistic world.
