@@ -12,6 +12,7 @@ import { Player } from "./player";
 import { WorldEntities } from "./world-entities";
 import { FrameMeter } from "./frame-meter";
 import { SceneEffects } from "./scene-effects";
+import { Snowfall } from "./snowfall";
 import { SceneLighting } from "./scene-lighting";
 import { GuesthouseScene } from "./guesthouse-scene";
 
@@ -61,9 +62,10 @@ export function GameScene({
         camera={{ position: [0, 3.8, 6.5], fov: 58, near: 0.3, far: 1600 }}
         gl={{ antialias: true, localClippingEnabled: true, toneMappingExposure: 0.9 }}
       >
-        <color attach="background" args={["#b9c3cd"]} />
-        <fog attach="fog" args={["#b9c3cd", 260, 1000]} />
+        <color attach="background" args={["#d4dfe8"]} />
+        <fog attach="fog" args={["#d4dfe8", 260, 1000]} />
         <SceneLighting />
+        {!inside && <Snowfall />}
         <SceneEffects />
         <FrameMeter />
         <Suspense fallback={null}>

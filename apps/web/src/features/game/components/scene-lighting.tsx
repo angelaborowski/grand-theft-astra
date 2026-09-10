@@ -1,3 +1,4 @@
+import { CloudSky } from "./cloud-sky";
 import { Environment } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Suspense, useRef } from "react";
@@ -27,13 +28,11 @@ export function SceneLighting() {
   });
   return (
     <>
+      <CloudSky />
       <Suspense fallback={null}>
         <Environment
           files="/assets/environment/snow_field_puresky_2k.hdr"
-          background
-          backgroundIntensity={0.8}
-          environmentIntensity={0.65}
-          backgroundRotation={[0, 0.7, 0]}
+          environmentIntensity={0.85}
           environmentRotation={[0, 0.7, 0]}
         />
       </Suspense>

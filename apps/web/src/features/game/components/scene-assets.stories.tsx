@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useRef } from "react";
 import { CHARACTER_ASSETS } from "../models/scene-assets";
 import { CharacterModel, type CharacterMotion } from "./character-model";
+import { Snowfall } from "./snowfall";
 import { SceneLighting } from "./scene-lighting";
 import { SceneAssets } from "./scene-assets";
 
@@ -20,6 +21,7 @@ export const RedSquare: Story = {
         <color attach="background" args={["#bacbd0"]} />
         <fog attach="fog" args={["#b9c3cd", 260, 1000]} />
         <SceneLighting />
+        <Snowfall />
         <Suspense fallback={null}>
           <SceneAssets />
         </Suspense>
@@ -39,6 +41,7 @@ export const WinterSky: Story = {
         <color attach="background" args={["#b9c3cd"]} />
         <fog attach="fog" args={["#b9c3cd", 260, 1000]} />
         <SceneLighting />
+        <Snowfall />
         <Suspense fallback={null}>
           <SceneAssets />
         </Suspense>
