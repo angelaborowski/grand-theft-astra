@@ -2,7 +2,15 @@ import { BUILDINGS, RED_SQUARE_SCENE } from "@gpta/core/scene";
 import { Html, useGLTF, useTexture } from "@react-three/drei";
 import { CatchBoundary, type ErrorComponentProps } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mesh, RepeatWrapping, SRGBColorSpace } from "three";
+import {
+  BufferAttribute,
+  Mesh,
+  MeshStandardMaterial,
+  RepeatWrapping,
+  SRGBColorSpace,
+  Vector2,
+} from "three";
+import { extendGum, museumDetail } from "../models/world-polish";
 
 const sceneAssets = [RED_SQUARE_SCENE.asset, "/assets/world-detail.glb", "/assets/gum-detail.glb"];
 const pavingTextures = {
@@ -11,6 +19,11 @@ const pavingTextures = {
   roughnessMap: "/assets/materials/scanned/cobblestone_floor_08-Rough.jpg",
 };
 
+const brickTextures = {
+  map: "/assets/materials/scanned/red_brick-Diffuse.jpg",
+  normalMap: "/assets/materials/scanned/red_brick-nor_gl.jpg",
+  roughnessMap: "/assets/materials/scanned/red_brick-Rough.jpg",
+};
 /** Scene failures preserve movement and show an explicit retry action. */
 export function SceneAssets() {
   return (
@@ -22,11 +35,57 @@ export function SceneAssets() {
 
 function LoadedScene() {
   const assets = useGLTF(sceneAssets);
+  const sourceBricks = useTexture(brickTextures);
+  const [bricks] = useState(() => {
+    const textures = {
+      map: sourceBricks.map.clone(),
+      normalMap: sourceBricks.normalMap.clone(),
+      roughnessMap: sourceBricks.roughnessMap.clone(),
+    };
+    textures.map.colorSpace = SRGBColorSpace;
+    for (const texture of Object.values(textures)) {
+      texture.wrapS = texture.wrapT = RepeatWrapping;
+      texture.anisotropy = 8;
+      texture.needsUpdate = true;
+    }
+    return textures;
+  });
   const [scenes] = useState(() =>
     assets.map((asset) => {
       const scene = asset.scene.clone(true);
       scene.traverse((object) => {
         if (!(object instanceof Mesh)) return;
+        object.geometry = object.geometry.clone();
+        const applyBrick = (material: import("three").Material) => {
+          const m = material.clone();
+          if (
+            m instanceof MeshStandardMaterial &&
+            /red brick|orange-red masonry|Museum.*oxblood|Brick.*terracotta/.test(m.name)
+          ) {
+            m.color.set("#ffffff");
+            m.map = bricks.map;
+            m.normalMap = bricks.normalMap;
+            m.roughnessMap = bricks.roughnessMap;
+            m.normalScale = new Vector2(0.5, 0.5);
+            m.roughness = 1;
+            const pos = object.geometry.getAttribute("position"),
+              norm = object.geometry.getAttribute("normal");
+            if (pos && norm) {
+              const uv = new Float32Array(pos.count * 2);
+              for (let i = 0; i < pos.count; i++) {
+                uv[i * 2] =
+                  (Math.abs(norm.getX(i)) > Math.abs(norm.getZ(i)) ? pos.getZ(i) : pos.getX(i)) /
+                  2.24;
+                uv[i * 2 + 1] = pos.getY(i) / 1.44;
+              }
+              object.geometry.setAttribute("uv", new BufferAttribute(uv, 2));
+            }
+          }
+          return m;
+        };
+        object.material = Array.isArray(object.material)
+          ? object.material.map(applyBrick)
+          : applyBrick(object.material);
         object.castShadow = true;
         object.receiveShadow = true;
         // The detail GLB replaces the original wall, and the shared floor replaces exported terrain.
@@ -35,9 +94,16 @@ function LoadedScene() {
       return scene;
     }),
   );
+  const [polish] = useState(() => {
+    const city = scenes[0],
+      gum = scenes[2];
+    return { museum: city ? museumDetail(city) : null, gum: gum ? extendGum(gum) : null };
+  });
   return (
     <>
       <group position={[0, RED_SQUARE_SCENE.offsetY, 0]}>
+        {polish.museum && <primitive object={polish.museum} dispose={null} />}
+        {polish.gum && <primitive object={polish.gum} dispose={null} />}
         {scenes.map((scene) => (
           <primitive key={scene.uuid} object={scene} dispose={null} />
         ))}
@@ -85,6 +151,7 @@ function SceneAssetFailure({ reset }: ErrorComponentProps) {
             onClick={() => {
               useGLTF.clear(sceneAssets);
               useTexture.clear(Object.values(pavingTextures));
+              useTexture.clear(Object.values(brickTextures));
               reset();
             }}
           >

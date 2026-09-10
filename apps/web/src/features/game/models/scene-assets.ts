@@ -5,7 +5,7 @@ import { clone } from "three/addons/utils/SkeletonUtils.js";
 
 /** Angela owns these assets; the game connects them through stable simulation identities. */
 export const CHARACTER_ASSETS = new Map<EntityId, string>([
-  [SCENE_IDS.mila, "/assets/characters/mila.glb"],
+  [SCENE_IDS.mila, "/assets/characters/mila-study.glb"],
   [SCENE_IDS.lev, "/assets/characters/lev.glb"],
   [SCENE_IDS.niko, "/assets/characters/niko.glb"],
   [SCENE_IDS.irina, "/assets/characters/irina.glb"],

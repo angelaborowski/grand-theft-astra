@@ -1,3 +1,4 @@
+import { PCFShadowMap } from "three";
 import type { Actor, EntityId, Position, WorldSnapshot } from "@gpta/core/world";
 import { KeyboardControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
@@ -7,6 +8,8 @@ import { isInsideGuesthouse } from "@gpta/core/scene";
 import { CityScene } from "./city-scene";
 import { Player } from "./player";
 import { WorldEntities } from "./world-entities";
+import { SceneEffects } from "./scene-effects";
+import { SceneLighting } from "./scene-lighting";
 import { GuesthouseScene } from "./guesthouse-scene";
 
 const keyboardMap = [
@@ -49,27 +52,15 @@ export function GameScene({
   return (
     <KeyboardControls map={keyboardMap}>
       <Canvas
-        shadows
+        shadows={{ type: PCFShadowMap }}
         dpr={[1, 1.5]}
         camera={{ position: [0, 3.8, 6.5], fov: 58, far: 1600 }}
-        gl={{ antialias: true }}
+        gl={{ antialias: true, localClippingEnabled: true, toneMappingExposure: 1.05 }}
       >
         <color attach="background" args={["#bacbd0"]} />
         <fog attach="fog" args={["#bacbd0", 400, 900]} />
-        <ambientLight intensity={0.5} />
-        <hemisphereLight args={["#c9e2f5", "#b9a587", 2.1]} />
-        <directionalLight
-          position={[-65, 110, 30]}
-          intensity={2.8}
-          castShadow
-          shadow-mapSize={[2048, 2048]}
-          shadow-camera-left={-250}
-          shadow-camera-right={250}
-          shadow-camera-top={250}
-          shadow-camera-bottom={-250}
-          shadow-camera-far={700}
-          shadow-normalBias={0.06}
-        />
+        <SceneLighting />
+        <SceneEffects />
         <Suspense fallback={null}>
           <Physics timeStep={1 / 60} interpolate>
             {inside ? <GuesthouseScene /> : <CityScene />}

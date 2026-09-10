@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 export const RedSquare: Story = {
   render: () => (
     <div style={{ height: "80vh" }}>
-      <Canvas camera={{ position: [35, 80, 210], far: 1600 }}>
+      <Canvas gl={{ localClippingEnabled: true }} camera={{ position: [35, 80, 210], far: 1600 }}>
         <color attach="background" args={["#bacbd0"]} />
         <hemisphereLight intensity={2.1} />
         <directionalLight position={[-65, 110, 30]} intensity={2.8} />
@@ -34,7 +34,7 @@ function CastPreview() {
   const motion = useRef<CharacterMotion>({ speed: 1.4 });
   return (
     <div style={{ height: "80vh" }}>
-      <Canvas camera={{ position: [0, 2.8, 10], fov: 48 }}>
+      <Canvas gl={{ localClippingEnabled: true }} camera={{ position: [0, 2.8, 10], fov: 48 }}>
         <color attach="background" args={["#bacbd0"]} />
         <hemisphereLight intensity={2.1} />
         <directionalLight position={[-5, 10, 8]} intensity={2.8} />

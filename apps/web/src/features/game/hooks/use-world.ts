@@ -1,6 +1,6 @@
 import type { PlayerAction } from "@gpta/core/actions";
 import type { EntityId, Player, Position, WorldSnapshot } from "@gpta/core/world";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { skipToken, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   actionErrorMessage,
@@ -16,6 +16,7 @@ export function useWorld() {
   const session = useQuery(sessionQuery);
   const world = useQuery<WorldSnapshot>({
     queryKey: worldQueryKey,
+    queryFn: skipToken,
     enabled: false,
     staleTime: Infinity,
   });

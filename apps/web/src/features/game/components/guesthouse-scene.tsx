@@ -1,4 +1,6 @@
-import { GUESTHOUSE } from "@gpta/core/scene";
+import { useState } from "react";
+import { Group } from "three";
+import { furnishRoom } from "../models/world-polish";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
 
 /** The small room uses the same coordinates as the server's door and movement rules. */
@@ -27,32 +29,16 @@ export function GuesthouseScene() {
           <meshStandardMaterial color="#a7af98" />
         </mesh>
       </RigidBody>
-      <group position={[GUESTHOUSE.bed.x, 0, GUESTHOUSE.bed.z]}>
-        <mesh position={[0, 0.25, 0]}>
-          <boxGeometry args={[2.5, 0.5, 3.5]} />
-          <meshStandardMaterial color="#665644" />
-        </mesh>
-        <mesh position={[0, 0.58, 0]}>
-          <boxGeometry args={[2.35, 0.25, 3.4]} />
-          <meshStandardMaterial color="#e5dfc9" />
-        </mesh>
-        <mesh position={[0, 0.76, -1.05]}>
-          <boxGeometry args={[1.8, 0.18, 0.8]} />
-          <meshStandardMaterial color="#f0edde" />
-        </mesh>
-        <mesh position={[0, 0.75, 0.4]}>
-          <boxGeometry args={[2.3, 0.15, 2.3]} />
-          <meshStandardMaterial color="#708c77" />
-        </mesh>
-      </group>
-      <mesh position={[92, 1, -4]}>
-        <boxGeometry args={[2, 2, 1]} />
-        <meshStandardMaterial color="#746148" />
-      </mesh>
-      <mesh position={[93, 0.02, 1]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[3.8, 4]} />
-        <meshStandardMaterial color="#88775e" />
-      </mesh>
+      <GuesthouseFurnishings />
     </group>
   );
+}
+
+export function GuesthouseFurnishings() {
+  const [room] = useState(() => {
+    const g = new Group();
+    furnishRoom(g);
+    return g;
+  });
+  return <primitive object={room} position={[0, -0.145, 0]} dispose={null} />;
 }
