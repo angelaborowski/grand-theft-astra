@@ -1,12 +1,12 @@
 {
-  "triangles": 155460,
-  "draw_meshes": 6,
+  "triangles": 162980,
+  "draw_meshes": 7,
   "length_metres": 60,
-  "texture_resolution": 1024,
+  "texture_resolution": 2048,
   "reference": "https://commons.wikimedia.org/wiki/File:Moscow_GUM_fragment_of_fa%D1%81ade.jpg",
   "limitations": [
     "Elevation dimensions and bay spacing inferred, not survey validated.",
-    "No scanned surfaces; original procedural PBR maps.",
+    "Generic Poly Haven stone/cobblestone surface maps; not scans of this location.",
     "60m detail overlay, not a complete GUM reconstruction."
   ]
 }

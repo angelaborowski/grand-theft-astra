@@ -4,6 +4,7 @@ from pathlib import Path
 D=Path(__file__).resolve().parent;ASSETS=D.parents[2]/'public/assets'
 bpy.ops.wm.open_mainfile(filepath=str(D/'gum-detail.blend'))
 s=bpy.context.scene
+exec(compile((D/'refine.py').read_text(),str(D/'refine.py'),'exec'))
 objects=[o for o in s.objects if o.type=='MESH' and o.name!='Preview ground']
 for o in objects:
  bm=bmesh.new();bm.from_mesh(o.data)
@@ -29,7 +30,7 @@ for key,group in groups.items():
  for f,sm in zip(me.polygons,smooth):f.use_smooth=sm
  me.materials.append(bpy.data.materials[key]);ob=bpy.data.objects.new(key,me);s.collection.objects.link(ob);ob.select_set(True);exports.append(ob);me.calc_loop_triangles();tri+=len(me.loop_triangles)
 bpy.ops.export_scene.gltf(filepath=str(ASSETS/'gum-detail.glb'),export_format='GLB',use_selection=True,export_apply=True)
-report={'triangles':tri,'draw_meshes':len(exports),'length_metres':60,'texture_resolution':1024,'reference':'https://commons.wikimedia.org/wiki/File:Moscow_GUM_fragment_of_fa%D1%81ade.jpg','limitations':['Elevation dimensions and bay spacing inferred, not survey validated.','No scanned surfaces; original procedural PBR maps.','60m detail overlay, not a complete GUM reconstruction.']}
+report={'triangles':tri,'draw_meshes':len(exports),'length_metres':60,'texture_resolution':2048,'reference':'https://commons.wikimedia.org/wiki/File:Moscow_GUM_fragment_of_fa%D1%81ade.jpg','limitations':['Elevation dimensions and bay spacing inferred, not survey validated.','Generic Poly Haven stone/cobblestone surface maps; not scans of this location.','60m detail overlay, not a complete GUM reconstruction.']}
 (D/'report.json').write_text(json.dumps(report,indent=2))
 for ob in exports:bpy.data.objects.remove(ob,do_unlink=True)
 for name in ['01-player','02-facade','03-stone-detail']:

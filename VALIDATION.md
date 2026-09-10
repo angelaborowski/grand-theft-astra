@@ -41,3 +41,11 @@ Mouse-look, keyboard movement handlers and assisted movement share the same boun
 - Joined an isolated local QA world, walked to Mila and started the delivery mission with the upgraded renderer.
 - Observed roughly 34–38 FPS in the preview with another game tab open at 1280×720. This is a spot check, not a cross-device performance guarantee. Contact shadows and multisampling add GPU cost.
 - Three offline Cycles previews are separate from browser evidence; their lighting differs. No Unreal rendering or survey-accuracy validation was performed.
+
+## GUM materials and secondary detail — second pass
+
+- Verified eight Poly Haven downloads against the MD5 values returned by its asset API; recorded SHA-256 hashes and CC0 provenance locally.
+- GLB reimport check passed: 7 meshes, 162,980 triangles, finite coordinates and UV layers. Embedded texture sizes: one 1024px and two 2048px maps. Imported material retains its normal-map node. Reproduce with `blender --background --python-exit-code 1 --python source/blender/gum-detail/validate.py`.
+- Inspected street, stone-detail and new paving camera views in the browser. No rendering errors reported by browser logs. Corrected downpipes to the pilaster positions following visual review.
+- JavaScript syntax check passed. Gameplay/server logic is unchanged; the prior seven-test result applies to that unchanged logic.
+- Generic material scans improve surface variation but are not evidence of the site's actual stone species, paving pattern or weathering. No new survey-accuracy claim.

@@ -1,0 +1,82 @@
+[
+  {
+    "asset": "old_sandstone_02",
+    "map": "Diffuse",
+    "path": "old_sandstone_02-Diffuse.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/old_sandstone_02/old_sandstone_02_diff_2k.jpg",
+    "md5": "a9ffa9168384297e720cbe0bb7de9c0a",
+    "sha256": "6cb1d16af8cbcfccc72e1466e3f288f1e74a8befb1281460b8520ab754becb0a",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/old_sandstone_02"
+  },
+  {
+    "asset": "old_sandstone_02",
+    "map": "nor_gl",
+    "path": "old_sandstone_02-nor_gl.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/old_sandstone_02/old_sandstone_02_nor_gl_2k.jpg",
+    "md5": "9ca8b9c1e883878828c7e7f615330ea8",
+    "sha256": "79a498bba79483ce16d2d7271bf2e120a069fd6829bc0e0f38fe8ed1ce681a75",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/old_sandstone_02"
+  },
+  {
+    "asset": "old_sandstone_02",
+    "map": "Rough",
+    "path": "old_sandstone_02-Rough.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/old_sandstone_02/old_sandstone_02_rough_2k.jpg",
+    "md5": "4a03d9466cd3da76c22737cd5e36f4db",
+    "sha256": "45f4411cfe86daa1637c0a38510a1a27683e71f06037b84543b85a569b76d1cf",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/old_sandstone_02"
+  },
+  {
+    "asset": "old_sandstone_02",
+    "map": "AO",
+    "path": "old_sandstone_02-AO.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/old_sandstone_02/old_sandstone_02_ao_2k.jpg",
+    "md5": "e0c02c5c681b3699619721e65894e49b",
+    "sha256": "a1ab22ee1099eb64ef52e563a408f35033ea57f7c51996d0a58d03a140de7f67",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/old_sandstone_02"
+  },
+  {
+    "asset": "cobblestone_floor_08",
+    "map": "Diffuse",
+    "path": "cobblestone_floor_08-Diffuse.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/cobblestone_floor_08/cobblestone_floor_08_diff_2k.jpg",
+    "md5": "56404e8a3cdf04c8697dbbc7f9ddd65c",
+    "sha256": "9aaf7db7f660f03d0c5c129c11e83caa828fb8bca63f8cd5154d450ffc4c340f",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/cobblestone_floor_08"
+  },
+  {
+    "asset": "cobblestone_floor_08",
+    "map": "nor_gl",
+    "path": "cobblestone_floor_08-nor_gl.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/cobblestone_floor_08/cobblestone_floor_08_nor_gl_2k.jpg",
+    "md5": "3d1c34ed083de54949e8375d69033b0b",
+    "sha256": "42dd5fc2da4a858f9c076c9ac5002857a1c064f8f4c4ffb12fafecffb84e96cc",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/cobblestone_floor_08"
+  },
+  {
+    "asset": "cobblestone_floor_08",
+    "map": "Rough",
+    "path": "cobblestone_floor_08-Rough.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/cobblestone_floor_08/cobblestone_floor_08_rough_2k.jpg",
+    "md5": "caae39f3ea47e2c09ca897d8dffa00ea",
+    "sha256": "3bc645ec45543c704fe1042f7b81f9bad4f88a8567760c4898c82bc2a134e093",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/cobblestone_floor_08"
+  },
+  {
+    "asset": "cobblestone_floor_08",
+    "map": "AO",
+    "path": "cobblestone_floor_08-AO.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/cobblestone_floor_08/cobblestone_floor_08_ao_2k.jpg",
+    "md5": "22be5ed5c2565da14cfe18c45487912d",
+    "sha256": "f409fa52dceac782dcb625af914fd592105595749651f396547e8355867b6a5c",
+    "license": "CC0-1.0",
+    "source": "https://polyhaven.com/a/cobblestone_floor_08"
+  }
+]
