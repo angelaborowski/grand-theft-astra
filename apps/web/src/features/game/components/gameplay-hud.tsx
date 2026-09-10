@@ -37,7 +37,7 @@ export function GameplayHud({
         {flying && <span>Altitude {Math.round(player.elevation)} m · Land before exiting</span>}
       </div>
       <div className="gameplay-prompt" role="status">
-        {!captured && <span>Click the scene to play · WASD to move</span>}
+        {!captured && <span>Click to look around with the mouse</span>}
         {target && (
           <span>
             <kbd>{target.kind === "vehicle" ? "F" : "E"}</kbd> {targetAction(target)} ·{" "}
