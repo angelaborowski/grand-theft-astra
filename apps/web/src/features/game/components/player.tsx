@@ -190,11 +190,13 @@ export function Player({
       <Ecctrl
         ref={controller}
         position={[spawn.x, spawnHeight, spawn.z]}
+        rotation={[0, cameraSign === 1 ? Math.PI : 0, 0]}
         capsuleRadius={MOVEMENT.actorRadius}
         capsuleHalfHeight={0.45}
         floatHeight={0.05}
         maxWalkVel={driving ? MOVEMENT.driveSpeed * 0.85 : MOVEMENT.walkSpeed * 0.8}
         maxRunVel={driving ? MOVEMENT.driveSpeed : MOVEMENT.walkSpeed}
+        enableToggleRun={false}
         jumpVel={0}
       >
         <group position={[0, -0.95, 0]}>

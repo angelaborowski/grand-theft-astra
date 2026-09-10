@@ -2,7 +2,7 @@ import { Html, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { CatchBoundary } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { AnimationMixer, Vector3, type AnimationAction } from "three";
+import { AnimationMixer, Group, Mesh, Vector3, type AnimationAction } from "three";
 import { cloneCharacter } from "../models/scene-assets";
 import { Person } from "./primitive-entities";
 
@@ -41,12 +41,21 @@ function AnimatedCharacter({
   const actions = useRef<Record<string, AnimationAction>>({});
   const position = useRef(new Vector3());
   const elapsed = useRef(0);
+  const detailed = useRef<Group>(null);
+  const distant = useRef<Group>(null);
+  const simplified = useRef(false);
+  const shadowMeshes = useRef<Mesh[]>([]);
+  const shadowing = useRef(true);
   const current = useRef<AnimationAction | null>(null);
   useEffect(() => {
+    model.traverse((object) => {
+      if (object instanceof Mesh) shadowMeshes.current.push(object);
+    });
     actions.current = Object.fromEntries(
       gltf.animations.map((clip) => [clip.name, mixer.clipAction(clip)]),
     );
     return () => {
+      shadowMeshes.current = [];
       current.current = null;
       actions.current = {};
       mixer.stopAllAction();
@@ -56,6 +65,16 @@ function AnimatedCharacter({
   useFrame(({ camera }, delta) => {
     model.getWorldPosition(position.current);
     const distance = camera.position.distanceToSquared(position.current);
+    if (distance > 60 * 60) simplified.current = true;
+    else if (distance < 50 * 50) simplified.current = false;
+    const castShadow = distance < 35 * 35;
+    if (shadowing.current !== castShadow) {
+      setCharacterShadows(shadowMeshes.current, castShadow);
+      shadowing.current = castShadow;
+    }
+    if (detailed.current) detailed.current.visible = !simplified.current;
+    if (distant.current) distant.current.visible = simplified.current;
+    if (simplified.current) return;
     // Keep full-rate nearby poses; distant figures need fewer bone updates, not fewer bodies.
     const interval = distance > 100 * 100 ? 1 / 10 : distance > 40 * 40 ? 1 / 20 : 0;
     elapsed.current += Math.min(delta, 0.1);
@@ -73,7 +92,16 @@ function AnimatedCharacter({
     action.setEffectiveTimeScale(speed > 0.05 ? Math.min(2.5, Math.max(0.4, speed / 1.4)) : 1);
     mixer.update(step);
   });
-  return <primitive object={model} dispose={null} />;
+  return (
+    <group>
+      <group ref={detailed}>
+        <primitive object={model} dispose={null} />
+      </group>
+      <group ref={distant} visible={false}>
+        <Person color={color ?? "#626b72"} castShadow={false} />
+      </group>
+    </group>
+  );
 }
 
 function CharacterAssetFailure() {
@@ -87,4 +115,9 @@ function CharacterAssetFailure() {
       </Html>
     </group>
   );
+}
+
+/** Shadow flags belong to mutable Three.js objects, not React state. */
+function setCharacterShadows(meshes: Mesh[], enabled: boolean) {
+  for (const mesh of meshes) mesh.castShadow = enabled;
 }

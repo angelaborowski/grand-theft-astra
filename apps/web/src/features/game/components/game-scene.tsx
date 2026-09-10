@@ -60,7 +60,7 @@ export function GameScene({
     <KeyboardControls map={keyboardMap}>
       <Canvas
         shadows={{ type: PCFShadowMap }}
-        dpr={[1, 1.5]}
+        dpr={1}
         camera={{ position: [0, 3.8, 6.5], fov: 58, near: 0.3, far: 1600 }}
         gl={{ antialias: true, localClippingEnabled: true, toneMappingExposure: 0.9 }}
       >
@@ -68,7 +68,7 @@ export function GameScene({
         {!inside && <fog attach="fog" args={["#d4dfe8", 260, 1000]} />}
         {space !== "museum" && <SceneLighting />}
         {!inside && <Snowfall />}
-        <SceneEffects />
+        {inside && <SceneEffects />}
         <FrameMeter />
         <Suspense fallback={null}>
           <Physics timeStep={1 / 60} interpolate>

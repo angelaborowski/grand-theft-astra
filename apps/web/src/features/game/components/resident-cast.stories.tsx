@@ -12,8 +12,15 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 export const Walking: Story = { args: { speed: 1.4 } };
 export const Idle: Story = { args: { speed: 0 } };
+export const Distant: Story = { args: { speed: 1.4, cameraDistance: 100 } };
 
-function ResidentCast({ speed = 1.4 }: { speed?: number }) {
+function ResidentCast({
+  speed = 1.4,
+  cameraDistance = 11,
+}: {
+  speed?: number;
+  cameraDistance?: number;
+}) {
   const motion = useRef<CharacterMotion>({ speed });
   useEffect(() => {
     motion.current.speed = speed;
@@ -23,7 +30,7 @@ function ResidentCast({ speed = 1.4 }: { speed?: number }) {
   ];
   return (
     <div style={{ height: "95vh", background: "#71808a" }}>
-      <Canvas camera={{ position: [0, 7, 11], fov: 48 }}>
+      <Canvas camera={{ position: [0, 7, cameraDistance], fov: 48 }}>
         <hemisphereLight intensity={2.1} />
         <directionalLight position={[-5, 10, 8]} intensity={2.8} />
         <Suspense fallback={null}>

@@ -1,14 +1,14 @@
 import { VehicleModel } from "./vehicle-model";
 
 /** Reused visual body; physics and identity belong to the calling entity. */
-export function Person({ color }: { color: string }) {
+export function Person({ color, castShadow = true }: { color: string; castShadow?: boolean }) {
   return (
     <group>
-      <mesh position={[0, 0.85, 0]} castShadow>
+      <mesh position={[0, 0.85, 0]} castShadow={castShadow}>
         <capsuleGeometry args={[0.32, 0.85, 3, 6]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <mesh position={[0, 1.65, 0]} castShadow>
+      <mesh position={[0, 1.65, 0]} castShadow={castShadow}>
         <sphereGeometry args={[0.27, 8, 8]} />
         <meshStandardMaterial color="#d3b796" />
       </mesh>

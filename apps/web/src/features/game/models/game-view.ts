@@ -7,14 +7,14 @@ import {
   type WorldSnapshot,
 } from "@gpta/core/world";
 import type { ActivityItem, DecisionItem } from "../../../ui/game-panels";
-import { sceneSpace } from "@gpta/core/scene";
+import { MOVEMENT, sceneSpace } from "@gpta/core/scene";
 
 /** Show a stable game clock using UTC, independent of the browser locale. */
 export function gameTime(time: number): string {
   return new Date(time).toISOString().slice(11, 19);
 }
 
-/** The selected entity remains inspectable at any distance; otherwise choose the nearest interaction. */
+/** The selected entity remains inspectable at any distance; otherwise offer only an interaction within reach. */
 export function selectedEntity(
   snapshot: WorldSnapshot,
   player: Actor,
@@ -28,6 +28,7 @@ export function selectedEntity(
       (entity) =>
         entity.id !== player.id &&
         entity.kind !== "location" &&
+        distance(player.position, entity.position) <= MOVEMENT.interactionRange &&
         sceneSpace(entity.position) === inside,
     )
     .toSorted(
