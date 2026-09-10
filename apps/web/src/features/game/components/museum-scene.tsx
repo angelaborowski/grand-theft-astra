@@ -31,7 +31,7 @@ export function MuseumScene() {
           />
         ))}
       </RigidBody>
-      <Html position={[0, 2.1, -0.2]} center>
+      <Html position={[0, 2.1, -0.2]} center zIndexRange={[8, 0]}>
         <span className="route-label">Red Square → Walk through the doorway</span>
       </Html>
     </group>

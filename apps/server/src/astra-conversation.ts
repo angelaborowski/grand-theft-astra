@@ -60,7 +60,8 @@ export class AstraConversation extends WorkflowEntrypoint<Env, ConversationParam
         logLevel: "off",
       });
       const requests = [];
-      for (let round = 0; round < 3; round += 1) {
+      // A character without conversation tools skips straight to speech; that halves the wait.
+      for (let round = 0; tools.length > 0 && round < 3; round += 1) {
         const response = await step.do(`conversation actions ${round}`, providerStep, () =>
           requestConversationActions(client, {
             model: this.env.OPENAI_MODEL,

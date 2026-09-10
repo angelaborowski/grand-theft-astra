@@ -421,6 +421,36 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
   };
 }
 
+const DECISION_TIMEOUT_MS = 300_000;
+const DECISION_HISTORY = 30;
+
+/** Fail lost decisions, drop the scheduled backlog, and cap history so snapshots stay small. */
+export function pruneDecisions(world: WorldSnapshot, now: number): WorldSnapshot {
+  const decisions = world.decisions.flatMap((decision) => {
+    if (decision.status === "running" && now - decision.createdAt > DECISION_TIMEOUT_MS)
+      return [
+        {
+          ...decision,
+          status: "failed" as const,
+          summary: `${decision.summary}\nDecision timed out.`,
+        },
+      ];
+    if (decision.status === "pending" && decision.trigger.startsWith("schedule:")) return [];
+    return [decision];
+  });
+  const finished = decisions.filter((d) => d.status === "completed" || d.status === "failed");
+  const dropped = new Set(
+    finished.slice(0, Math.max(0, finished.length - DECISION_HISTORY)).map((d) => d.id),
+  );
+  const kept = decisions.filter((d) => !dropped.has(d.id));
+  if (
+    kept.length === world.decisions.length &&
+    kept.every((decision, index) => decision === world.decisions[index])
+  )
+    return world;
+  return { ...world, revision: world.revision + 1, decisions: kept };
+}
+
 /** A session owns its player; reconnecting preserves that player's state. */
 export function addPlayer(world: WorldSnapshot, playerId: EntityId): WorldSnapshot {
   if (world.entities.some((entity) => entity.id === playerId)) return world;

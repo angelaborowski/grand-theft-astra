@@ -45,6 +45,7 @@ export function GameSession({
       },
     },
     recoveryActive,
+    sceneSpace(world.player.position),
   );
   const { snapshot, player, connection, action } = world;
   const showOverview = overview && sceneSpace(player.position) === "square";

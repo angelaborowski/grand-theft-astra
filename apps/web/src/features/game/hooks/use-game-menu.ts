@@ -6,9 +6,11 @@ export function useGameMenu(
   enabled: boolean,
   actions: { clearSelection: () => void; closeOverview?: () => boolean },
   recoveryActive = false,
+  inputContext = "",
 ) {
   const [menu, setMenu] = useState<GameMenu>({ view: "closed" });
   const hadPointerLock = useRef(false);
+  const pointerContext = useRef(inputContext);
   const releasingForMenu = useRef(false);
   function open(next: GameMenu) {
     releasingForMenu.current = next.view !== "closed";
@@ -19,6 +21,7 @@ export function useGameMenu(
     const locked = document.pointerLockElement !== null;
     if (
       hadPointerLock.current &&
+      pointerContext.current === inputContext &&
       !locked &&
       !releasingForMenu.current &&
       !recoveryActive &&
@@ -26,7 +29,10 @@ export function useGameMenu(
     )
       open({ view: "pause", tab: "game" });
     hadPointerLock.current = locked;
-    if (locked) releasingForMenu.current = false;
+    if (locked) {
+      pointerContext.current = inputContext;
+      releasingForMenu.current = false;
+    }
   });
   const keydown = useEffectEvent((event: KeyboardEvent) => {
     if (

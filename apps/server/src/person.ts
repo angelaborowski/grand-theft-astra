@@ -79,6 +79,11 @@ export class Person extends DurableObject<Env> {
       await this.ctx.storage.setAlarm(Date.now() + 5000);
       return;
     }
+    // World re-arms the schedule through initialize when this person may think again.
+    if (result === "disabled") {
+      await this.ctx.storage.deleteAlarm();
+      return;
+    }
     const pendingTrigger =
       current.pendingTrigger !== state.pendingTrigger ? current.pendingTrigger : null;
     const nextDecisionAt = pendingTrigger ? Date.now() + 1 : Date.now() + current.intervalMs;

@@ -206,11 +206,16 @@
 
 .astra-loading-artwork {
   opacity: 0;
-  animation: astra-artwork-cycle 6s linear infinite;
+  animation: astra-artwork-cycle 6s linear 1 forwards;
 }
 
 .astra-loading-artwork:first-child {
   opacity: 1;
+}
+
+/* The last artwork holds until the scene is ready, so a slow load never shows a fourth image. */
+.astra-loading-artwork:last-child {
+  animation-name: astra-artwork-hold;
 }
 
 .astra-loading-screen[data-state="failed"] .astra-loading-artwork {
@@ -424,6 +429,16 @@
   38.333%,
   100% {
     opacity: 0;
+  }
+}
+
+@keyframes astra-artwork-hold {
+  0% {
+    opacity: 0;
+  }
+  5%,
+  100% {
+    opacity: 1;
   }
 }
 

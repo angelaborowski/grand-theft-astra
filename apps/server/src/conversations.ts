@@ -100,13 +100,16 @@ export class Conversations {
     return this.store.active().length;
   }
 
-  async schedule(backgroundActors: EntityId[]): Promise<void> {
+  /** Player conversations never wait for background decisions; a queued turn cannot outlive its player's patience. */
+  async schedule(): Promise<void> {
     for (const turn of this.store.expired(Date.now()))
       this.fail(turn.id, "The conversation timed out. Send a message to try again.");
+    for (const turn of this.store.queuedExpired(Date.now()))
+      this.fail(turn.id, "The conversation could not start. Send your message again.");
     if (!this.deps.enabled) return;
     const active = this.store.active();
-    const occupied = new Set([...backgroundActors, ...active.map((turn) => turn.actorId)]);
-    let capacity = Math.max(0, 2 - backgroundActors.length - active.length);
+    const occupied = new Set(active.map((turn) => turn.actorId));
+    let capacity = Math.max(0, 2 - active.length);
     for (const turn of this.store.queued()) {
       if (capacity === 0) break;
       if (occupied.has(turn.actorId)) continue;

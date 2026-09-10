@@ -14,6 +14,7 @@ import {
   advanceMovement,
   advanceRoutines,
   createInitialWorld,
+  pruneDecisions,
   repairWorldPositions,
 } from "@gpta/core/simulation";
 import {
@@ -388,11 +389,12 @@ export class World extends DurableObject<Env> {
   }
 
   private async scheduleDecisions(): Promise<void> {
-    await this.conversations.schedule(
-      this.world.decisions
-        .filter((decision) => decision.status === "running")
-        .map((decision) => decision.actorId),
-    );
+    const pruned = pruneDecisions(this.world, Date.now());
+    if (pruned !== this.world) {
+      this.store.save(pruned);
+      this.world = pruned;
+    }
+    await this.conversations.schedule();
     if (!this.env.OPENAI_API_KEY) return;
     if (!this.peopleInitialized) {
       const people = this.world.entities
@@ -435,17 +437,18 @@ export class World extends DurableObject<Env> {
     if (Date.now() >= this.nextWorkflowInspection) {
       this.nextWorkflowInspection = Date.now() + 30000;
       for (const decision of this.world.decisions.filter((item) => item.status === "running")) {
-        const instance = await this.env.DECISIONS.get(decision.id);
-        const status = await instance.status();
-        if (
-          status.status === "errored" ||
-          status.status === "terminated" ||
-          status.status === "complete"
-        ) {
+        // A missing instance is not fatal here; the time-based prune fails it.
+        let status: string | undefined;
+        try {
+          status = (await (await this.env.DECISIONS.get(decision.id)).status()).status;
+        } catch {
+          continue;
+        }
+        if (status === "errored" || status === "terminated" || status === "complete") {
           await this.completeDecision(
             decision.id,
             "failed",
-            `Workflow ${status.status} before its completion was recorded.`,
+            `Workflow ${status} before its completion was recorded.`,
           );
         }
       }
@@ -491,6 +494,8 @@ export class World extends DurableObject<Env> {
   /** Person alarms enqueue at most one decision per actor; insertion order provides fair service. */
   enqueueDecision(actorId: EntityId, trigger: string): "queued" | "busy" | "disabled" {
     if (!this.env.OPENAI_API_KEY) return "disabled";
+    // Scheduled background thinking is off: it starved conversations and never showed on screen.
+    if (trigger.startsWith("schedule:")) return "disabled";
     if (this.conversations.busyActors().has(actorId)) return "busy";
     if (
       this.world.decisions.some(

@@ -111,6 +111,13 @@ export class ConversationStore {
     );
   }
 
+  queuedExpired(now: number): ConversationTurn[] {
+    return this.rows(
+      "SELECT * FROM conversation_turns WHERE json_extract(response, '$.status') = 'queued' AND created_at < ?",
+      now - 30_000,
+    );
+  }
+
   listeners(id: TurnId): EntityId[] {
     const row = this.storage.sql
       .exec<{ listeners: string }>("SELECT listeners FROM conversation_turns WHERE id = ?", id)
