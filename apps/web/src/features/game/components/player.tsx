@@ -95,7 +95,13 @@ export function Player({
   useEffect(() => {
     const previous = lastAccepted.current;
     lastAccepted.current = actor.position;
-    if (Math.hypot(previous.x - actor.position.x, previous.z - actor.position.z) <= 3) return;
+    const distance = Math.hypot(previous.x - actor.position.x, previous.z - actor.position.z);
+    const museumRestart =
+      space === "museum" &&
+      actor.position.x === MUSEUM.spawn.x &&
+      actor.position.z === MUSEUM.spawn.z &&
+      distance > 0.01;
+    if (distance <= 3 && !museumRestart) return;
     restorePosition();
     controller.current?.body?.setLinvel({ x: 0, y: 0, z: 0 }, true);
     const height =
