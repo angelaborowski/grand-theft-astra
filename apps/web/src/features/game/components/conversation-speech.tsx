@@ -1,6 +1,6 @@
 import type { ConversationTurn } from "@gpta/core/conversations";
 import { isActor, type Entity, type EntityId } from "@gpta/core/world";
-import { useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { conversationQueryKey } from "../queries/conversation-queries";
 
 /** The scene overlay reads the same public turn as the transcript, including unfinished speech. */
@@ -14,6 +14,7 @@ export function ConversationSpeech({
   const actorId = entity && isActor(entity) && entity.kind !== "player" ? entity.id : null;
   const query = useQuery<ConversationTurn[]>({
     queryKey: conversationQueryKey(playerId, actorId),
+    queryFn: skipToken,
     enabled: false,
     staleTime: Infinity,
   });
