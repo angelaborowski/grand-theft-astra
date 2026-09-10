@@ -10,6 +10,7 @@ import { DrivingPlayer } from "./driving-player";
 import { StuntCourse } from "./stunt-course";
 import { Player } from "./player";
 import { WorldEntities } from "./world-entities";
+import { FrameMeter } from "./frame-meter";
 import { SceneEffects } from "./scene-effects";
 import { SceneLighting } from "./scene-lighting";
 import { GuesthouseScene } from "./guesthouse-scene";
@@ -57,13 +58,14 @@ export function GameScene({
       <Canvas
         shadows={{ type: PCFShadowMap }}
         dpr={[1, 1.5]}
-        camera={{ position: [0, 3.8, 6.5], fov: 58, far: 1600 }}
+        camera={{ position: [0, 3.8, 6.5], fov: 58, near: 0.3, far: 1600 }}
         gl={{ antialias: true, localClippingEnabled: true, toneMappingExposure: 0.9 }}
       >
         <color attach="background" args={["#bacbd0"]} />
         <fog attach="fog" args={["#bacbd0", 400, 900]} />
         <SceneLighting />
         <SceneEffects />
+        <FrameMeter />
         <Suspense fallback={null}>
           <Physics timeStep={1 / 60} interpolate>
             {inside ? <GuesthouseScene /> : <CityScene />}

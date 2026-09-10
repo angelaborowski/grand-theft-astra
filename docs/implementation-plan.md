@@ -194,3 +194,11 @@ The refined `mila-study.glb` replaces the existing runtime asset at the same pat
 
 Reference likeness is not accepted: materials and skin remain flat, hair layering/crown highlights are visible, hands/accessories are simplified, and Greet is an arm extension rather than a natural wave. Same-camera before/after views and reference are preserved in `source/characters/mila-study/comparison.html`. These asset checks do not substitute for a close-up gameplay likeness review.
 The accompanying Ferrari asset pass replaces its separate roof slab with a continuous curved canopy and torus tyres with profiled meshes. Wheel pivot identities/positions and the game envelope are preserved. Matched-camera GLB before/after renders and validation are under `source/blender/vehicles/`; no driving or gameplay component changes are included.
+
+### Rendering performance pass
+
+Character animation now accumulates time and updates nearby rigs every frame, rigs beyond 40 m at 20 Hz, and beyond 100 m at 10 Hz. All bodies, authoritative positions, interactions and assets remain present. SSAO uses half-width/half-height targets (one quarter of the shading pixels), while the main render retains its pixel density and antialiasing. Composer sizing follows device pixel ratio changes.
+
+An opt-in `?perf=1` overlay reports three-second average FPS and p95 frame time. Browser inspection found no captured errors; initial short samples were 62 FPS / 28.5 ms p95 before and 68 FPS / 19.9 ms after, but later samples varied down to 28 FPS in overview. These are uncontrolled development-browser observations with concurrent asset production, not proof of a stable frame-rate gain. Full driving performance remains to be benchmarked. Independent static review found no blockers.
+
+Overview flicker fix: the city GLB contains `00 | Paved site`, which the old Ground/Terrain filter missed. Its top is only 8.5 cm below the replacement floor. Hide that complete node before mesh traversal and use a 0.3 m camera near plane to reduce distant depth fighting; physics ground remains unchanged.

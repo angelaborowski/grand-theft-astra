@@ -97,7 +97,8 @@ function LoadedScene() {
         object.castShadow = true;
         object.receiveShadow = true;
         // The detail GLB replaces the original wall, and the shared floor replaces exported terrain.
-        if (/Ground|Terrain|Context.*Kremlin.*wall/i.test(object.name)) object.visible = false;
+        if (/Ground|Terrain|Paved.*site|Context.*Kremlin.*wall/i.test(object.name))
+          object.visible = false;
       });
       return scene;
     }),

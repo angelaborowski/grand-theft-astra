@@ -7,7 +7,8 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 
 /** Original contact shading runs on the actual gameplay camera. */
 export function SceneEffects() {
-  const { gl, scene, camera, size } = useThree();
+  const { gl, scene, camera, size, viewport } = useThree();
+  const ambient = useRef<SSAOPass | null>(null);
   const current = useRef<EffectComposer | null>(null);
   useEffect(() => {
     const composer = new EffectComposer(gl);
@@ -23,16 +24,24 @@ export function SceneEffects() {
     composer.addPass(ao);
     composer.addPass(output);
     current.current = composer;
+    ambient.current = ao;
     return () => {
       current.current = null;
+      ambient.current = null;
       ao.dispose();
       output.dispose();
       composer.dispose();
     };
   }, [gl, scene, camera]);
   useEffect(() => {
+    current.current?.setPixelRatio(viewport.dpr);
     current.current?.setSize(size.width, size.height);
-  }, [gl, scene, camera, size.width, size.height]);
+    // Broad contact shading can be sampled at half resolution while geometry stays sharp.
+    ambient.current?.setSize(
+      Math.max(1, Math.round(size.width * viewport.dpr * 0.5)),
+      Math.max(1, Math.round(size.height * viewport.dpr * 0.5)),
+    );
+  }, [gl, scene, camera, size.width, size.height, viewport.dpr]);
   useFrame(() => {
     current.current?.render();
   }, 1);

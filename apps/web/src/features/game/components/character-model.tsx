@@ -1,8 +1,8 @@
-import { Html, useAnimations, useGLTF } from "@react-three/drei";
+import { Html, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { CatchBoundary } from "@tanstack/react-router";
-import { useRef, useState, type RefObject } from "react";
-import type { AnimationAction } from "three";
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { AnimationMixer, Vector3, type AnimationAction } from "three";
 import { cloneCharacter } from "../models/scene-assets";
 import { Person } from "./primitive-entities";
 
@@ -37,9 +37,29 @@ function AnimatedCharacter({
 }) {
   const gltf = useGLTF(asset);
   const [model] = useState(() => cloneCharacter(gltf.scene, color));
-  const { actions } = useAnimations(gltf.animations, model);
+  const [mixer] = useState(() => new AnimationMixer(model));
+  const [actions] = useState(() =>
+    Object.fromEntries(gltf.animations.map((clip) => [clip.name, mixer.clipAction(clip)])),
+  );
+  const position = useRef(new Vector3());
+  const elapsed = useRef(0);
+  useEffect(
+    () => () => {
+      mixer.stopAllAction();
+      mixer.uncacheRoot(model);
+    },
+    [mixer, model],
+  );
   const current = useRef<AnimationAction | null>(null);
-  useFrame(() => {
+  useFrame(({ camera }, delta) => {
+    model.getWorldPosition(position.current);
+    const distance = camera.position.distanceToSquared(position.current);
+    // Keep full-rate nearby poses; distant figures need fewer bone updates, not fewer bodies.
+    const interval = distance > 100 * 100 ? 1 / 10 : distance > 40 * 40 ? 1 / 20 : 0;
+    elapsed.current += Math.min(delta, 0.1);
+    if (elapsed.current < interval) return;
+    const step = elapsed.current;
+    elapsed.current = 0;
     const speed = motion.current.speed;
     const action = actions[speed > 0.05 ? "Walk" : "Idle"];
     if (!action) return;
@@ -49,6 +69,7 @@ function AnimatedCharacter({
       current.current = action;
     }
     action.setEffectiveTimeScale(speed > 0.05 ? Math.min(2.5, Math.max(0.4, speed / 1.4)) : 1);
+    mixer.update(step);
   });
   return <primitive object={model} dispose={null} />;
 }
