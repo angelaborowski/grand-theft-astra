@@ -49,3 +49,10 @@ Mouse-look, keyboard movement handlers and assisted movement share the same boun
 - Inspected street, stone-detail and new paving camera views in the browser. No rendering errors reported by browser logs. Corrected downpipes to the pilaster positions following visual review.
 - JavaScript syntax check passed. Gameplay/server logic is unchanged; the prior seven-test result applies to that unchanged logic.
 - Generic material scans improve surface variation but are not evidence of the site's actual stone species, paving pattern or weathering. No new survey-accuracy claim.
+
+## Expanded world detail
+
+- Blender GLB reimport passed: 15 meshes, 11,976 triangles, finite coordinates and preserved UVs. Validation script and result are under source/blender/world-detail.
+- JavaScript syntax check passed. Browser wall and bookstall views were visually inspected; browser logs reported no errors during those checks.
+- New brick texture downloads verified against API MD5 values; SHA-256 hashes recorded.
+- Existing gameplay rules are unchanged. This pass replaces scenery and material assignments, not world simulation.

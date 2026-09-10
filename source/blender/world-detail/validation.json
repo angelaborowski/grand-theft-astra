@@ -1,0 +1,13 @@
+{
+  "triangles": 11976,
+  "meshes": 15,
+  "wall_length_m": 308.88,
+  "limits": [
+    "Wall follows previous approximate alignment and height, not a new survey.",
+    "Bookstall is fictional gameplay scenery.",
+    "Brick material is a generic Poly Haven CC0 surface, not sampled from Kremlin."
+  ],
+  "glb_reimported": true,
+  "finite_coordinates": true,
+  "uvs_preserved": true
+}

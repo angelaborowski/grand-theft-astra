@@ -50,3 +50,7 @@ Poly Haven surface materials: Old Sandstone 02 and Cobblestone Floor 08.
 CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/
 https://polyhaven.com/license
 Powered by Poly Haven. See public/assets/materials/scanned/provenance.json for source URLs and hashes.
+
+Poly Haven Red Brick material, CC0 1.0.
+https://polyhaven.com/a/red_brick
+Verified source hashes in public/assets/materials/scanned/provenance.json.
