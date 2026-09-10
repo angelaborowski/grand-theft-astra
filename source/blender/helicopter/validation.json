@@ -1,0 +1,40 @@
+{
+  "glb_reimported": true,
+  "triangles": 39908,
+  "meshes": 30,
+  "bytes": 1373312,
+  "sha256": "604dc4f1b9872cea6fb5ca0e39c9516d6de9acac0ebc01a960c0df4025fceda1",
+  "finite_coordinates": true,
+  "uvs": true,
+  "dimensions_gltf_xyz": [
+    10.15999984741211,
+    2.9097643052082276,
+    9.550000190734863
+  ],
+  "ground_min_y": 0.00023578062246087939,
+  "rotors": {
+    "MainRotor": {
+      "pivot_gltf_xyz": [
+        0.0,
+        2.819999933242798,
+        -0.0
+      ],
+      "spin_axis_gltf": "Y",
+      "diameter_m": 10.15999984741211,
+      "rotation_radius_preserved": true
+    },
+    "TailRotor": {
+      "pivot_gltf_xyz": [
+        -0.23999999463558197,
+        1.8200000524520874,
+        -6.869999885559082
+      ],
+      "spin_axis_gltf": "X",
+      "diameter_m": 1.649999976158142,
+      "rotation_radius_preserved": true
+    }
+  },
+  "forward": "+Z",
+  "up": "+Y",
+  "units": "metres"
+}
