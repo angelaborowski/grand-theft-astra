@@ -1,20 +1,11 @@
 import { STUNT } from "@gpta/core/scene";
 import type { Player } from "@gpta/core/world";
 import { Html } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
-import { useRef } from "react";
-import { Group } from "three";
+import { HelicopterModel } from "./helicopter-model";
 
 /** Fictional movie-set props. The server checks route order, deadline, and handoff. */
 export function StuntCourse({ player }: { player: Player }) {
-  const rotor = useRef<Group>(null);
-  const helicopter = useRef<Group>(null);
-  useFrame(({ clock }, delta) => {
-    if (rotor.current) rotor.current.rotation.y += delta * 32;
-    if (helicopter.current)
-      helicopter.current.position.y = 4.5 + Math.sin(clock.elapsedTime * 1.4) * 0.12;
-  });
   const next = player.stunt?.stage === "running" ? player.stunt.checkpoint : -1;
   return (
     <>
@@ -63,44 +54,9 @@ export function StuntCourse({ player }: { player: Player }) {
         <Html position={[0, 1.5, 0]} center distanceFactor={22}>
           <span className="route-label">HELICOPTER PICKUP</span>
         </Html>
-        <group ref={helicopter} position={[0, 4.5, 0]}>
-          <mesh castShadow scale={[1.5, 1.25, 2.7]}>
-            <sphereGeometry args={[1, 24, 16]} />
-            <meshStandardMaterial color="#233537" metalness={0.55} roughness={0.35} />
-          </mesh>
-          <mesh position={[0, 0.25, 1.8]} scale={[1.3, 0.85, 1.05]}>
-            <sphereGeometry args={[1, 24, 12]} />
-            <meshStandardMaterial color="#15282f" metalness={0.4} roughness={0.12} />
-          </mesh>
-          <mesh position={[0, 0.4, -4]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.18, 0.65, 5, 12]} />
-            <meshStandardMaterial color="#233537" />
-          </mesh>
-          <mesh position={[0, 1.15, -6.2]}>
-            <boxGeometry args={[0.15, 1.8, 1.1]} />
-            <meshStandardMaterial color="#d4a35a" />
-          </mesh>
-          <group ref={rotor} position={[0, 1.7, 0]}>
-            {[0, Math.PI / 2].map((angle) => (
-              <mesh key={angle} rotation={[0, angle, 0]}>
-                <boxGeometry args={[11, 0.055, 0.23]} />
-                <meshStandardMaterial color="#222827" />
-              </mesh>
-            ))}
-          </group>
-          {[-1.3, 1.3].map((x) => (
-            <group key={x}>
-              <mesh position={[x, -1.5, 0]}>
-                <boxGeometry args={[0.13, 0.15, 4.2]} />
-                <meshStandardMaterial color="#929d9d" metalness={0.8} roughness={0.3} />
-              </mesh>
-              <mesh position={[x, -1.1, 0]}>
-                <boxGeometry args={[0.12, 0.8, 0.12]} />
-                <meshStandardMaterial color="#929d9d" />
-              </mesh>
-            </group>
-          ))}
-        </group>
+        <HelicopterModel
+          departing={player.stunt?.stage === "completed" || player.stunt?.stage === "failed"}
+        />
       </group>
     </>
   );
