@@ -203,6 +203,8 @@ export function applyPlayerAction(
       );
     if (!startPosition) return reject("The starting lane is occupied. Try again in a moment.");
     car.position = startPosition;
+    car.heading = 0;
+    driver.heading = car.heading;
     driver.position = { ...car.position };
     driver.elevation = 0;
     driver.grounded = true;

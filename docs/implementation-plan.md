@@ -749,3 +749,9 @@ Integration verification passed: `pnpm check` (37 browser-model, 54 core and 35 
 Included all four remote commits through `77899da`: CI, physics/audio/interface, WASD pointer-lock fix, and `a31c308` loading/Storybook cleanup. Removed the local museum and resident Storybook previews too, because their Storybook dependency is intentionally gone; their actual game components and assets remain. Earlier Storybook verification notes are historical; interface verification now uses the running game.
 
 Compared against local `46d5060`: existing runtime assets, Blender sources, character sources and original prototype files are unchanged; remote audio and interface assets are additions. Museum server traversal, saved progress, direct mission launch, crowd rendering limits and weather remain integrated with the new controls.
+
+## Fresh-player browser check after Codex restart
+
+Restarted frontend/backend after both stopped. A separate local player on 127.0.0.1 entered the menu, completed loading, walked through the museum and exited to Red Square. The in-game Play first mission button started Last Flight, supplied the owned car and began the countdown. Exiting the car also worked. The handoff retained the museum heading; launch now resets driver and car heading to zero, toward the checkpoint course, with a regression assertion.
+
+Museum measurements after restart were approximately 60–90 FPS; outdoor loading fell to 8–12 FPS before recovering to roughly 25–37 FPS. A position-recovery failure occurred during early driving and cleared after reload; its cause and the full checkpoint-to-finish browser run remain unverified. Live NPC AI awaits the team key; do not present scripted simulation as verified model-driven behaviour.
