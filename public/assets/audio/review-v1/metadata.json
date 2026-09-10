@@ -1,0 +1,326 @@
+{
+  "provider": "ElevenLabs",
+  "status": "completed",
+  "files": [
+    {
+      "basename": "menu.mp3",
+      "requested_duration_seconds": 60,
+      "actual_duration_seconds": 60,
+      "prompt": "Original restrained urban crime-game instrumental with warm analogue synth bass and subdued breakbeat at 90 BPM. Nocturnal city mood, understated tension and confident relaxed energy, consistent restrained arrangement across 60 seconds. No vocals, no existing melodies, no references to particular artists, no copied GTA music.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_music_v2",
+      "generation_id": "Ydc8WHcDGoNWMAV7zRJZ",
+      "cost": {
+        "credits": 2291.575,
+        "price_cents": 27.5,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": "unknown",
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "Ydc8WHcDGoNWMAV7zRJZ",
+      "output_byte_count": 1458033,
+      "status": "completed",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "session_ids": [
+        "kfquEXrwpjHRqhcVvO8O"
+      ],
+      "node_id": "6UtDspuPQewIbuipqY5M",
+      "model_parameters": {
+        "duration_seconds": 60,
+        "lyrics_type": "instrumental",
+        "instrumental": true
+      },
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/kfquEXrwpjHRqhcVvO8O/Ydc8WHcDGoNWMAV7zRJZ/content.mp3"
+    },
+    {
+      "basename": "square.mp3",
+      "requested_duration_seconds": 30,
+      "actual_duration_seconds": 30,
+      "prompt": "Looping living Moscow plaza ambience, distant city traffic, occasional pedestrian footsteps, indistinct human crowd, occasional very distant siren or horn. Natural wide outdoor space, subdued foreground, no intelligible or identifiable speech, no music.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "bxNzTDQtEYKuCegUCL7f",
+      "cost": {
+        "credits": 299.98799999999994,
+        "price_cents": 3.5999999999999996,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": true,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "bxNzTDQtEYKuCegUCL7f",
+      "output_byte_count": 497951,
+      "status": "completed",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "node_id": "qSIUtIXY1TpaddR6BNXW",
+      "model_parameters": {
+        "duration_seconds": 30,
+        "loop": true
+      },
+      "session_ids": [
+        "avviuFXI48Bpbq3Qu3Fv"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/avviuFXI48Bpbq3Qu3Fv/bxNzTDQtEYKuCegUCL7f/content.mp3"
+    },
+    {
+      "basename": "guesthouse.mp3",
+      "requested_duration_seconds": 15,
+      "actual_duration_seconds": 15,
+      "prompt": "Looping quiet old guesthouse interior room tone, soft air and subtle building creaks, faint outside street through walls. No speech or music.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "UMbzb6xuCIgrhoFjxk7h",
+      "cost": {
+        "credits": 149.99399999999997,
+        "price_cents": 1.7999999999999998,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": true,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "UMbzb6xuCIgrhoFjxk7h",
+      "output_byte_count": 258042,
+      "status": "completed",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "node_id": "uxIUpZPtwxGzSbMb2sKu",
+      "model_parameters": {
+        "duration_seconds": 15,
+        "loop": true
+      },
+      "session_ids": [
+        "EvZBSrX5tOM8Kk82DJRt"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/EvZBSrX5tOM8Kk82DJRt/UMbzb6xuCIgrhoFjxk7h/content.mp3"
+    },
+    {
+      "basename": "police-siren.mp3",
+      "requested_duration_seconds": 8,
+      "actual_duration_seconds": 8,
+      "prompt": "Looping clean European alternating police siren, stable distance and steady alternating tone; no speech, music, engines or extra events. Intended for later spatial attenuation in a game.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "yJbiW8CJxNWAuIjd1t43",
+      "cost": {
+        "credits": 79.9968,
+        "price_cents": 0.9599999999999999,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": true,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "yJbiW8CJxNWAuIjd1t43",
+      "output_byte_count": 146029,
+      "status": "completed",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "node_id": "jM8AkHqDZqovmLZT3TXT",
+      "model_parameters": {
+        "duration_seconds": 8,
+        "loop": true
+      },
+      "session_ids": [
+        "tlQ23MnBnPenrzirkGSm"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/tlQ23MnBnPenrzirkGSm/yJbiW8CJxNWAuIjd1t43/content.mp3"
+    },
+    {
+      "basename": "footstep-1.mp3",
+      "requested_duration_seconds": 0.5,
+      "actual_duration_seconds": 0.48,
+      "prompt": "One dry sneaker footstep on stone paving, sole impact and subtle gritty scuff, close sound, no echo or background.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "nlMCQgnVNQq5uFNhyNgQ",
+      "cost": {
+        "credits": 4.9998,
+        "price_cents": 0.05999999999999999,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": false,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "nlMCQgnVNQq5uFNhyNgQ",
+      "output_byte_count": 25657,
+      "status": "completed",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "node_id": "6v2yQp66uDVJnX9H85Zm",
+      "model_parameters": {
+        "duration_seconds": 0.5,
+        "loop": false
+      },
+      "session_ids": [
+        "OhvtagJpBwiGqPMDMemo"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/OhvtagJpBwiGqPMDMemo/nlMCQgnVNQq5uFNhyNgQ/content.mp3"
+    },
+    {
+      "basename": "footstep-2.mp3",
+      "requested_duration_seconds": 0.5,
+      "actual_duration_seconds": 0.48,
+      "prompt": "One dry sneaker footstep on stone paving, slightly heavier heel impact and subtle scuff, close sound, no echo or background.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "yjZgcn54POzQWUmJubUb",
+      "cost": {
+        "credits": 4.9998,
+        "price_cents": 0.05999999999999999,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": false,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "yjZgcn54POzQWUmJubUb",
+      "output_byte_count": 25657,
+      "status": "completed",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "node_id": "dAS81oghHVUbfszEaZMy",
+      "model_parameters": {
+        "duration_seconds": 0.5,
+        "loop": false
+      },
+      "session_ids": [
+        "9cVhbKq62Y6R8Q6ea8ew"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/9cVhbKq62Y6R8Q6ea8ew/yjZgcn54POzQWUmJubUb/content.mp3"
+    },
+    {
+      "basename": "footstep-3.mp3",
+      "requested_duration_seconds": 0.5,
+      "actual_duration_seconds": 0.48,
+      "prompt": "One dry sneaker footstep on stone paving, softer sole impact and tiny grit movement, close sound, no echo or background.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "TwNyAxQakCLepZdOWkKN",
+      "cost": {
+        "credits": 4.9998,
+        "price_cents": 0.05999999999999999,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": false,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "TwNyAxQakCLepZdOWkKN",
+      "output_byte_count": 25657,
+      "status": "completed",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "node_id": "o9VgtOG4I00XSzPH0CCQ",
+      "model_parameters": {
+        "duration_seconds": 0.5,
+        "loop": false
+      },
+      "session_ids": [
+        "tabTxpdUGnhovc5FuIyI"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/tabTxpdUGnhovc5FuIyI/TwNyAxQakCLepZdOWkKN/content.mp3"
+    },
+    {
+      "basename": "select.mp3",
+      "requested_duration_seconds": 0.5,
+      "actual_duration_seconds": 0.48,
+      "prompt": "One soft low digital menu click, understated short warm electronic tick, no melodic flourish, no harsh high frequencies.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "mJinLsjynYfrplFx1GjO",
+      "cost": {
+        "credits": 4.9998,
+        "price_cents": 0.05999999999999999,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": false,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "mJinLsjynYfrplFx1GjO",
+      "output_byte_count": 25657,
+      "status": "completed",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "node_id": "OruY96yqScLDDWmJZuE7",
+      "model_parameters": {
+        "duration_seconds": 0.5,
+        "loop": false
+      },
+      "session_ids": [
+        "GuJ1vWq5wZqyggiYuZ8P"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/GuJ1vWq5wZqyggiYuZ8P/mJinLsjynYfrplFx1GjO/content.mp3"
+    },
+    {
+      "basename": "reject.mp3",
+      "requested_duration_seconds": 0.5,
+      "actual_duration_seconds": 0.48,
+      "prompt": "Muted low double error click, subtle digital interface feedback, no harsh buzzer or speech.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "Lc2BwIEoADWWt4kJfwqq",
+      "cost": {
+        "credits": 4.9998,
+        "price_cents": 0.05999999999999999,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": false,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "Lc2BwIEoADWWt4kJfwqq",
+      "output_byte_count": 25657,
+      "status": "completed",
+      "node_id": "CHjbHGs0emsbsSmcz1ly",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "model_parameters": {
+        "duration_seconds": 0.5,
+        "loop": false
+      },
+      "session_ids": [
+        "Tz3p25xkFsmEI2ddihiE"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/Tz3p25xkFsmEI2ddihiE/Lc2BwIEoADWWt4kJfwqq/content.mp3"
+    },
+    {
+      "basename": "reward.mp3",
+      "requested_duration_seconds": 1.2,
+      "actual_duration_seconds": 1.2,
+      "prompt": "Restrained warm ascending synthesizer confirmation, subtle satisfying completion, no arcade coin sound, no speech.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "0cBRDE0NBTVoDIEaZPnt",
+      "cost": {
+        "credits": 11.999519999999999,
+        "price_cents": 0.144,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": false,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "0cBRDE0NBTVoDIEaZPnt",
+      "output_byte_count": 36942,
+      "status": "completed",
+      "node_id": "r9SUQf7KUmxAXYurqWM4",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "model_parameters": {
+        "duration_seconds": 1.2,
+        "loop": false
+      },
+      "session_ids": [
+        "q6tQyW678Z4TayQP0YJ6"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/q6tQyW678Z4TayQP0YJ6/0cBRDE0NBTVoDIEaZPnt/content.mp3"
+    },
+    {
+      "basename": "door.mp3",
+      "requested_duration_seconds": 2,
+      "actual_duration_seconds": 2,
+      "prompt": "One natural wooden guesthouse door latch followed by door closing, close perspective, no voice, music, background or exaggerated slam.",
+      "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+      "model": "eleven_text_to_sound_v2",
+      "generation_id": "hIKuPeLiii8VcVv2S43o",
+      "cost": {
+        "credits": 19.9992,
+        "price_cents": 0.23999999999999996,
+        "cost_fiat_currency": "usd"
+      },
+      "loop_option_used": false,
+      "original_file_basename": "content.mp3",
+      "original_asset_id": "hIKuPeLiii8VcVv2S43o",
+      "output_byte_count": 49898,
+      "status": "completed",
+      "node_id": "VqC3sEgNK7CCOXsVuQus",
+      "flow_id": "jbY901UURUEBRdR5tNGa",
+      "model_parameters": {
+        "duration_seconds": 2,
+        "loop": false
+      },
+      "session_ids": [
+        "rQO9YXfLZm4NGUHdIVif"
+      ],
+      "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/rQO9YXfLZm4NGUHdIVif/hIKuPeLiii8VcVv2S43o/content.mp3"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { methodTable, PROTOCOL, PublicErrorSchema, ServerMessageSchema } from "@gpta/core/protocol";
 import type { PlayerAction } from "@gpta/core/actions";
+import type { PlayerCommand, PlayerControl, PlayerControlResult } from "@gpta/core/gameplay-v2";
 import type { MethodParams, MethodResult } from "@gpta/core/protocol";
 import type { ConversationTurn } from "@gpta/core/conversations";
 import type { EntityId, Position, WorldSnapshot } from "@gpta/core/world";
@@ -31,6 +32,7 @@ export class WorldConnection {
   private readonly socket: ReconnectingWebSocket;
   private readonly rpc: JSONRPCClient;
   private disposed = false;
+  private generation = 0;
 
   constructor(
     url: string,
@@ -53,15 +55,16 @@ export class WorldConnection {
   }
 
   private readonly open = () => {
+    const generation = ++this.generation;
     this.handlers.state({ status: "connecting" });
     void this.snapshot()
       .then((snapshot) => {
-        if (this.disposed) return;
+        if (this.disposed || generation !== this.generation) return;
         this.handlers.snapshot(snapshot);
         this.handlers.state({ status: "connected" });
       })
       .catch(() => {
-        if (!this.disposed)
+        if (!this.disposed && generation === this.generation)
           this.handlers.state({
             status: "disconnected",
             message: "The world snapshot could not load. Reconnect to try again.",
@@ -89,6 +92,7 @@ export class WorldConnection {
   };
 
   private readonly disconnected = () => {
+    this.generation += 1;
     this.rpc.rejectAllPendingRequests("The world disconnected.");
     this.handlers.state({
       status: "disconnected",
@@ -128,6 +132,21 @@ export class WorldConnection {
     methodTable["player.move"].result.parse(result);
   }
 
+  /** Input acknowledgement includes the player's accepted physical state. */
+  async control(input: PlayerControl): Promise<PlayerControlResult> {
+    const result: unknown = await this.rpc.timeout(5000).request("player.control", input);
+    return methodTable["player.control"].result.parse(result);
+  }
+
+  /** Save each discrete gameplay effect under one idempotency key. */
+  async command(command: PlayerCommand): Promise<void> {
+    const result: unknown = await this.rpc.timeout(15000).request("player.command", {
+      idempotencyKey: crypto.randomUUID(),
+      command,
+    });
+    methodTable["player.command"].result.parse(result);
+  }
+
   /** Each user action receives one stable idempotency key for this attempt. */
   async act(action: PlayerAction): Promise<void> {
     const result: unknown = await this.rpc
@@ -139,6 +158,7 @@ export class WorldConnection {
   /** Release subscriptions before closing, including during React effect replay. */
   close(): void {
     this.disposed = true;
+    this.generation += 1;
     this.socket.removeEventListener("open", this.open);
     this.socket.removeEventListener("message", this.receive);
     this.socket.removeEventListener("close", this.disconnected);

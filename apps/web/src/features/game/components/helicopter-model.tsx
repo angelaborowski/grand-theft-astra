@@ -5,14 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import { Group, Mesh, Object3D } from "three";
 
 /** Blender export is already metre-scaled, Y-up, with separate rotor pivots. */
-export function HelicopterModel({ departing }: { departing: boolean }) {
+type HelicopterMotion = { mode: "departure"; departing: boolean } | { mode: "controlled" };
+
+export function HelicopterModel({ motion }: { motion: HelicopterMotion }) {
   return (
     <CatchBoundary getResetKey={() => "helicopter"} errorComponent={HelicopterFailure}>
-      <AnimatedHelicopter departing={departing} />
+      <AnimatedHelicopter motion={motion} />
     </CatchBoundary>
   );
 }
-function AnimatedHelicopter({ departing }: { departing: boolean }) {
+function AnimatedHelicopter({ motion }: { motion: HelicopterMotion }) {
   const { scene } = useGLTF("/assets/vehicles/helicopter.glb");
   const [model] = useState(() => {
     const clone = scene.clone(true);
@@ -35,7 +37,8 @@ function AnimatedHelicopter({ departing }: { departing: boolean }) {
   useFrame(({ clock }, delta) => {
     if (mainRotor.current) mainRotor.current.rotation.y += Math.min(delta, 0.1) * 32;
     if (tailRotor.current) tailRotor.current.rotation.x += Math.min(delta, 0.1) * 48;
-    departureTime.current = departing ? Math.min(20, departureTime.current + delta) : 0;
+    if (motion.mode === "controlled") return;
+    departureTime.current = motion.departing ? Math.min(20, departureTime.current + delta) : 0;
     if (root.current) {
       root.current.position.y =
         1.8 + Math.sin(clock.elapsedTime * 1.4) * 0.08 + departureTime.current * 3;
@@ -43,7 +46,7 @@ function AnimatedHelicopter({ departing }: { departing: boolean }) {
     }
   });
   return (
-    <group ref={root} position={[0, 1.8, 0]}>
+    <group ref={root} position={[0, motion.mode === "controlled" ? 0 : 1.8, 0]}>
       <primitive object={model} dispose={null} />
     </group>
   );

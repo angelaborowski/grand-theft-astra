@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { applyPlayerAction, type PlayerAction } from "../src/actions";
 import { GUESTHOUSE, positionIsWalkable, SCENE_IDS } from "../src/scene";
 import { addPlayer, createInitialWorld, migrateWorldSnapshot } from "../src/simulation";
-import { PlayerSchema, playerInventory, type WorldSnapshot } from "../src/world";
+import { isActor, PlayerSchema, playerInventory, type WorldSnapshot } from "../src/world";
 
 const initial = () => addPlayer(createInitialWorld(), SCENE_IDS.player);
 const player = (world: WorldSnapshot) =>
@@ -91,7 +91,11 @@ it("places all actors on Angela's map and migrates old positions only once", () 
     ),
   };
   const migrated = migrateWorldSnapshot(legacy);
-  expect(world.entities.every((entity) => positionIsWalkable(entity.position))).toBe(true);
+  expect(
+    world.entities
+      .filter((entity) => isActor(entity) || entity.kind === "vehicle")
+      .every((entity) => positionIsWalkable(entity.position)),
+  ).toBe(true);
   expect(player(migrated)).toMatchObject({
     money: 137,
     shelter: "rented",

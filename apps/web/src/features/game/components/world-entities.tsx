@@ -4,9 +4,12 @@ import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Group } from "three";
+import { GAME_DEBUG } from "../../../lib/game-debug";
 import { PLAYER_ASSET, characterAsset } from "../models/scene-assets";
 import { CharacterModel, type CharacterMotion } from "./character-model";
 import { Person, Vehicle } from "./primitive-entities";
+import { HelicopterModel } from "./helicopter-model";
+import { PickupModel, PracticeTarget } from "./pickup-model";
 
 const namedEntities = new Set<EntityId>(Object.values(SCENE_IDS));
 
@@ -29,6 +32,7 @@ export function WorldEntities({
           (entity) =>
             entity.id !== playerId &&
             !(isActor(entity) && entity.behavior.type === "driving") &&
+            !(entity.kind === "pickup" && entity.claimedBy !== null) &&
             (entity.kind !== "location" ||
               entity.category === "guesthouse" ||
               entity.id === SCENE_IDS.helipad),
@@ -65,17 +69,22 @@ function WorldEntity({
           Array.from(entity.id).reduce((n, letter) => n + letter.charCodeAt(0), 0) % palette.length
         ]
       : undefined;
+  const elevation = isActor(entity) || entity.kind === "vehicle" ? entity.elevation : 0;
   useFrame((_, delta) => {
     if (!group.current || delta <= 0) return;
     const alpha = 1 - Math.exp(-delta * 10);
     const dx = (entity.position.x - group.current.position.x) * alpha;
     const dz = (entity.position.z - group.current.position.z) * alpha;
     group.current.position.x += dx;
+    group.current.position.y += (elevation - group.current.position.y) * alpha;
     group.current.position.z += dz;
     const speed = Math.hypot(dx, dz) / delta;
     motion.current.speed += (speed - motion.current.speed) * (1 - Math.exp(-delta * 5));
-    if (speed > 0.05) {
-      const desired = Math.atan2(dx, dz);
+    if (speed > 0.05 || entity.kind === "player" || entity.kind === "vehicle") {
+      const desired =
+        entity.kind === "player" || entity.kind === "vehicle"
+          ? Math.PI - entity.heading
+          : Math.atan2(dx, dz);
       const difference = Math.atan2(
         Math.sin(desired - group.current.rotation.y),
         Math.cos(desired - group.current.rotation.y),
@@ -86,10 +95,11 @@ function WorldEntity({
   return (
     <group
       ref={group}
-      position={[initialPosition.x, 0, initialPosition.z]}
+      position={[initialPosition.x, elevation, initialPosition.z]}
+      userData={{ entityId: entity.id }}
       onClick={(event) => {
         event.stopPropagation();
-        select(entity.id);
+        if (!document.pointerLockElement) select(entity.id);
       }}
     >
       {asset ? (
@@ -97,19 +107,14 @@ function WorldEntity({
       ) : (
         <EntityBody entity={entity} />
       )}
-      {(selected || namedEntities.has(entity.id)) && (
-        <Html
-          position={[0, entity.kind === "business" ? 4 : 2.5, 0]}
-          center
-          distanceFactor={18}
-          zIndexRange={[8, 0]}
-        >
+      {(selected || (GAME_DEBUG && namedEntities.has(entity.id))) && (
+        <Html position={[0, entity.kind === "business" ? 4 : 2.5, 0]} center zIndexRange={[8, 0]}>
           <button className="entity-label" onClick={() => select(entity.id)}>
-            {entity.name}
+            {entity.kind === "player" && entity.name === "You" ? "Player" : entity.name}
           </button>
         </Html>
       )}
-      {selected && (
+      {GAME_DEBUG && selected && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.045, 0]}>
           <ringGeometry args={[1.3, 1.55, 32]} />
           <meshBasicMaterial color="#d5ff78" />
@@ -120,7 +125,14 @@ function WorldEntity({
 }
 
 function EntityBody({ entity }: { entity: Entity }) {
-  if (entity.kind === "vehicle") return <Vehicle color={entity.color} />;
+  if (entity.kind === "vehicle")
+    return entity.vehicleType === "helicopter" ? (
+      <HelicopterModel motion={{ mode: "controlled" }} />
+    ) : (
+      <Vehicle color={entity.color} />
+    );
+  if (entity.kind === "pickup") return <PickupModel pickup={entity} />;
+  if (entity.kind === "target") return <PracticeTarget target={entity} />;
   if (entity.id === SCENE_IDS.helipad)
     return (
       <mesh position={[0, 1, 0]}>

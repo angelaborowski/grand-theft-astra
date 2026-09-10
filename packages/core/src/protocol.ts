@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ActionErrorSchema, ActionReceiptSchema, PlayerActionSchema } from "./actions";
 import { ConversationTurnSchema } from "./conversations";
+import { PlayerCommandSchema, PlayerControlResultSchema, PlayerControlSchema } from "./gameplay-v2";
 import { EntityIdSchema, PositionSchema, WorldSnapshotSchema } from "./world";
 
 /** The WebSocket handshake owns protocol version negotiation. */
@@ -19,6 +20,11 @@ export const methodTable = {
   "world.get": { params: z.object({}), result: WorldSnapshotSchema },
   "actor.inspect": { params: z.object({ actorId: EntityIdSchema }), result: ActorMemorySchema },
   "player.move": { params: z.object({ position: PositionSchema }), result: ActionReceiptSchema },
+  "player.control": { params: PlayerControlSchema, result: PlayerControlResultSchema },
+  "player.command": {
+    params: z.object({ idempotencyKey: z.string().min(1).max(120), command: PlayerCommandSchema }),
+    result: ActionReceiptSchema,
+  },
   "player.act": {
     params: z.object({ idempotencyKey: z.string().min(1).max(120), action: PlayerActionSchema }),
     result: ActionReceiptSchema,
@@ -58,6 +64,16 @@ export const RequestSchema = z.discriminatedUnion("method", [
     ...requestBase,
     method: z.literal("player.act"),
     params: methodTable["player.act"].params,
+  }),
+  z.object({
+    ...requestBase,
+    method: z.literal("player.control"),
+    params: methodTable["player.control"].params,
+  }),
+  z.object({
+    ...requestBase,
+    method: z.literal("player.command"),
+    params: methodTable["player.command"].params,
   }),
   z.object({
     ...requestBase,
@@ -103,6 +119,7 @@ export const ErrorResponseSchema = z.object({
 });
 /** Known success payloads stay fully described at the transport boundary. */
 export const ResponseSchema = z.union([
+  z.object({ ...requestBase, result: methodTable["player.control"].result }),
   z.object({ ...requestBase, result: methodTable["actor.inspect"].result }),
   z.object({ ...requestBase, result: methodTable["world.get"].result }),
   z.object({ ...requestBase, result: ActionReceiptSchema }),

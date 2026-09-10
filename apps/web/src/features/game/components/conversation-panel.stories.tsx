@@ -24,6 +24,9 @@ type Story = StoryObj<typeof meta>;
 const question = { id: "example", playerName: "You", message: "Why did you become a courier?" };
 
 export const Empty: Story = {};
+export const LastFlight: Story = {
+  args: { mission: { enabled: true, start: () => {} } },
+};
 export const Waiting: Story = {
   args: {
     history: { status: "ready", turns: [{ ...question, response: { status: "queued" } }] },

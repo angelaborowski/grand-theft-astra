@@ -1,0 +1,208 @@
+.astra-game {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  color: var(--astra-text);
+  background: var(--astra-ink);
+  font: var(--astra-weight-normal) var(--astra-text-body) / 1.25 var(--astra-font-ui);
+}
+.astra-world {
+  position: absolute;
+  inset: 0;
+}
+.astra-world canvas {
+  touch-action: none;
+}
+.astra-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  text-shadow: var(--astra-text-shadow);
+}
+.astra-hud-stats {
+  position: absolute;
+  top: var(--astra-screen-gutter);
+  right: var(--astra-screen-gutter);
+  font-variant-numeric: tabular-nums;
+}
+.astra-hud-cash {
+  display: block;
+  font-size: var(--astra-text-heading);
+  font-weight: var(--astra-weight-bold);
+}
+.astra-hud-map {
+  position: absolute;
+  left: var(--astra-screen-gutter);
+  bottom: var(--astra-screen-gutter);
+  width: var(--astra-radar-width);
+}
+.astra-hud-health {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: 3px;
+  appearance: none;
+  border: 0;
+  background: var(--astra-panel-strong);
+}
+.astra-hud-health::-webkit-meter-bar {
+  height: 4px;
+  border: 0;
+  border-radius: 0;
+  background: var(--astra-panel-strong);
+}
+.astra-hud-health::-webkit-meter-optimum-value {
+  background: var(--astra-gold);
+}
+.astra-hud-health::-moz-meter-bar {
+  background: var(--astra-gold);
+}
+.astra-hud-objective {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--astra-screen-gutter) + 1rem);
+  width: min(42rem, 54vw);
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: var(--astra-text-heading);
+  line-height: 1.2;
+  animation-duration: var(--astra-objective-duration);
+}
+.astra-hud-location {
+  position: absolute;
+  right: var(--astra-screen-gutter);
+  bottom: var(--astra-screen-gutter);
+  font-size: var(--astra-text-heading);
+}
+.astra-hud-timer {
+  position: absolute;
+  top: var(--astra-screen-gutter);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--astra-text-heading);
+  font-variant-numeric: tabular-nums;
+}
+.astra-notice {
+  animation-name: astra-notice;
+  animation-duration: var(--astra-notice-duration);
+  animation-fill-mode: both;
+}
+.astra-hud-objective.astra-notice {
+  animation-duration: var(--astra-objective-duration);
+}
+.astra-hud[data-quiet="true"] > :not(.astra-hud-map, .astra-connection-alert) {
+  visibility: hidden;
+}
+.astra-hud[data-quiet="true"] .astra-hud-map {
+  opacity: 0.5;
+}
+.astra-overview-return {
+  position: absolute;
+  right: var(--astra-screen-gutter);
+  bottom: var(--astra-screen-gutter);
+  pointer-events: auto;
+  border: 0;
+  border-radius: 0;
+  background: var(--astra-panel);
+}
+.astra-connection-alert {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--astra-space-sm) var(--astra-screen-gutter);
+  background: var(--astra-accent);
+  color: var(--astra-text);
+  text-align: center;
+  z-index: 10;
+  font-size: var(--astra-text-small);
+  text-shadow: none;
+}
+.astra-world-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--astra-space-xs);
+  border: 0;
+  border-radius: 0;
+  padding: var(--astra-space-sm);
+  white-space: nowrap;
+  background: transparent;
+  color: var(--astra-text);
+  text-shadow: var(--astra-text-shadow);
+  font: var(--astra-weight-normal) var(--astra-text-body) / 1.25 var(--astra-font-ui);
+}
+.astra-world-prompt kbd {
+  padding: 2px 5px;
+  border: 1px solid var(--astra-line);
+  background: var(--astra-panel);
+}
+.astra-world-prompt small {
+  font-size: var(--astra-text-small);
+}
+.astra-world-prompt:hover {
+  color: var(--astra-gold);
+}
+.astra-world-prompt:focus-visible {
+  outline: var(--astra-focus);
+}
+.astra-game-preview {
+  background: #344148;
+}
+.astra-debug {
+  display: grid;
+  gap: var(--astra-space-md);
+}
+@keyframes astra-notice {
+  0%,
+  85% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .astra-notice {
+    animation-timing-function: steps(1, end);
+  }
+}
+@media (max-width: 700px) {
+  .astra-hud-objective {
+    width: 60%;
+    font-size: var(--astra-text-body);
+    bottom: 10rem;
+  }
+  .astra-hud-location {
+    font-size: var(--astra-text-body);
+  }
+  .astra-hud-map {
+    width: 10rem;
+  }
+}
+
+.astra-opening-actions {
+  position: absolute;
+  right: 24px;
+  top: 24px;
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+.astra-opening-actions button {
+  padding: 10px 16px;
+  border: 1px solid #ffffff40;
+  border-radius: 4px;
+  background: #172127e8;
+  color: white;
+  cursor: pointer;
+}
+.astra-opening-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

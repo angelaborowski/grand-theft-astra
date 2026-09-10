@@ -1,0 +1,48 @@
+{
+  "status": "completed",
+  "flow_id": "Ee5wm3H6OVyQbPEgdtYb",
+  "node_id": "RnD6PEkv9Njik6wTyMsJ",
+  "session_ids": [
+    "zZS3bZW7GpGXO46QOjin"
+  ],
+  "generation_id": "QRWFEDyX526lL0eJk34V",
+  "requested_duration_seconds": 45,
+  "prompt": "Compose a completely original instrumental theme for an urban crime-drama game menu. 45 seconds, 92 BPM, dark minor key, gritty Eastern European orchestral color with an assertive hip-hop rhythm. Begin immediately with a prominent short original hammered-string or cimbalom motif, dry and percussive, supported by tense bowed strings. Establish a strong punchy syncopated drum groove and deep controlled bass within the first five seconds. Let the memorable new motif lead the track, with short string responses and occasional low brass accents. Full-bodied, forward, focused production; cinematic tension and street-level confidence. Maintain the groove and use restrained variation in the middle and later bars. Keep the ending connected to the musical pulse with no dramatic finale or long fade. Absolutely no vocals, speech, city sound effects, long atmospheric intro, relaxed lounge, lo-fi chillhop, generic synthwave, or copied melodies. All melody and arrangement must be newly composed.",
+  "model_id": "eleven_music_v2",
+  "original_filename": "content.mp3",
+  "provider_reported_duration_seconds": 45,
+  "provider_reported_credit_cost": 1718.6812499999999,
+  "output_bytes": 1098033,
+  "output_duration_seconds": 45.0,
+  "reference": {
+    "artist": "Michael Hunter",
+    "title": "Soviet Connection",
+    "url": "https://www.youtube.com/watch?v=93TW692tQb8",
+    "usage": "Creative direction reference for metadata only. The recording was not supplied to the provider."
+  },
+  "composition_note": "New original composition requested. No reference recording, melody, or arrangement supplied.",
+  "listening_approval": "pending",
+  "loop_validation": "pending",
+  "provider_error": "unknown",
+  "poll_after_seconds": "unknown",
+  "provider_reported_price": {
+    "credits": 1718.6812499999999,
+    "price_cents": 20.625,
+    "cost_fiat_currency": "usd"
+  },
+  "provider_url": "https://storage.googleapis.com/xi-backend/database/workspace/845d930ee82c4746b0e17981d75f0551/content_generation/zZS3bZW7GpGXO46QOjin/QRWFEDyX526lL0eJk34V/content.mp3",
+  "basename": "menu.mp3",
+  "audio_format": {
+    "codec_name": "mp3",
+    "sample_rate": "48000",
+    "channels": 2
+  },
+  "decode_validation": "passed",
+  "actual_tool": "mcp__elevenlabs__creative_run_flow_nodes",
+  "model_parameters": {
+    "duration_seconds": 45,
+    "lyrics_type": "instrumental",
+    "instrumental": true
+  },
+  "loop_option_used": "not_exposed"
+}

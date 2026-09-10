@@ -1,9 +1,12 @@
 import { z } from "zod";
 import { ambientMovement } from "./ambient-movement";
+import { completeReloads } from "./gameplay-v2";
 import {
   crowdPosition,
   GUESTHOUSE,
   sceneSpace,
+  isInsideGuesthouse,
+  museumFloorHeight,
   isInsideMuseum,
   MUSEUM,
   migrateDistrictPosition,
@@ -27,6 +30,8 @@ import {
   type Position,
   type WorldSnapshot,
 } from "./world";
+
+const initialActorPose = { elevation: 0, heading: 0, posture: "standing" as const, grounded: true };
 
 const savedWorldSchema = WorldSnapshotSchema.omit({ version: true, entities: true }).extend({
   version: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
@@ -170,6 +175,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     ),
   );
   const people: Actor[] = residents.map((resident, index) => ({
+    ...initialActorPose,
     id: EntityIdSchema.parse(`person-${index}`),
     name: resident.name,
     ...(resident.job === "Police officer"
@@ -184,6 +190,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
   }));
   const named: Actor[] = [
     {
+      ...initialActorPose,
       id: SCENE_IDS.witness,
       name: "Mila · courier",
       kind: "person",
@@ -197,6 +204,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     },
     {
       id: SCENE_IDS.merchant,
+      ...initialActorPose,
       name: "Lev · bookseller",
       kind: "person",
       role: "merchant",
@@ -209,6 +217,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     },
     {
       id: SCENE_IDS.niko,
+      ...initialActorPose,
       name: "Niko · rival courier",
       kind: "person",
       role: "resident",
@@ -221,6 +230,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     },
     {
       id: SCENE_IDS.irina,
+      ...initialActorPose,
       name: "Irina · guesthouse host",
       kind: "person",
       role: "merchant",
@@ -233,6 +243,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     },
     {
       id: SCENE_IDS.sasha,
+      ...initialActorPose,
       name: "Sasha · gardener",
       kind: "person",
       role: "resident",
@@ -245,6 +256,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     },
     {
       id: SCENE_IDS.alexei,
+      ...initialActorPose,
       name: "Alexei · square steward",
       kind: "person",
       role: "resident",
@@ -257,6 +269,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     },
     {
       id: SCENE_IDS.dispatcher,
+      ...initialActorPose,
       name: "Police dispatcher",
       kind: "person",
       role: "dispatcher",
@@ -269,6 +282,7 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
     },
     {
       id: SCENE_IDS.police,
+      ...initialActorPose,
       name: "Officer Pavel",
       kind: "police",
       position: SCENE_POSITIONS.police,
@@ -301,6 +315,51 @@ export function createInitialWorld(now = 0, aiEnabled = false): WorldSnapshot {
         position: SCENE_POSITIONS.vehicle,
         ownerId: SCENE_IDS.witness,
         color: "#478ed0",
+        vehicleType: "car",
+        elevation: 0,
+        heading: 0,
+      },
+      {
+        id: SCENE_IDS.helicopter,
+        kind: "vehicle",
+        name: "Square helicopter",
+        position: STUNT.pickup,
+        ownerId: null,
+        color: "#24363b",
+        vehicleType: "helicopter",
+        elevation: 0,
+        heading: 0,
+      },
+      {
+        id: SCENE_IDS.pistolPickup,
+        kind: "pickup",
+        name: "Pistol",
+        position: SCENE_POSITIONS.pistolPickup,
+        item: "pistol",
+        claimedBy: null,
+      },
+      {
+        id: SCENE_IDS.ammoPickup,
+        kind: "pickup",
+        name: "Pistol ammunition",
+        position: SCENE_POSITIONS.ammoPickup,
+        item: "pistol_ammo",
+        claimedBy: null,
+      },
+      {
+        id: SCENE_IDS.secondAmmoPickup,
+        kind: "pickup",
+        name: "Pistol ammunition",
+        position: SCENE_POSITIONS.secondAmmoPickup,
+        item: "pistol_ammo",
+        claimedBy: null,
+      },
+      {
+        id: SCENE_IDS.practiceTarget,
+        kind: "target",
+        name: "Practice target",
+        position: SCENE_POSITIONS.practiceTarget,
+        health: 100,
       },
       {
         id: SCENE_IDS.shop,
@@ -372,20 +431,123 @@ export function addPlayer(world: WorldSnapshot, playerId: EntityId): WorldSnapsh
       ...world.entities,
       {
         id: playerId,
+        ...initialActorPose,
         kind: "player",
         name: "You",
         position: MUSEUM.spawn,
+        elevation: museumFloorHeight(MUSEUM.spawn),
+        heading: Math.PI,
         money: MISSION_TERMS.startingMoney,
         health: 100,
         mission: { stage: "available" },
         reputation: 0,
         shelter: "none",
+        equipment: { pistol: null },
+        combat: { nextAttackAt: 0, reload: { type: "ready" } },
         goal: "Find work and rent a bed",
         job: "Visitor",
         behavior: { type: "idle" },
       },
     ],
   };
+}
+
+/** Restore mobile entities after collision changes without changing their lasting gameplay state. */
+export function repairWorldPositions(world: WorldSnapshot): WorldSnapshot {
+  const positions = new Map<EntityId, Position>();
+  const spawn = (position: Position): Position =>
+    isInsideGuesthouse(position) ? { ...GUESTHOUSE.spawn } : { ...SCENE_POSITIONS.player };
+  for (const entity of world.entities) {
+    if (entity.kind === "vehicle" && entity.vehicleType === "helicopter") {
+      if (distance(entity.position, STUNT.pickup) > 0 || entity.elevation !== 0)
+        positions.set(entity.id, { ...STUNT.pickup });
+    } else if (
+      (isActor(entity) || entity.kind === "vehicle") &&
+      !positionIsWalkable(entity.position)
+    )
+      positions.set(entity.id, spawn(entity.position));
+    else if (
+      (isActor(entity) || entity.kind === "vehicle") &&
+      (entity.elevation !== museumFloorHeight(entity.position) ||
+        (isActor(entity) && !entity.grounded))
+    )
+      positions.set(entity.id, { ...entity.position });
+  }
+  for (const actor of world.entities) {
+    if (!isActor(actor) || actor.behavior.type !== "driving") continue;
+    const vehicleId = actor.behavior.vehicleId;
+    const vehicle = world.entities.find((entity) => entity.id === vehicleId);
+    if (vehicle?.kind !== "vehicle") continue;
+    if (vehicle.vehicleType === "helicopter") {
+      if (
+        distance(actor.position, STUNT.pickup) > 0 ||
+        positions.has(actor.id) ||
+        positions.has(vehicle.id)
+      ) {
+        positions.set(actor.id, { ...STUNT.pickup });
+        positions.set(vehicle.id, { ...STUNT.pickup });
+      }
+      continue;
+    }
+    if (positions.has(actor.id) || positions.has(vehicle.id)) {
+      const position = spawn(actor.position);
+      positions.set(actor.id, position);
+      positions.set(vehicle.id, position);
+    } else if (distance(actor.position, vehicle.position) > 0) {
+      positions.set(vehicle.id, { ...actor.position });
+    }
+  }
+  if (positions.size === 0) return world;
+  return {
+    ...world,
+    revision: world.revision + 1,
+    entities: world.entities.map((entity) => {
+      const position = positions.get(entity.id);
+      if (!position || (!isActor(entity) && entity.kind !== "vehicle")) return entity;
+      return isActor(entity)
+        ? { ...entity, position, elevation: museumFloorHeight(position), grounded: true }
+        : { ...entity, position, elevation: 0 };
+    }),
+  };
+}
+
+/** World owns one allowance per player; reconnects cannot replace or refill it. */
+export type MovementAllowance = Readonly<{
+  availableDistance: number;
+  updatedAt: number;
+}>;
+
+/** Permitted speed comes from accepted actor state, never from movement packets. */
+export function movementSpeed(actor: Actor): number {
+  return actor.behavior.type === "driving" ? MOVEMENT.driveSpeed : MOVEMENT.runSpeed;
+}
+
+/** Settle elapsed time with the previous speed before clamping a movement mode change. */
+export function clampMovementAllowance(
+  allowance: MovementAllowance,
+  speed: number,
+): MovementAllowance {
+  return {
+    ...allowance,
+    availableDistance: Math.min(allowance.availableDistance, speed * 0.5 + 0.2),
+  };
+}
+
+/** Accumulate elapsed server time once; a clock reversal cannot grant the same distance twice. */
+export function accrueMovementAllowance(
+  allowance: MovementAllowance,
+  now: number,
+  speed: number,
+): MovementAllowance {
+  const updatedAt = Math.max(allowance.updatedAt, now);
+  return clampMovementAllowance(
+    {
+      availableDistance:
+        allowance.availableDistance + ((updatedAt - allowance.updatedAt) / 1000) * speed,
+      updatedAt,
+    },
+    speed,
+  );
 }
 
 /** The server supplies a distance budget from elapsed time; the client cannot choose it. */
@@ -409,7 +571,15 @@ export function movePlayer(
       ...world,
       revision: world.revision + 1,
       entities: world.entities.map((entity) =>
-        entity.id === playerId ? { ...entity, position: { ...MUSEUM.exit } } : entity,
+        entity.id === playerId
+          ? {
+              ...entity,
+              position: { ...MUSEUM.exit },
+              elevation: 0,
+              heading: Math.PI,
+              grounded: true,
+            }
+          : entity,
       ),
     };
   }
@@ -460,7 +630,14 @@ export function advanceMovement(world: WorldSnapshot, seconds: number): WorldSna
   const entities = world.entities.map((entity) => {
     // A short physical avoidance reflex; it does not invent an Astra decision or a destination.
     if (isActor(entity) && entity.kind !== "player" && entity.health > 0) {
-      const nearby = drivers.find((driver) => distance(driver.position, entity.position) < 5);
+      const nearby = drivers.find(
+        (driver) =>
+          isActor(driver) &&
+          Math.hypot(
+            distance(driver.position, entity.position),
+            driver.elevation - entity.elevation,
+          ) < 5,
+      );
       if (nearby) {
         const dx = entity.position.x - nearby.position.x;
         const dz = entity.position.z - nearby.position.z;
@@ -496,6 +673,7 @@ export function advanceMovement(world: WorldSnapshot, seconds: number): WorldSna
 
 /** Astra owns destinations when enabled; offline demos use explicit ambient walks. */
 export function advanceRoutines(world: WorldSnapshot, now: number): WorldSnapshot {
+  world = completeReloads(world, now);
   world = ambientMovement(world, now);
   const activeIds = world.entities
     .filter((entity) => isActor(entity) && entity.kind !== "player")

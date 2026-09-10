@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@dimforge/rapier3d':
+      specifier: 0.19.2
+      version: 0.19.2
     '@oxlint/plugins':
       specifier: 1.82.0
       version: 1.82.0
@@ -145,6 +148,9 @@ importers:
 
   apps/server:
     dependencies:
+      '@dimforge/rapier3d':
+        specifier: 'catalog:'
+        version: 0.19.2
       '@gpta/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -386,6 +392,9 @@ packages:
 
   '@dimforge/rapier3d-compat@0.19.2':
     resolution: {integrity: sha512-AZHL1jqUF55QJkJyU1yKeh4ImX2J93bVLIezT1+o0FZqTix6O06MOaqpKoJ4MmbDCsoZmwO+qc471/SDMDm2AA==}
+
+  '@dimforge/rapier3d@0.19.2':
+    resolution: {integrity: sha512-+2WC+PeZXiv7cBfHTpEFgAhAhHUBdTE7K7ngx3EHEd6Gq9alIiJQoSE2xdxRqRCzFs77NFFvQcXUp9j9Z5HUcQ==}
 
   '@emnapi/core@1.11.0':
     resolution: {integrity: sha512-l9Oo58x0HOP5znGzVhYW9U3e5wVuA4LAZU2AGezTmkhO1CgQRFDhDg4nneHsu/t3WniXg9QrG2nIXL/ZS8ln8Q==}
@@ -3531,6 +3540,8 @@ snapshots:
   '@dimforge/rapier3d-compat@0.12.0': {}
 
   '@dimforge/rapier3d-compat@0.19.2': {}
+
+  '@dimforge/rapier3d@0.19.2': {}
 
   '@emnapi/core@1.11.0':
     dependencies:

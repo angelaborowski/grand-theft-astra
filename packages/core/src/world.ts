@@ -17,6 +17,10 @@ const behaviorSchema = z.discriminatedUnion("type", [
 const base = { id: EntityIdSchema, name: z.string(), position: PositionSchema };
 const actor = {
   ...base,
+  elevation: z.number().finite().default(0),
+  heading: z.number().finite().default(0),
+  posture: z.enum(["standing", "crouched"]).default("standing"),
+  grounded: z.boolean().default(true),
   money: z.number().nonnegative(),
   health: z.number().min(0).max(100),
   goal: z.string(),
@@ -56,6 +60,26 @@ export const PlayerSchema = z.object({
     .optional(),
   reputation: z.number().int(),
   shelter: z.enum(["none", "rented"]),
+  equipment: z
+    .object({
+      pistol: z
+        .object({
+          equipped: z.boolean(),
+          loaded: z.number().int().min(0).max(8),
+          reserve: z.number().int().min(0).max(999),
+        })
+        .nullable(),
+    })
+    .default(() => ({ pistol: null })),
+  combat: z
+    .object({
+      nextAttackAt: z.number().finite().nonnegative(),
+      reload: z.discriminatedUnion("type", [
+        z.object({ type: z.literal("ready") }),
+        z.object({ type: z.literal("reloading"), completesAt: z.number().finite().nonnegative() }),
+      ]),
+    })
+    .default(() => ({ nextAttackAt: 0, reload: { type: "ready" as const } })),
 });
 /** Only players own mission progress and accommodation. */
 export type Player = z.infer<typeof PlayerSchema>;
@@ -80,6 +104,20 @@ export const EntitySchema = z.union([
     kind: z.literal("vehicle"),
     ownerId: EntityIdSchema.nullable(),
     color: z.string(),
+    vehicleType: z.enum(["car", "helicopter"]).default("car"),
+    elevation: z.number().finite().default(0),
+    heading: z.number().finite().default(0),
+  }),
+  z.object({
+    ...base,
+    kind: z.literal("pickup"),
+    item: z.enum(["pistol", "pistol_ammo"]),
+    claimedBy: EntityIdSchema.nullable(),
+  }),
+  z.object({
+    ...base,
+    kind: z.literal("target"),
+    health: z.number().min(0).max(100),
   }),
   z.object({
     ...base,
@@ -179,5 +217,11 @@ export function playerInventory(player: Player): string[] {
   return [
     ...(player.mission.stage === "carrying" ? ["Sealed parcel for Lev"] : []),
     ...(player.stunt?.stage === "running" ? ["Film canister"] : []),
+    ...(player.equipment.pistol
+      ? [
+          `Pistol${player.equipment.pistol.equipped ? " (equipped)" : ""}`,
+          `Pistol ammunition: ${player.equipment.pistol.loaded} loaded, ${player.equipment.pistol.reserve} reserve`,
+        ]
+      : []),
   ];
 }

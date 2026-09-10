@@ -1,7 +1,7 @@
 import { useGLTF, Html } from "@react-three/drei";
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
 import { useState } from "react";
-import { MUSEUM } from "@gpta/core/scene";
+import { MUSEUM, MUSEUM_COLLIDERS } from "@gpta/core/scene";
 
 /** The entrance corridor opens into the square through the server-validated threshold. */
 export function MuseumScene() {
@@ -22,16 +22,14 @@ export function MuseumScene() {
       ))}
       <pointLight position={[0, 5, -1]} intensity={90} distance={18} color="#e5efff" />
       <RigidBody type="fixed" colliders={false}>
-        <CuboidCollider args={[2, 0.5, 4]} position={[0, -0.5, -3]} />
-        <CuboidCollider args={[2, 0.5, 10.3]} position={[0, 0.7, -19.7]} />
-        <CuboidCollider
-          args={[2, 0.08, Math.hypot(2.4, 1.2) / 2]}
-          position={[0, 0.51, -8.2]}
-          rotation={[Math.atan(0.5), 0, 0]}
-        />
-        <CuboidCollider args={[0.15, 4, 16]} position={[-1.9, 4, -15]} />
-        <CuboidCollider args={[0.15, 4, 16]} position={[1.9, 4, -15]} />
-        <CuboidCollider args={[2, 3, 0.15]} position={[0, 3, -29.6]} />
+        {MUSEUM_COLLIDERS.map((box, index) => (
+          <CuboidCollider
+            key={index}
+            args={[...box.halfExtents]}
+            position={[box.position[0] - MUSEUM.originX, box.position[1], box.position[2]]}
+            rotation={[box.rotationX, 0, 0]}
+          />
+        ))}
       </RigidBody>
       <Html position={[0, 2.1, -0.2]} center>
         <span className="route-label">Red Square → Walk through the doorway</span>

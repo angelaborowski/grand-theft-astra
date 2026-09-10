@@ -3,9 +3,11 @@ import type { ConversationAction, TurnId } from "./conversations";
 import {
   GUESTHOUSE,
   MUSEUM,
+  museumFloorHeight,
   isInsideGuesthouse,
   MOVEMENT,
   positionIsWalkable,
+  PROTECTED_CHARACTER_IDS,
   SCENE_IDS,
   STUNT,
   stuntVehicleId,
@@ -105,7 +107,8 @@ function accept(
   return { accepted: true, world, eventIds: [context.id] };
 }
 
-function recordIncident(
+/** Record observed damage through the same incident rules used by player interactions. */
+export function recordIncident(
   world: WorldSnapshot,
   actorId: EntityId,
   targetId: EntityId,
@@ -159,6 +162,9 @@ export function applyPlayerAction(
     )
       return reject("Finish your drive before visiting the museum.");
     actor.position = { ...MUSEUM.spawn };
+    actor.elevation = museumFloorHeight(MUSEUM.spawn);
+    actor.heading = Math.PI;
+    actor.grounded = true;
     actor.behavior = { type: "idle" };
     return accept(world, actorId, action.type, "Entered the Historical Museum.", "player", context);
   }
@@ -169,6 +175,8 @@ export function applyPlayerAction(
     if (actor.stunt?.stage === "running" && actor.stunt.deadline > context.now)
       return accept(world, actorId, action.type, "Last Flight resumed.", "player", context);
     actor.position = { ...target.position };
+    actor.elevation = 0;
+    actor.grounded = true;
     actor.behavior = { type: "idle" };
     const started = applyPlayerAction(
       world,
@@ -196,6 +204,9 @@ export function applyPlayerAction(
     if (!startPosition) return reject("The starting lane is occupied. Try again in a moment.");
     car.position = startPosition;
     driver.position = { ...car.position };
+    driver.elevation = 0;
+    driver.grounded = true;
+    car.elevation = 0;
     driver.behavior = { type: "driving", vehicleId: car.id };
     return started;
   }
@@ -258,6 +269,9 @@ export function applyPlayerAction(
           position: parking,
           ownerId: actor.id,
           color: "#b8202b",
+          vehicleType: "car",
+          elevation: 0,
+          heading: 0,
         });
       actor.stunt = { stage: "running", checkpoint: 0, deadline: context.now + STUNT.duration };
       world.dialogue.push({
@@ -395,6 +409,7 @@ export function applyPlayerAction(
       );
     case "take_vehicle": {
       if (target.kind !== "vehicle") return reject("This entity is not a vehicle.");
+      if (target.vehicleType === "helicopter") return reject("Use the helicopter entry control.");
       if (target.id.startsWith("stunt:") && target.ownerId !== actorId)
         return reject("This stunt car is reserved for its driver.");
       if (
@@ -411,6 +426,8 @@ export function applyPlayerAction(
       if (stolen) recordIncident(world, actorId, target.id, "theft", context);
       target.ownerId = actorId;
       actor.position = { ...target.position };
+      actor.elevation = 0;
+      actor.grounded = true;
       actor.behavior = { type: "driving", vehicleId: target.id };
       const message = stolen
         ? `${actor.name} takes ${target.name}. Witnesses can report the theft.`
@@ -418,6 +435,8 @@ export function applyPlayerAction(
       return accept(world, actorId, "take_vehicle", message, "player", context);
     }
     case "exit_vehicle": {
+      if (target.kind === "vehicle" && target.vehicleType === "helicopter")
+        return reject("Use the helicopter exit control.");
       if (
         target.kind !== "vehicle" ||
         actor.behavior.type !== "driving" ||
@@ -444,7 +463,10 @@ export function applyPlayerAction(
     }
     case "hit":
       if (!isActor(target) || target.health <= 0) return reject("This target cannot be hit.");
-      target.health = Math.max(0, target.health - 20);
+      target.health = Math.max(
+        PROTECTED_CHARACTER_IDS.includes(target.id) ? 1 : 0,
+        target.health - 20,
+      );
       recordIncident(world, actorId, target.id, "assault", context);
       return accept(world, actorId, "hit", `${actor.name} hits ${target.name}.`, "player", context);
     case "rob": {

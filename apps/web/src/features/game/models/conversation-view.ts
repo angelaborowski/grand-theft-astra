@@ -11,7 +11,7 @@ export type ConversationEntry = {
 /** A history request never hides loading or a failed restore behind an empty transcript. */
 export type ConversationHistory =
   | { status: "pending" }
-  | { status: "failed"; error: string }
+  | { status: "failed"; error: string; turns: ConversationEntry[] }
   | { status: "ready"; turns: ConversationEntry[] };
 
 /** An uncertain send retains its text and its original attempt until the player retries. */

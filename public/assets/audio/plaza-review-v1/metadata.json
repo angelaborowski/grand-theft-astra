@@ -1,0 +1,29 @@
+{
+  "flow_id": "A5gIukwyWBK67ECKkieb",
+  "node_id": "wRiUtRZF4nrjZB5sLkhn",
+  "session_ids": [
+    "GkNB1OYyV9EpyojDCBMb"
+  ],
+  "generation_ids": [
+    "3mkyPp1Pcy0PtMHiErNB"
+  ],
+  "prompt": "Seamless looping ambience of an open pedestrian stone square: gentle air movement, very distant steady urban wash, and sparse subtle birds. Quiet, natural and restrained, with stable sound level throughout. NO speech, footsteps, engines passing, horns, sirens, bells, helicopter, music, or dramatic swells.",
+  "model_id": "eleven_text_to_sound_v2",
+  "model_parameters": {
+    "duration_seconds": 20,
+    "prompt_influence": 0.3,
+    "loop": true
+  },
+  "generations_count": 1,
+  "status": "completed",
+  "provider_cost": {
+    "credits": 199.99199999999996,
+    "price_cents": 2.3999999999999995,
+    "cost_fiat_currency": "usd"
+  },
+  "actual_duration_seconds": 20,
+  "original_asset_id": "3mkyPp1Pcy0PtMHiErNB",
+  "original_basename": "content.mp3",
+  "requested_filename": "plaza-air.mp3",
+  "output_byte_count": 337872
+}

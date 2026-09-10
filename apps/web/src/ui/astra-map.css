@@ -1,0 +1,186 @@
+:root {
+  --astra-radar-width: 220px;
+  --astra-radar-height: 140px;
+  --astra-map-hit-size: 28px;
+  --astra-map-gap: 8px;
+}
+
+.astra-radar {
+  position: relative;
+  width: var(--astra-radar-width);
+  height: var(--astra-radar-height);
+  overflow: hidden;
+}
+.astra-radar > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.astra-map-outside {
+  fill: var(--astra-ink);
+}
+.astra-map-hatch {
+  stroke: var(--astra-line);
+  stroke-width: 1;
+}
+.astra-map-ground {
+  fill: var(--astra-map-ground);
+}
+.astra-map-building {
+  fill: var(--astra-map-building);
+  stroke: var(--astra-line);
+  stroke-width: 1;
+}
+.astra-map-boundary {
+  fill: none;
+  stroke: var(--astra-muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+.astra-map-symbol,
+.astra-map-north,
+.astra-map-landmark {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.astra-map-symbol {
+  display: grid;
+  place-items: center;
+  color: var(--astra-text);
+  filter: drop-shadow(0 1px 1px var(--astra-ink));
+}
+.astra-map-symbol-police {
+  color: var(--astra-map-police);
+}
+.astra-map-symbol-destination {
+  color: var(--astra-gold);
+}
+.astra-map-player {
+  fill: var(--astra-map-player);
+  stroke: var(--astra-ink);
+  stroke-width: 1.5;
+}
+.astra-map-north {
+  color: var(--astra-text);
+  font: var(--astra-weight-bold) var(--astra-text-small) / 1 var(--astra-font-ui);
+  text-shadow: var(--astra-text-shadow);
+}
+.astra-pause-map {
+  display: flex;
+  flex-direction: column;
+  gap: var(--astra-map-gap);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.astra-map-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 240px;
+  overflow: hidden;
+  background: var(--astra-ink);
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+.astra-map-viewport:active {
+  cursor: grabbing;
+}
+.astra-map-viewport > svg {
+  display: block;
+}
+.astra-map-viewport:focus-visible {
+  outline: var(--astra-focus);
+  outline-offset: -2px;
+}
+.astra-map-landmark {
+  max-width: 150px;
+  color: var(--astra-text);
+  font: var(--astra-weight-normal) var(--astra-text-small) / 1.2 var(--astra-font-ui);
+  text-align: center;
+  text-shadow: var(--astra-text-shadow);
+}
+.astra-map-marker {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: var(--astra-map-hit-size);
+  height: var(--astra-map-hit-size);
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: var(--astra-panel-strong);
+  color: var(--astra-text);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+.astra-map-marker.astra-map-symbol-police {
+  color: var(--astra-map-police);
+}
+.astra-map-marker.astra-map-symbol-destination {
+  color: var(--astra-gold);
+}
+.astra-map-marker[aria-pressed="true"] {
+  outline: 1px solid var(--astra-gold);
+}
+.astra-map-marker-label {
+  display: none;
+  position: absolute;
+  top: 100%;
+  width: max-content;
+  max-width: 200px;
+  padding: 4px 6px;
+  background: var(--astra-panel-strong);
+  font: var(--astra-weight-normal) var(--astra-text-small) / 1.2 var(--astra-font-ui);
+  pointer-events: none;
+}
+.astra-map-marker:hover,
+.astra-map-marker:focus-visible {
+  z-index: 1;
+}
+.astra-map-marker:hover .astra-map-marker-label,
+.astra-map-marker:focus-visible .astra-map-marker-label {
+  display: block;
+}
+.astra-map-compass {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: var(--astra-text);
+  text-shadow: var(--astra-text-shadow);
+  font-size: var(--astra-text-small);
+  pointer-events: none;
+}
+.astra-map-scale {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  width: 20%;
+  border-bottom: 1px solid var(--astra-text);
+  color: var(--astra-text);
+  font-size: var(--astra-text-small);
+  text-shadow: var(--astra-text-shadow);
+  pointer-events: none;
+}
+.astra-map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--astra-map-gap);
+}
+.astra-map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--astra-map-gap);
+}
+.astra-map-status {
+  color: var(--astra-text);
+  font-size: var(--astra-text-body);
+}
+.astra-map-help {
+  margin: 0;
+  color: var(--astra-muted);
+  font: var(--astra-weight-normal) var(--astra-text-small) / 1.3 var(--astra-font-ui);
+}

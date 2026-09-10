@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Grand Theft Astra — Sound review</title>
+    <style>
+      :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #151615; color: #f4f1e9; }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      main { max-width: 1120px; margin: auto; padding: 44px 24px 64px; }
+      header { border-bottom: 1px solid #44443c; padding-bottom: 28px; margin-bottom: 32px; }
+      .brand { color: #d9b26c; text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 700; }
+      h1 { font-size: clamp(36px, 6vw, 60px); letter-spacing: -.05em; line-height: 1; margin: 16px 0; }
+      h2 { font-size: 21px; font-weight: 650; margin: 0 0 8px; }
+      h3 { font-size: 18px; margin: 0; }
+      p { color: #bcbeb4; line-height: 1.6; max-width: 72ch; margin: 8px 0; }
+      a { color: #e4c088; text-underline-offset: 4px; }
+      a:focus-visible, input:focus-visible, button:focus-visible { outline: 3px solid #e4c088; outline-offset: 5px; }
+      section { margin-top: 32px; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; margin-top: 16px; }
+      article { background: #222421; border: 1px solid #3b3e35; padding: 22px; }
+      article p { font-size: 14px; min-height: 45px; }
+      audio { display: block; width: 100%; margin: 20px 0 14px; height: 42px; }
+      .details { display: flex; justify-content: space-between; gap: 16px; align-items: center; font-size: 13px; }
+      label { display: flex; align-items: center; gap: 7px; }
+      input { accent-color: #d9b26c; width: 16px; height: 16px; }
+      .status { color: #d9b26c; font-size: 13px; }
+      .status:empty { display: none; }
+      footer { margin-top: 36px; border-top: 1px solid #44443c; padding-top: 18px; font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="brand">Grand Theft Astra / Audio</div>
+        <h1>Sound review</h1>
+        <p>The game selects 17 of these 19 generated files. Listening approval and the final game mix remain pending.</p>
+        <p>Clips preload for responsive playback. One clip plays at a time. Enable Repeat to check a loop.</p>
+      </header>
+      <section aria-labelledby="music-heading">
+        <h2 id="music-heading">Menu, loading, and pause</h2>
+        <p>The game selects the new 45-second candidate. Check its opening, energy, and loop boundary before approval.</p>
+        <div class="grid" id="music"></div>
+      </section>
+      <section aria-labelledby="world-heading">
+        <h2 id="world-heading">The living city</h2>
+        <p>The game uses separate ambience, crowds, occupied vehicles, and occasional distant sirens. Browser verification remains pending.</p>
+        <div class="grid" id="world"></div>
+      </section>
+      <section aria-labelledby="interaction-heading">
+        <h2 id="interaction-heading">Interactions</h2>
+        <p>Short cues for menus, rejected actions, accepted rewards, and doors.</p>
+        <div class="grid" id="interactions"></div>
+      </section>
+      <section aria-labelledby="steps-heading">
+        <h2 id="steps-heading">Footsteps</h2>
+        <p>Three dry steps for variation on stone paving.</p>
+        <div class="grid" id="footsteps"></div>
+      </section>
+      <footer>
+        <p>This page plays review files locally. It does not change the world or another player's sound.</p>
+        <p>Generated with Eleven Music and ElevenLabs Sound Effects. <a href="https://elevenlabs.io">elevenlabs.io</a></p>
+        <p><a href="provenance.md">Sources and generation details</a></p>
+      </footer>
+    </main>
+    <script type="module">
+      const clips = [
+        { group: "music", file: "../menu-review-v2/menu", name: "New menu candidate — selected for the game", description: "45 seconds. Original cimbalom motif, tense strings, deep bass, and assertive drums requested at 92 BPM. Listening approval and loop check pending.", repeat: true },
+        { group: "music", file: "menu", name: "First menu candidate — rejected", description: "Original relaxed electronic cue. Retained for comparison; it does not establish the approved music direction.", repeat: true },
+        { group: "world", file: "../plaza-review-v1/plaza-air", name: "Red Square — open air", description: "A separate outdoor base for mixing with nearby crowds, cars, and occasional sirens.", repeat: true },
+        { group: "world", file: "../city-review-v1/car-idle", name: "Car engine — idle", description: "Steady engine loop. Intended for an occupied car at rest.", repeat: true },
+        { group: "world", file: "../city-review-v1/car-drive", name: "Car engine — driving", description: "Steady engine and tire loop. Intended to blend with idle as speed changes.", repeat: true },
+        { group: "world", file: "../city-review-v1/helicopter", name: "Distant helicopter", description: "A distant rotor texture used for an occupied helicopter. Check its sound near the helicopter.", repeat: true },
+        { group: "world", file: "../city-review-v1/crowd", name: "People in the square", description: "Indistinct crowd and light footsteps. Intended to become quieter away from groups.", repeat: true },
+        { group: "world", file: "../city-review-v1/traffic-horn", name: "Car horn", description: "One short horn. The game loads this cue; no horn action is connected yet." },
+        { group: "world", file: "../city-review-v1/police-radio", name: "Police radio", description: "Radio static and squelch. No spoken dispatch." },
+        { group: "world", file: "square", name: "Red Square — combined ambience, excluded", description: "First candidate combines crowds, traffic, horns, and sirens. Retained for comparison; the game uses separate files.", repeat: true },
+        { group: "world", file: "guesthouse", name: "Irina’s guesthouse", description: "Quiet room tone with the city beyond a closed window.", repeat: true },
+        { group: "world", file: "police-siren", name: "Police siren", description: "An occasional quiet city background sound. It does not come from walking officers or prove a dispatch.", repeat: true },
+        { group: "interactions", file: "select", name: "Menu selection", description: "A short, soft digital click." },
+        { group: "interactions", file: "reject", name: "Action rejected", description: "A muted error cue without a harsh buzzer." },
+        { group: "interactions", file: "reward", name: "Reward accepted", description: "A restrained ascending confirmation." },
+        { group: "interactions", file: "door", name: "Guesthouse door", description: "A natural wooden door and latch." },
+        { group: "footsteps", file: "footstep-1", name: "Stone step 1", description: "A single dry sneaker step." },
+        { group: "footsteps", file: "footstep-2", name: "Stone step 2", description: "A second dry sneaker step." },
+        { group: "footsteps", file: "footstep-3", name: "Stone step 3", description: "A third dry sneaker step." },
+      ];
+      const players = [];
+      for (const clip of clips) {
+        const article = document.createElement("article");
+        const title = document.createElement("h3");
+        title.textContent = clip.name;
+        const description = document.createElement("p");
+        description.textContent = clip.description;
+        const player = document.createElement("audio");
+        player.controls = true;
+        player.preload = "auto";
+        player.src = `${clip.file}.mp3`;
+        player.setAttribute("aria-label", clip.name);
+        player.volume = .55;
+        const status = document.createElement("p");
+        status.className = "status";
+        status.setAttribute("role", "status");
+        player.addEventListener("error", () => { status.textContent = "Audio could not load. Try Download MP3."; });
+        player.addEventListener("loadedmetadata", () => { status.textContent = `${player.duration.toFixed(1)} seconds`; });
+        player.addEventListener("play", () => {
+          for (const other of players) if (other !== player) other.pause();
+        });
+        players.push(player);
+        const details = document.createElement("div");
+        details.className = "details";
+        const download = document.createElement("a");
+        download.href = player.src;
+        download.download = `${clip.file.split("/").at(-1)}.mp3`;
+        download.textContent = "Download MP3";
+        download.setAttribute("aria-label", `Download ${clip.name}`);
+        details.append(download);
+        if (clip.repeat) {
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.setAttribute("aria-label", `Repeat ${clip.name}`);
+          checkbox.addEventListener("change", () => { player.loop = checkbox.checked; });
+          label.append(checkbox, document.createTextNode("Repeat"));
+          details.append(label);
+        }
+        article.append(title, description, player, details, status);
+        document.getElementById(clip.group).append(article);
+      }
+    </script>
+  </body>
+</html>

@@ -3,25 +3,33 @@ import { useFrame } from "@react-three/fiber";
 import { CatchBoundary } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { AnimationMixer, Group, Mesh, Vector3, type AnimationAction } from "three";
+import {
+  applyCharacterPose,
+  createCharacterPoseRig,
+  type CharacterMotion,
+} from "../models/character-poses";
 import { cloneCharacter } from "../models/scene-assets";
 import { Person } from "./primitive-entities";
+import { CharacterWeapon } from "./character-weapon";
 
 /** Displayed movement selects animation; the animation never changes authoritative position. */
-export type CharacterMotion = { speed: number };
+export type { CharacterMotion } from "../models/character-poses";
 
 /** Missing character assets retain a visible body and an explicit asset warning. */
 export function CharacterModel({
   asset,
   motion,
   color,
+  armed = false,
 }: {
   asset: string;
   motion: RefObject<CharacterMotion>;
   color?: string;
+  armed?: boolean;
 }) {
   return (
     <CatchBoundary getResetKey={() => asset} errorComponent={CharacterAssetFailure}>
-      <AnimatedCharacter asset={asset} motion={motion} color={color} />
+      <AnimatedCharacter asset={asset} motion={motion} color={color} armed={armed} />
     </CatchBoundary>
   );
 }
@@ -30,14 +38,18 @@ function AnimatedCharacter({
   asset,
   motion,
   color,
+  armed,
 }: {
   asset: string;
   motion: RefObject<CharacterMotion>;
   color: string | undefined;
+  armed: boolean;
 }) {
   const gltf = useGLTF(asset);
   const [model] = useState(() => cloneCharacter(gltf.scene, color));
   const [mixer] = useState(() => new AnimationMixer(model));
+  const [rig] = useState(() => createCharacterPoseRig(model));
+  const hand = model.getObjectByName("forearmR");
   const actions = useRef<Record<string, AnimationAction>>({});
   const position = useRef(new Vector3());
   const elapsed = useRef(0);
@@ -62,7 +74,7 @@ function AnimatedCharacter({
       mixer.uncacheRoot(model);
     };
   }, [gltf.animations, mixer, model]);
-  useFrame(({ camera }, delta) => {
+  useFrame(({ camera, clock }, delta) => {
     model.getWorldPosition(position.current);
     const distance = camera.position.distanceToSquared(position.current);
     if (distance > 60 * 60) simplified.current = true;
@@ -91,11 +103,13 @@ function AnimatedCharacter({
     }
     action.setEffectiveTimeScale(speed > 0.05 ? Math.min(2.5, Math.max(0.4, speed / 1.4)) : 1);
     mixer.update(step);
+    applyCharacterPose(rig, motion.current, clock.elapsedTime);
   });
   return (
     <group>
       <group ref={detailed}>
         <primitive object={model} dispose={null} />
+        {armed && hand && <CharacterWeapon hand={hand} motion={motion} />}
       </group>
       <group ref={distant} visible={false}>
         <Person color={color ?? "#626b72"} castShadow={false} />
