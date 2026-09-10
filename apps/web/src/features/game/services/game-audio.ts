@@ -38,6 +38,7 @@ const MAX_CUES = 12;
 const MAX_POSITIONED_LOOPS = 24;
 const FADE_SECONDS = 0.1;
 const PAUSE_DELAY_MS = 600;
+const FIRST_START_KEY = "gpta.audio.first-start.v1";
 
 /** Owns game audio resources; Three.js owns loading, playback, and spatial sound. */
 export class GameAudio {
@@ -60,6 +61,7 @@ export class GameAudio {
   private disposed = false;
   private muted = false;
   private hidden = false;
+  private firstStartPlayed = readFirstStartPlayed();
   private mix: AudioMix = {
     screen: "title",
     space: "square",
@@ -120,6 +122,8 @@ export class GameAudio {
   setMix(mix: AudioMix): void {
     if (this.disposed) return;
     this.mix = mix;
+    if (mix.conversation || mix.screen !== "playing")
+      for (const cue of this.cues) if (cue.cue === "first-start") this.removeCue(cue);
     this.refresh();
   }
 
@@ -131,12 +135,12 @@ export class GameAudio {
     this.refresh();
   }
 
-  /** Plays current feedback only; overlap is limited to twelve action sounds. */
-  play(cue: SoundCue): void {
-    if (!this.canPlay() || this.listener === null) return;
+  /** Returns true only after playback starts; missed action sounds are not queued. */
+  play(cue: SoundCue): boolean {
+    if (!this.canPlay() || this.listener === null) return false;
     const asset = soundCues[cue];
     const buffer = this.buffers.get(asset.path);
-    if (buffer === undefined || this.level(asset, false) === 0) return;
+    if (buffer === undefined || this.level(asset, false) === 0) return false;
     if (this.cues.size >= MAX_CUES) {
       const oldest = this.cues.values().next().value;
       if (oldest !== undefined) this.removeCue(oldest);
@@ -151,6 +155,7 @@ export class GameAudio {
     entry.voice.sound.source?.addEventListener("ended", () => this.removeCue(entry), {
       once: true,
     });
+    return entry.voice.sound.isPlaying;
   }
 
   /** Sets an ambient layer multiplier; zero fades the layer to a paused state. */
@@ -293,6 +298,24 @@ export class GameAudio {
     for (const request of this.positioned.values()) this.refreshPositioned(request);
     for (const cue of this.cues)
       this.updateVoice(cue.voice, this.level(soundCues[cue.cue], cue.outdoor), cue.outdoor);
+    this.playFirstStart();
+  }
+
+  private playFirstStart(): void {
+    if (
+      this.firstStartPlayed ||
+      this.mix.screen !== "playing" ||
+      !this.mix.connected ||
+      this.mix.conversation ||
+      !this.play("first-start")
+    )
+      return;
+    this.firstStartPlayed = true;
+    try {
+      localStorage.setItem(FIRST_START_KEY, "true");
+    } catch {
+      /* The audio session still prevents repeats when browser storage is unavailable. */
+    }
   }
 
   private refreshPositioned(request: PositionedRequest): void {
@@ -444,4 +467,12 @@ export class GameAudio {
 
 function boundedGain(gain: number): number {
   return Number.isFinite(gain) ? Math.min(1, Math.max(0, gain)) : 0;
+}
+
+function readFirstStartPlayed(): boolean {
+  try {
+    return localStorage.getItem(FIRST_START_KEY) === "true";
+  } catch {
+    return false;
+  }
 }

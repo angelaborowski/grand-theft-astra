@@ -1,0 +1,11 @@
+{
+  "path": "/assets/audio/first-start.mp3",
+  "prompt": "Ah, here we go again.",
+  "provider": "ElevenLabs MCP",
+  "model": "eleven_multilingual_v2",
+  "voice_id": "XNyApoNbiKO6a4LFT3Qe",
+  "voice_name": "Curtiss",
+  "generation_id": "Qw6nVEjm2uXchzOjkOxQ",
+  "flow_id": "R7tUoSSGmEmcmwAoXXIx",
+  "duration_seconds": 1.44
+}
