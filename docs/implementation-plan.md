@@ -159,9 +159,26 @@ Repeated delivery cannot grant another reward. Entering and leaving the guesthou
 Taking a vehicle changes ownership and can create a witnessed theft. Exiting preserves ownership.
 Astra can report observed crime and dispatch an authorized officer through game tools.
 
-World SQLite stores snapshots, sessions, and action receipts. Person objects store their own memory and schedules.
+World SQLite stores individual entities, events, incidents, reports, observations, dialogue, relationships, and decisions.
+A small metadata row stores the clock, revision, schema version, and AI configuration. Population derives from entity records.
+SQLite derives each record's indexed identity from its JSON fields. Each save updates changed records and removes pruned records in one transaction.
+Sessions and action receipts commit with their world effects. Person objects retain their own memory and schedules.
 The new game's local saves remain in `apps/server/.wrangler/state`; the original prototype keeps its separate `data/` directory.
 Local secrets remain in ignored files such as `apps/server/.dev.vars`. Neither secrets nor local saves enter Git.
+
+### Persistence repair — September 10
+
+Production session creation fails with `SQLITE_TOOBIG` because the complete world occupies one JSON row.
+Cloudflare limits each SQLite row to 2 MB. The new record tables remove this limit on the complete world.
+Alexander approves replacing the persistence model without backward compatibility or migration.
+Deployment uses `WORLD_NAME=red-square-records`, which starts a fresh world, sessions, and Person objects.
+Old storage remains unused. Browser cookies from the previous world cannot restore a player in the new world.
+
+Six workerd persistence tests pass: save more than 2 MB across records, restore after runtime reload, update only changed rows,
+remove pruned records, and roll back world effects with sessions and receipts on failure. Independent review finds no blocking defects.
+Each save reads records for comparison; only SQL writes are incremental. The test runtime uses an injected SQLite failure for rollback verification.
+The complete test suite passes 54 core, 46 web, and 41 server tests. Production deployment and session/WebSocket verification remain pending.
+Browser appearance remains Alexander's check.
 
 ## Physics v1 — proposed hackathon scope
 
@@ -650,7 +667,8 @@ The integration preserves Angela's assets and the original prototype.
 The live HTTPS start page and `/api/health` respond successfully. These checks do not verify a complete game session.
 
 The integrated scene has not received a browser playtest. A full mission and restart check in the integrated scene remains for joint iteration.
-V1 still uses simplified car physics and complete world snapshots. This pass does not establish large-world capacity or production readiness.
+V1 still uses simplified car physics and complete world snapshots over WebSocket. SQLite persists separate domain records.
+This pass does not establish large-world capacity or production readiness.
 
 ## Consolidated visual work — 10 September 2026
 

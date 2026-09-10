@@ -7,13 +7,7 @@ import { type PlayerAction } from "@gpta/core/actions";
 import { methodTable, ServerMessageSchema, SessionSchema, type Request } from "@gpta/core/protocol";
 import { GUESTHOUSE, SCENE_IDS, STUNT } from "@gpta/core/scene";
 import type { PlayerCommand, PlayerControl } from "@gpta/core/gameplay-v2";
-import {
-  MISSION_TERMS,
-  WorldSnapshotSchema,
-  type EntityId,
-  type Position,
-  type WorldSnapshot,
-} from "@gpta/core/world";
+import { MISSION_TERMS, type EntityId, type Position, type WorldSnapshot } from "@gpta/core/world";
 
 async function call(socket: WebSocket, request: Request) {
   const messages = on(socket, "message", { signal: AbortSignal.timeout(5000) });
@@ -119,23 +113,17 @@ async function prepare(server: TestHarness) {
   const place = async (position: Position = GUESTHOUSE.entrance) => {
     const env = await worker.getEnv();
     const sql = await worker.getDurableObjectStorage("WORLD", { name: env.WORLD_NAME });
-    const rows = await sql.exec<{ snapshot: string }>("SELECT snapshot FROM world WHERE id = 1");
-    const row = rows[0];
-    if (!row) throw new Error("The fixture world does not exist.");
-    const current = WorldSnapshotSchema.parse(JSON.parse(row.snapshot));
-    const entities = current.entities.map((entity) => {
-      if (entity.kind === "player") return { ...entity, position };
-      if (
-        entity.id === SCENE_IDS.mila ||
-        entity.id === SCENE_IDS.lev ||
-        entity.id === SCENE_IDS.niko
-      )
-        return { ...entity, position: { x: 56, z: 64 }, behavior: { type: "idle" as const } };
-      return entity;
-    });
     await sql.exec(
-      "UPDATE world SET snapshot = ? WHERE id = 1",
-      JSON.stringify({ ...current, entities }),
+      "UPDATE world_entities SET value = json_set(value, '$.position', json(?)) WHERE json_extract(value, '$.kind') = 'player'",
+      JSON.stringify(position),
+    );
+    await sql.exec(
+      "UPDATE world_entities SET value = json_set(value, '$.position', json(?), '$.behavior', json(?)) WHERE json_extract(value, '$.id') IN (?, ?, ?)",
+      JSON.stringify({ x: 56, z: 64 }),
+      JSON.stringify({ type: "idle" }),
+      SCENE_IDS.mila,
+      SCENE_IDS.lev,
+      SCENE_IDS.niko,
     );
     await worker.evictDurableObject("WORLD", { name: env.WORLD_NAME });
   };
