@@ -97,8 +97,11 @@ export function useCharacterInput({
       event.preventDefault();
       actions.crouch();
     } else if (!event.ctrlKey && event.code === "KeyR") actions.reload();
-    else if (!event.ctrlKey && event.code === "KeyE") actions.interact(target());
-    else if (!event.ctrlKey && event.code === "KeyF") actions.vehicle(target());
+    else if (!event.ctrlKey && event.code === "KeyE") {
+      // The opened panel focuses its text field; the key must not type into it.
+      event.preventDefault();
+      actions.interact(target());
+    } else if (!event.ctrlKey && event.code === "KeyF") actions.vehicle(target());
   });
   const pointerdown = useEffectEvent((event: PointerEvent) => {
     if (!active()) return;
