@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "pnpm --parallel --filter @gpta/server --filter @gpta/web dev",
-    "build": "pnpm -r build",
+    "build": "pnpm --filter @gpta/web build && pnpm --filter @gpta/server build",
+    "deploy": "pnpm --filter @gpta/web build && pnpm --filter @gpta/server deploy",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm --filter @gpta/core test && pnpm test:legacy",
     "test:legacy": "node --test test/*.test.mjs",

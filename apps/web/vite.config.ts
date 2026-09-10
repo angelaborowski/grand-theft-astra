@@ -9,5 +9,5 @@ export default defineConfig({
     strictPort: true,
     proxy: { "/api": { target: "http://127.0.0.1:8787", ws: true } },
   },
-  plugins: [tailwindcss(), tanstackStart(), react()],
+  plugins: [tailwindcss(), tanstackStart({ prerender: { enabled: true } }), react()],
 });
