@@ -582,6 +582,49 @@ export function repairWorldPositions(world: WorldSnapshot): WorldSnapshot {
   };
 }
 
+/** A player who leaves the game gets out of their vehicle, so nobody meets a ghost driver. */
+export function releaseDrivers(
+  world: WorldSnapshot,
+  connected: ReadonlySet<EntityId>,
+): WorldSnapshot {
+  const leaving = world.entities.filter(
+    (entity): entity is Actor =>
+      entity.kind === "player" && entity.behavior.type === "driving" && !connected.has(entity.id),
+  );
+  if (leaving.length === 0) return world;
+  const flown = new Set(
+    leaving.map((player) => (player.behavior.type === "driving" ? player.behavior.vehicleId : "")),
+  );
+  const entities = world.entities.map((entity) => {
+    // A helicopter left mid-air returns to its pad; a car stays where it was parked.
+    if (entity.kind === "vehicle" && entity.vehicleType === "helicopter" && flown.has(entity.id))
+      return { ...entity, position: { ...STUNT.pickup }, elevation: 0 };
+    const driver = leaving.find((player) => player.id === entity.id);
+    if (!driver || driver.behavior.type !== "driving") return entity;
+    const vehicleId = driver.behavior.vehicleId;
+    const vehicle = world.entities.find((candidate) => candidate.id === vehicleId);
+    const parked =
+      vehicle?.kind === "vehicle" && vehicle.vehicleType === "helicopter"
+        ? STUNT.pickup
+        : driver.position;
+    const exit =
+      [
+        { x: parked.x + 4, z: parked.z },
+        { x: parked.x - 4, z: parked.z },
+        { x: parked.x, z: parked.z + 4 },
+        { x: parked.x, z: parked.z - 4 },
+      ].find(positionIsWalkable) ?? SCENE_POSITIONS.player;
+    return {
+      ...entity,
+      position: exit,
+      elevation: 0,
+      grounded: true,
+      behavior: { type: "idle" as const },
+    };
+  });
+  return { ...world, revision: world.revision + 1, entities };
+}
+
 /** World owns one allowance per player; reconnects cannot replace or refill it. */
 export type MovementAllowance = Readonly<{
   availableDistance: number;

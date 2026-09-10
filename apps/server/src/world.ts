@@ -15,6 +15,7 @@ import {
   advanceRoutines,
   createInitialWorld,
   pruneDecisions,
+  releaseDrivers,
   repairWorldPositions,
 } from "@gpta/core/simulation";
 import {
@@ -62,8 +63,12 @@ export class World extends DurableObject<Env> {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.store = new WorldStore(ctx.storage);
-    this.world = repairWorldPositions(
-      this.store.load() ?? createInitialWorld(Date.now(), Boolean(env.OPENAI_API_KEY)),
+    // Nobody is connected at construction, so every saved driver gets out of their vehicle.
+    this.world = releaseDrivers(
+      repairWorldPositions(
+        this.store.load() ?? createInitialWorld(Date.now(), Boolean(env.OPENAI_API_KEY)),
+      ),
+      new Set(),
     );
     this.world = {
       ...this.world,
@@ -310,6 +315,7 @@ export class World extends DurableObject<Env> {
     const attachment = attachmentSchema.parse(socket.deserializeAttachment());
     this.physics.disconnect(attachment.connectionId);
     socket.close(code === 1005 || code === 1006 ? 1000 : code, "Connection closed.");
+    this.releaseLeavingDrivers(socket);
     this.store.save(this.world);
     if (
       this.ctx.getWebSockets().filter((connection) => connection.readyState === WebSocket.OPEN)
@@ -323,7 +329,23 @@ export class World extends DurableObject<Env> {
     const attachment = attachmentSchema.parse(socket.deserializeAttachment());
     this.physics.disconnect(attachment.connectionId);
     socket.close(1011, "Connection failed.");
+    this.releaseLeavingDrivers(socket);
     this.store.save(this.world);
+  }
+
+  /** A player whose last socket closed leaves any vehicle, so it is free for everyone else. */
+  private releaseLeavingDrivers(closing: WebSocket): void {
+    const connected = new Set<EntityId>();
+    for (const socket of this.ctx.getWebSockets()) {
+      if (socket === closing || socket.readyState !== WebSocket.OPEN) continue;
+      const attachment = attachmentSchema.safeParse(socket.deserializeAttachment());
+      if (attachment.success) connected.add(attachment.data.playerId);
+    }
+    const next = releaseDrivers(this.world, connected);
+    if (next === this.world) return;
+    for (const entity of this.world.entities)
+      if (entity.kind === "player") this.physics.afterAction(this.world, next, entity.id);
+    this.world = next;
   }
 
   /** One-second alarms keep routines alive even with no connected browser. */
