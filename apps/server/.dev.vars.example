@@ -1,0 +1,2 @@
+# Copy this file to .dev.vars to enable Astra. The game works without a key.
+OPENAI_API_KEY=

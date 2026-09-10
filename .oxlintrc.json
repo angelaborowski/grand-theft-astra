@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["oxc", "typescript", "react", "react-perf"],
+  "jsPlugins": [{ "name": "anti-slop", "specifier": "./tools/oxlint/anti-slop/index.ts" }],
+  "categories": { "correctness": "error" },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "oxc/no-accumulating-spread": "error",
+    "anti-slop/no-reduce-accumulator-copy": "error",
+    "anti-slop/no-chained-type-assertions": "error",
+    "anti-slop/no-module-mocking": "error",
+    "anti-slop/no-widen-then-assert": "error",
+    "anti-slop/require-safety-comment-for-type-assertion": "error"
+  },
+  "ignorePatterns": [
+    "tools/oxlint/anti-slop/**",
+    ".agents/**",
+    ".codex/**",
+    ".claude/**",
+    "**/worker-configuration.d.ts",
+    "**/routeTree.gen.ts",
+    "**/dist/**",
+    "**/storybook-static/**"
+  ]
+}

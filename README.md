@@ -1,3 +1,28 @@
+# GPT8 — Astra game integration
+
+The new TypeScript game combines the GPTA systems with Angela's Red Square assets. Integration validation is in progress.
+The working repository moves to `/Users/az/projects/gpt8-red-square`.
+
+```sh
+pnpm install
+pnpm dev
+```
+
+Open **http://localhost:3000** and select **Start / continue**. The backend uses port **8787**.
+The game includes third-person controls, a city overview, vehicles, dialogue, a shelter mission, and 100 NPCs with individual Durable Objects.
+Astra Workflows use the Responses API. Set the backend key in ignored `apps/server/.dev.vars`; without it, the interface shows **Astra disabled**.
+
+Angela's assets remain in `public/assets/`. The new web app reads them through the `apps/web/public/assets` symlink.
+The original Blender source and export pipeline remain unchanged. Shared scene coordinates and collision definitions connect the assets to game rules.
+
+The original prototype remains available through **`pnpm start`** at **http://localhost:4173**.
+Its original documentation appears below unchanged. Its mission rules and saved data remain separate from the new game.
+
+Before this port, a real WebSocket session completed the direct delivery and bed rental: **₽40 remaining, reputation 1, shelter rented**.
+The integrated scene still needs runtime validation. See the [v3 implementation plan](docs/implementation-plan.md) for scope, ownership, and evidence.
+
+---
+
 # GPT8 — Red Square playable MVP
 
 A browser game using the editable Red Square environment built in Blender. The 3D game and the separate Higgsfield presentation image are different deliverables.
