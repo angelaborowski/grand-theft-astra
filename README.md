@@ -1,102 +1,111 @@
-# GPT8 — Astra game integration
+# Grand Theft Astra
 
-Want to adapt the game to London or another place? Read [Build your own city](docs/build-your-own-city.md).
+A multiplayer browser-game prototype set in a 3D reconstruction of Red Square, Moscow. Explore on foot, drive vehicles, follow missions, and interact with residents in a server-managed world. Optional OpenAI integration supplies NPC conversations and decisions.
 
-The new TypeScript game combines the GPTA systems with Angela's Red Square assets. Normal gameplay now includes the extended GUM facade, raycast-fitted museum details, scanned brick/paving materials, sky/environment lighting, contact shadows, and original furnishings adapted to the new guesthouse. Mila uses the latest Blender study; its likeness remains unfinished. The other five named NPC models remain integrated. No separate asset-library UI is required.
+Want to adapt it to London or another place? Read **[Build your own city](docs/build-your-own-city.md)**. Creating a new city currently requires Blender assets and code changes; there is no in-app city generator.
 
-The original renders, source files, comparison view, and two team-character image references remain preserved. The two team characters still have no playable meshes. Guesthouse furniture remains visual, matching the new game's existing non-collidable furniture behavior; server movement and saved coordinates were not changed.
-The working repository moves to `/Users/az/projects/gpt8-red-square`.
+## Run locally
+
+Requirements: Node.js 22.13 or later and pnpm 11.22.0, as declared in `package.json`.
 
 ```sh
+git clone https://github.com/angelaborowski/grand-theft-astra.git
+cd grand-theft-astra
 pnpm install
 pnpm dev
 ```
 
-Open **http://localhost:3000** and select **Start / continue**. The backend uses port **8787**.
-The game includes third-person controls, a city overview, vehicles, dialogue, a shelter mission, and 100 NPCs with individual Durable Objects.
-Astra Workflows use the Responses API. Set the backend key in ignored `apps/server/.dev.vars`; without it, the interface shows **Astra disabled**.
+Open **http://localhost:3000** and choose **Enter Red Square**. This starts the web app on port 3000 and the local Cloudflare backend on port 8787. Keep both running while playing.
 
-Angela's assets remain in `public/assets/`. The new web app reads them through the `apps/web/public/assets` symlink.
-The original Blender source and export pipeline remain unchanged. Shared scene coordinates and collision definitions connect the assets to game rules.
+New players begin inside the Historical Museum. Walk through the hall, down the steps, and through the doorway into the square. Existing players resume their saved progress. On foot in the square, **Play first mission** launches Last Flight when that mission is not already running or completed.
 
-The original prototype remains available through **`pnpm start`** at **http://localhost:4173**.
-Its original documentation appears below unchanged. Its mission rules and saved data remain separate from the new game.
+## What is implemented
 
-Before this port, a real WebSocket session completed the direct delivery and bed rental: **₽40 remaining, reputation 1, shelter rented**.
-The integrated scene still needs runtime validation. See the [v3 implementation plan](docs/implementation-plan.md) for scope, ownership, and evidence.
+- Third-person movement, running, jumping, crouching, camera controls, map and quest tracking.
+- A museum opening and an enterable guesthouse.
+- Cars, helicopter controls, and basic combat/equipment systems.
+- **Last Flight:** a timed driving route with four ordered gates, two ramps, and a film handoff at the helipad.
+- A shelter journey involving characters, parcel delivery, money and bed rental.
+- Named characters and an expanded resident population with shared simulation state.
+- Multiplayer world updates, persistent player progress, and server-validated actions and rewards.
+- Blender-built environments and character assets, sky/environment lighting, clouds and snow.
 
----
+These are prototype features. Buildings and characters remain approximations, and visual detail and animation quality vary across assets.
 
-# GPT8 — Red Square playable MVP
+## Controls
 
-A browser game using the editable Red Square environment built in Blender. The 3D game and the separate Higgsfield presentation image are different deliverables.
+| Action | Control |
+| --- | --- |
+| Walk | W A S D |
+| Look | Mouse / camera drag |
+| Run | Hold Shift |
+| Jump | Space |
+| Crouch | Ctrl |
+| Interact | E |
+| Enter or exit vehicle | F |
+| Aim / fire or punch | Right / left mouse |
+| Reload | R |
+| Map | M |
+| Quests | Tab |
+| Inventory | I |
+| Menu / close | Esc |
 
-## Play
+Helicopter controls use W A S D to move, Space to ascend, Shift to descend, and Q/E to turn. Exit with F after landing. The in-game Controls view provides context-specific bindings; aiming and firing use mouse capture.
 
-With the included server running, open http://localhost:4173.
+## Optional live NPC AI
 
-To start from this folder with Node.js 22.13 or later:
+The backend includes OpenAI Responses API workflows for character decisions and conversations. World validates permitted actions before applying their effects; models do not directly own positions, inventory or rewards.
+
+Configure `OPENAI_API_KEY` in the ignored **`apps/server/.dev.vars`** file, then restart the backend. Keep credentials server-side and out of Git. The model setting is in `apps/server/wrangler.jsonc`; use a model your team can access. Live API use incurs costs.
+
+Without a key, the world simulation still runs and the interface reports that Astra is disabled. Scripted movement is not evidence of live model-driven behaviour. Live NPC AI has not been verified in the latest local handoff because no team key was configured.
+
+## Persistence and multiplayer
+
+The current app uses a Cloudflare Worker with World and Person Durable Objects and workflows. The server validates gameplay actions and maintains shared state. Local development data lives under Wrangler’s local persistence directory; retain it to keep local saves.
+
+Use separate browser profiles for distinct local players. A remotely accessible multiplayer session requires a running, correctly configured deployment; localhost is only your development instance. Closing a client does not delete its save, but stopping the local backend stops its live simulation.
+
+## Validation and known limitations
 
 ```sh
-npm install
-npm start
+pnpm check
+pnpm exec node --test test/*.test.mjs
 ```
 
-Open the address shown by the server. Enter a name. WASD or arrow keys move, Shift runs, drag looks around, and E interacts. The on-screen interaction button also works. **Walk to marker** assists navigation. **Lock mouse** enables first-person mouse capture if the browser supports it; Esc releases it.
+`pnpm check` runs lint, formatting, type checks, current-app tests and production builds. The second command runs the original prototype's separate tests.
 
-Your first task is to find somewhere to sleep. Talk to Mila, collect her parcel, then either deliver it to Lev for ₽80 or ask Niko to finish for ₽60 after his fee. Rent a bed from Irina for ₽20; speak again to enter the fictional guesthouse room. Buy the book stall for ₽50 if it is still available. Help Sasha water the flowers to earn ₽10 and reputation and change the planter for every connected player.
+At the latest documented handoff, the checks passed. An isolated Rapier/WebSocket run completed all four Last Flight gates, both ramps, the handoff, one-time reward and reconnect persistence. That is physics/server verification, not a complete browser keyboard playthrough.
 
-## What works
-
-- Real 3D movement in the Red Square scene with bounded collision checks.
-- Six named characters with roles, scripted dialogue and per-player saved interaction memories; seven background walkers follow shared time-based routines.
-- Delivery mission with two resolutions, inventory, reputation, shelter and a shared property.
-- The book stall has a single owner across all players and earns ₽12 per real minute, with offline earnings capped at eight hours per return.
-- One fictional, enterable hostel interior. This is a prototype room, not a reconstruction of a real Red Square interior.
-- Node HTTP + WebSocket server; nearby player avatars, shared garden changes and event notices.
-- SQLite saves for player state, possessions, memories, property ownership, events and world epoch.
-- Saved progress resumes after reconnect and server restart. The twelve-minute day and resident routines use server time.
-
-## Play together
-
-Use a different browser/profile for a second explorer. Tabs in the same browser share the saved explorer token; opening the same explorer twice transfers the connection to the latest tab.
-
-Friends on the same network can visit this computer's LAN address on port 4173 while this server is running and the firewall allows it. Use your host computer’s current private network address. This is not a deployed internet service. Closing the browser preserves progress; shutting down the computer stops live connections. Time-based earnings are calculated when you return.
-
-## Frontend/backend contract
-
-The client sends movement or interaction intent. The server validates bounds, movement distance, proximity, prerequisites and balances. Only the server awards money, changes inventory/reputation, assigns property or authorizes interior transitions. Important actions persist before the result is returned; movement autosaves every five seconds and on disconnect. SQLite stores a small world snapshot in a transactional row; this is suitable for the prototype, not a claim of million-entity database architecture.
-
-The browser keeps an opaque session token in localStorage. This is lightweight local-session identity, not production account authentication. The server binds to the network to support the local multiplayer test. Public deployment needs authentication, TLS, operational limits, hosting, backups and a database migration plan.
-
-## Validation
-
-Run `npm test`. Automated tests cover both mission branches, duplicate-reward prevention, insufficient funds, collision bounds, capped offline income, remembered interactions, room transitions, real two-client WebSocket state and SQLite recovery after a server restart. See `VALIDATION.md` for browser playtest results.
-
-## Visuals and limitations
-
-Actual game geometry: `public/assets/red-square.glb`, based on our Blender reconstruction (214,292 triangles). The game supplies procedural paving and brick textures and real-time lighting. Many facades remain simplified. This is not a hyperrealistic finished city.
-
-The separate `docs/visual-development/higgsfield-visual-target.png` shows the photographic direction. It has not been projected onto the buildings or substituted for geometry.
-
-Characters use deterministic dialogue and persistent counters/context. **Live Astra/OpenAI dialogue is not connected**, and no API credentials were available during setup. No ongoing inference costs are incurred. Further work: richer state-grounded conversations, authored character animation, accurate exterior details, material baking, scene optimization, more interiors and public multiplayer hosting. There is no any-city generator, vehicle/combat system or photo-avatar generator.
-
-## Attribution
-
-Map data © OpenStreetMap contributors, ODbL 1.0: https://www.openstreetmap.org/copyright . Derived geometry and references are documented in `source/blender/README.md`. No third-party photographic textures are used in the playable scene. Three.js and ws licenses are included in `THIRD-PARTY-LICENSES.txt`.
-
-`data/` contains the live local save and is excluded from the distribution ZIP. Keep it to preserve this server's world. The isolated playtest used a separate data directory.
+Intermittent browser position-recovery failures and variable outdoor frame rates remain under investigation. Recent changes bound car prediction during delayed acknowledgements and smooth visible walking corrections. They do not establish a bug-free or constant-frame-rate game. See [the implementation plan](docs/implementation-plan.md) for detailed evidence and remaining work.
 
 ## Repository layout
 
-- `public/`: browser game and game-ready GLB.
-- `server.mjs`, `world.mjs`: authoritative simulation and persistence.
-- `test/`: automated game-rule and multiplayer integration checks.
-- `source/blender/`: editable Blender source, reproducible construction/export scripts and map data.
-- `docs/visual-development/`: verified Higgsfield photographic target.
+| Path | Purpose |
+| --- | --- |
+| `apps/web/` | React/TypeScript browser game and 3D renderer |
+| `apps/server/` | Cloudflare backend, persistence and OpenAI workflows |
+| `packages/core/` | Shared schemas, rules, coordinates and collision definitions |
+| `public/assets/` | Runtime models, textures, audio and interface assets |
+| `source/blender/` | Editable scenes, export scripts and source notes |
+| `source/characters/` | Character reference and production files |
+| `docs/` | City adaptation guide, implementation notes and visual studies |
+| `server.mjs`, `world.mjs`, `public/*.js`, `test/` | Original Node.js prototype and its tests |
 
-GitHub Actions runs the test suite on pushes and pull requests. Local save data, dependencies and credentials are excluded from Git.
+The web app exposes shared assets through the `apps/web/public/assets` symlink. Blender creates editable geometry and runtime exports; Higgsfield imagery establishes visual targets and presentation material, not automatically playable 3D assets.
 
-## GUM facade detail pass
+## Original prototype
 
-Open [the facade preview](http://localhost:4173/?view=gum) while the server is running. Three camera views inspect the actual game renderer; the same geometry is loaded in gameplay. The pass adds a 60m reference-informed facade, original PBR paving textures, sky reflections and screen-space contact shadows. Source and accuracy notes are in [source/blender/gum-detail](source/blender/gum-detail/README.md). It is an approximation with substantially more geometry, not a finished hyperrealistic or measured reconstruction. A rigged character and Unreal prototype remain future work.
+The earlier Node.js game remains available separately:
+
+```sh
+pnpm start
+```
+
+Open **http://localhost:4173**. Its controls, mission implementation and saves differ from the current TypeScript app. Do not use its historical validation notes as evidence for the current game. Preserve its ignored `data/` directory if you need those saves.
+
+## Source and asset attribution
+
+Map data attribution and Blender construction notes are in [source/blender/README.md](source/blender/README.md). Dependency notices are in [THIRD-PARTY-LICENSES.txt](THIRD-PARTY-LICENSES.txt); imported assets also have source-specific notices and licenses in their production directories.
+
+The repository is public. A root project-wide license has not yet been supplied; public visibility alone does not grant a blanket license to redistribute the code or every included asset. Retain and check the applicable notices when adapting the project.

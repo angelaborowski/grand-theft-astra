@@ -765,3 +765,7 @@ Car prediction is bounded to 3.5 metres beyond its latest submitted sample, rese
 The combined build completed an isolated Rapier/WebSocket Last Flight run: four ordered gates, both ramps, braking near the helipad, one ₽250 reward, idempotent completion and reconnect persistence. This is an automated physics/server run, not a complete browser keyboard playthrough. Browser verification showed the in-game launch/retry UI and museum directions; an intermittent recovery failure and Chromium errors still require further investigation. Live NPC AI remains disabled until the existing team key is configured locally.
 
 The README links `docs/build-your-own-city.md`, a London example covering setup, reference research, Blender exports, shared coordinates, missions, verification and asset attribution.
+
+## Public README audit
+
+Replaced the mixed integration/legacy README with current Grand Theft Astra setup, museum and mission flow, controls, optional live AI configuration, repository layout and verified limitations. The London adaptation guide remains linked. Documented that the public repository currently lacks a root project-wide license; no license was selected or applied.
